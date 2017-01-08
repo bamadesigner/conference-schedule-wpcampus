@@ -4,3 +4,4 @@ conf-schedule.min.js
 admin-post-speakers.min.js
 admin-post-schedule.min.js
 /node_modules/
+vendor

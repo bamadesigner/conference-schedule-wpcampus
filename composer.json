@@ -1,0 +1,22 @@
+{
+    "name": "bamadesigner/conference-schedule",
+    "description": "Helps you build a simple schedule for your conference website.",
+    "type": "wordpress-plugin",
+    "license": "GPL2.0+",
+    "authors": [
+        {
+            "name": "Rachel Carden",
+            "email": "bamadesigner@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "squizlabs/php_codesniffer": "*",
+        "wp-coding-standards/wpcs": "*"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "./vendor/bin/phpcs --config-set bin vendor/bin/phpcs",
+            "./vendor/bin/phpcs --config-set installed_paths ../../wp-coding-standards/wpcs"
+        ]
+    }
+}

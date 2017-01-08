@@ -1,15 +1,17 @@
 // Require all the things (that we need)
+var autoprefixer = require('gulp-autoprefixer');
 var gulp = require('gulp');
+var phpcs = require('gulp-phpcs');
+var rename = require('gulp-rename');
 var sass = require('gulp-sass');
 var uglify = require('gulp-uglify');
 var watch = require('gulp-watch');
-var autoprefixer = require('gulp-autoprefixer');
-var rename = require('gulp-rename');
 
 // Define the source paths for each file type
 var src = {
-    scss: './assets/scss/*.scss',
-    js: ['assets/js/*.js','!assets/js/*.min.js','!assets/js/*-min.js']
+    scss: 'assets/scss/*.scss',
+    js: ['assets/js/*.js','!assets/js/*.min.js','!assets/js/*-min.js'],
+    php: ['**/*.php','!vendor/**','!node_modules/**']
 };
 
 // Define the destination paths for each file type
@@ -51,6 +53,17 @@ gulp.task('js', function() {
         .pipe(gulp.dest(dest.js))
 });
 
+// Check our PHP
+gulp.task('php',function() {
+	gulp.src(src.php)
+		.pipe(phpcs({
+			bin: 'vendor/bin/phpcs',
+			standard: 'WordPress-Core'
+		}))
+		.pipe(phpcs.reporter('log'));
+});
+
 // Let's get this party started
 gulp.task('default', ['compile']);
 gulp.task('compile', ['sass','js']);
+gulp.task('test', ['php']);
