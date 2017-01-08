@@ -260,33 +260,32 @@ class Conference_Schedule_Event {
 	 */
 	public function get_date_time() {
 
-		// Make sure we have an ID
+		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
 			return false;
 		}
 
-		// If already set, return the date
+		// If already set, return the date.
 		if ( isset( $this->date_time ) ) {
 			return $this->date_time;
 		}
 
-		// Get the event date
+		// Get the event date.
 		$event_date = $this->get_date();
 
-		// If we have an event date, get the start date
+		// If we have an event date, get the start date.
 		if ( ! empty( $event_date ) ) {
 
-			// Get the start time
+			// Get the start time.
 			$event_start_time = $this->get_start_time();
 
-			// If we have a start time, add to date
+			// If we have a start time, add to date.
 			if ( ! empty( $event_start_time ) ) {
 				$event_date .= 'T' . $event_start_time;
 			}
-
 		}
 
-		// Get/return the event date/time
+		// Get/return the event date/time.
 		return $this->date_time = ! empty( $event_date ) ? $event_date : false;
 	}
 
@@ -424,13 +423,10 @@ class Conference_Schedule_Event {
 		// Build the display string, starting with start time
 		$time_display = date( 'g:i', $event_start_time );
 
-		// If we don't have an end time...
+		// Display the end time.
 		if ( ! $event_end_time ) {
 			$time_display .= date( ' a', $event_start_time );
-		}
-
-		// If we have an end time...
-		else {
+		} else {
 
 			// Convert end time
 			$event_end_time = strtotime( $event_end_time );
@@ -444,7 +440,7 @@ class Conference_Schedule_Event {
 
 		}
 
-		// Get/return the event time display
+		// Get/return the event time display.
 		return $this->time_display = preg_replace( '/(a|p)m/', '$1.m.', $time_display );
 	}
 
@@ -486,20 +482,20 @@ class Conference_Schedule_Event {
 
 	public function get_location_id() {
 
-		// Make sure we have an ID
+		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
 			return false;
 		}
 
-		// If already set, return the location ID
+		// If already set, return the location ID.
 		if ( isset( $this->location_id ) ) {
 			return $this->location_id;
 		}
 
-		// Get the event location ID
-		$location_id =  get_post_meta( $this->ID, 'conf_sch_event_location', true );
+		// Get the event location ID.
+		$location_id = get_post_meta( $this->ID, 'conf_sch_event_location', true );
 
-		// Return the location ID
+		// Return the location ID.
 		return $this->location_id = ( $location_id >= 1 ) ? $location_id : 0;
 	}
 
@@ -508,26 +504,25 @@ class Conference_Schedule_Event {
 	 */
 	public function get_location() {
 
-		// Make sure we have an ID
+		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
 			return false;
 		}
 
-		// If already set, return the location
+		// If already set, return the location.
 		if ( isset( $this->location ) ) {
 			return $this->location;
 		}
 
-		// Get the event location ID
-		$location_id =  $this->get_location_id();
+		// Get the event location ID.
+		$location_id = $this->get_location_id();
 		if ( $location_id > 0 ) {
 
-			// Get the location post
+			// Get the location post.
 			$event_post = get_post( $location_id );
 			if ( ! empty( $event_post ) ) {
 				return $this->location = $event_post;
 			}
-
 		}
 
 		return $this->location = false;
@@ -630,23 +625,26 @@ class Conference_Schedule_Event {
 		$event_speaker_ids = get_post_meta( $this->ID, 'conf_sch_event_speakers', true );
 		if ( ! empty( $event_speaker_ids ) ) {
 
-			// Make sure its an array
+			// Make sure its an array.
 			if ( ! is_array( $event_speaker_ids ) ) {
 				$event_speaker_ids = implode( ',', $event_speaker_ids );
 			}
 
-			// Get speakers info
-			foreach( $event_speaker_ids as $speaker_id ) {
+			// Get speakers info.
+			foreach ( $event_speaker_ids as $speaker_id ) {
 				if ( $speaker_post = get_post( $speaker_id ) ) {
 
-					// Add twitter
-					// @TODO should this be a setting or added elsewhere?
+					/*
+					 * Add twitter.
+					 *
+					 * @TODO:
+					 * Should this be a setting or added elsewhere?
+					 */
 					$speaker_post->twitter = get_post_meta( $speaker_id, 'conf_sch_speaker_twitter', true );
 
 					$speakers[] = $speaker_post;
 				}
 			}
-
 		}
 
 		return $this->speakers = ! empty( $speakers ) ? $speakers : false;
@@ -657,60 +655,62 @@ class Conference_Schedule_Event {
 	 */
 	public function get_livestream_url() {
 
-		// Make sure we have an ID
+		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
 			return false;
 		}
 
-		// If already set, return the URL
+		// If already set, return the URL.
 		if ( isset( $this->livestream_url ) ) {
 			return $this->livestream_url;
 		}
 
-		// Get our enabled session fields
+		// Get our enabled session fields.
 		$session_fields = conference_schedule()->get_session_fields();
 
-		// Make sure livestream is enabled
+		// Make sure livestream is enabled.
 		if ( empty( $session_fields ) || ! in_array( 'livestream', $session_fields ) ) {
 			return $this->livestream_url = false;
 		}
 
-		// Get the livestream URL
+		// Get the livestream URL.
 		$livestream_url = get_post_meta( $this->ID, 'conf_sch_event_livestream_url', true );
 
-		// Filter the livestream URL
+		// Filter the livestream URL.
 		$livestream_url = apply_filters( 'conf_sch_livestream_url', $livestream_url, $this->post );
 		if ( ! empty( $livestream_url ) ) {
 
 			// What time is it in UTC?
 			$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
 
-			// Get date/time in UTC
+			// Get date/time in UTC.
 			$session_date_time_gmt = $this->get_date_time_gmt();
-			if ( ! empty( $session_date_time_gmt) ) {
+			if ( ! empty( $session_date_time_gmt ) ) {
 
-				// Will show up 10 minutes before start
-				// @TODO add setting to control
+				/*
+				 * Will show up 10 minutes before start.
+				 * @TODO add setting to control.
+				 */
 				$session_livestream_reveal_delay_seconds = 600;
 
-				// Send URL if time is valid
+				// Send URL if time is valid.
 				if ( strtotime( $session_date_time_gmt ) !== false ) {
 
-					// Build session start date time
+					// Build session start date time.
 					$event_start_dt = new DateTime( $session_date_time_gmt, new DateTimeZone( 'UTC' ) );
 
 					// When will the livestream URL show up?
 					if ( ( $event_start_dt->getTimestamp() - $current_time->getTimestamp() ) <= $session_livestream_reveal_delay_seconds ) {
 
-						// Get the duration
+						// Get the duration.
 						$event_duration = $this->get_duration();
 
-						// Remove when the event ends
+						// Remove when the event ends.
 						if ( $current_time->getTimestamp() > ( $event_start_dt->getTimestamp() + $event_duration ) ) {
 							return $this->livestream_url = false;
 						}
 
-						// Return the URL
+						// Return the URL.
 						return $this->livestream_url = $livestream_url;
 					}
 
@@ -936,8 +936,8 @@ class Conference_Schedule_Events {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$className      = __CLASS__;
-			self::$instance = new $className;
+			$class_name      = __CLASS__;
+			self::$instance = new $class_name;
 		}
 
 		return self::$instance;
@@ -982,8 +982,8 @@ class Conference_Schedule_Events {
 	 */
 	public function register_custom_post_types() {
 
-		// Define the labels for the schedule CPT
-		$schedule_labels = apply_filters( 'conf_schedule_CPT_labels', array(
+		// Define the labels for the schedule CPT.
+		$schedule_labels = apply_filters( 'conf_schedule_cpt_labels', array(
 			'name'               => _x( 'Schedule', 'Post Type General Name', 'conf-schedule' ),
 			'singular_name'      => _x( 'Event', 'Post Type Singular Name', 'conf-schedule' ),
 			'menu_name'          => __( 'Schedule', 'conf-schedule' ),
@@ -1000,8 +1000,8 @@ class Conference_Schedule_Events {
 			'not_found_in_trash' => __( 'No events found in the trash.', 'conf-schedule' ),
 		) );
 
-		// Define the args for the schedule CPT
-		$schedule_args = apply_filters( 'conf_schedule_CPT_args', array(
+		// Define the args for the schedule CPT.
+		$schedule_args = apply_filters( 'conf_schedule_cpt_args', array(
 			'label'             => __( 'Schedule', 'conf-schedule' ),
 			'description'       => __( 'The schedule content for your conference.', 'conf-schedule' ),
 			'labels'            => $schedule_labels,
@@ -1015,7 +1015,7 @@ class Conference_Schedule_Events {
 			'show_in_rest'      => true,
 		) );
 
-		// Register the schedule custom post type
+		// Register the schedule custom post type.
 		register_post_type( 'schedule', $schedule_args );
 
 	}
@@ -1028,12 +1028,12 @@ class Conference_Schedule_Events {
 	 */
 	public function get_event( $event_id ) {
 
-		// If event already constructed, return the event
+		// If event already constructed, return the event.
 		if ( isset( $this->events[ $event_id ] ) ) {
 			return $this->events[ $event_id ];
 		}
 
-		// Get/return the event
+		// Get/return the event.
 		return $this->events[ $event_id ] = new Conference_Schedule_Event( $event_id );
 	}
 
@@ -1053,5 +1053,5 @@ function conference_schedule_events() {
 	return Conference_Schedule_Events::instance();
 }
 
-// Let's get this show on the road
+// Let's get this show on the road.
 conference_schedule_events();

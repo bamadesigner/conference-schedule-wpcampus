@@ -81,8 +81,8 @@ class Conference_Schedule_Speakers {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$className      = __CLASS__;
-			self::$instance = new $className;
+			$class_name      = __CLASS__;
+			self::$instance = new $class_name;
 		}
 
 		return self::$instance;
@@ -127,8 +127,8 @@ class Conference_Schedule_Speakers {
 	 */
 	public function register_custom_post_types() {
 
-		// Define the labels for the speakers CPT
-		$speakers_labels = apply_filters( 'conf_schedule_speakers_CPT_labels', array(
+		// Define the labels for the speakers CPT.
+		$speakers_labels = apply_filters( 'conf_schedule_speakers_cpt_labels', array(
 			'name'               => _x( 'Speakers', 'Post Type General Name', 'conf-schedule' ),
 			'singular_name'      => _x( 'Speaker', 'Post Type Singular Name', 'conf-schedule' ),
 			'menu_name'          => __( 'Speakers', 'conf-schedule' ),
@@ -145,8 +145,8 @@ class Conference_Schedule_Speakers {
 			'not_found_in_trash' => __( 'No speakers found in the trash.', 'conf-schedule' ),
 		) );
 
-		// Define the args for the speakers CPT
-		$speakers_args = apply_filters( 'conf_schedule_speakers_CPT_args', array(
+		// Define the args for the speakers CPT.
+		$speakers_args = apply_filters( 'conf_schedule_speakers_cpt_args', array(
 			'label'             => __( 'Speakers', 'conf-schedule' ),
 			'description'       => __( 'The speakers content for your conference.', 'conf-schedule' ),
 			'labels'            => $speakers_labels,
@@ -161,7 +161,7 @@ class Conference_Schedule_Speakers {
 			'show_in_rest'      => true,
 		) );
 
-		// Register the speakers custom post type
+		// Register the speakers custom post type.
 		register_post_type( 'speakers', $speakers_args );
 
 	}
@@ -174,12 +174,12 @@ class Conference_Schedule_Speakers {
 	 */
 	public function get_speaker( $speaker_id ) {
 
-		// If speaker already constructed, return the speaker
+		// If speaker already constructed, return the speaker.
 		if ( isset( $this->speakers[ $speaker_id ] ) ) {
 			return $this->speakers[ $speaker_id ];
 		}
 
-		// Get/return the speaker
+		// Get/return the speaker.
 		return $this->speakers[ $speaker_id ] = new Conference_Schedule_Speaker( $speaker_id );
 	}
 
@@ -199,5 +199,5 @@ function conference_schedule_speakers() {
 	return Conference_Schedule_Speakers::instance();
 }
 
-// Let's get this show on the road
+// Let's get this show on the road.
 conference_schedule_speakers();

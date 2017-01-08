@@ -13,17 +13,19 @@
  * Domain Path:       /languages
  */
 
-// @TODO Add language files
-// @TODO check all filter names to make sure they make sense
-// @TODO make sure, when multiple sessions in a row, they're always in same room order
-// @TODO add settings:
-	// Need a way to know if they want track labels or not
-// @TODO allow for shortcode to only show specific days or time ranges
-// @TODO set it up so that past days collapse
-// @TODO add button to go to current event?
-// @TODO stylize current event(s)
-// @TODO setup media library integration with slides file
-// @TODO disable saving a post until all API fields load
+/*
+ * @TODO:
+ * Add language files
+ * Check all filter names to make sure they make sense
+ * Make sure, when multiple sessions in a row, they're always in same room order
+ * Add settings: need a way to know if they want track labels or not
+ * Allow for shortcode to only show specific days or time ranges
+ * Set it up so that past days collapse
+ * Add button to go to current event?
+ * Stylize current event(s)
+ * Setup media library integration with slides file
+ * Disable saving a post until all API fields load
+ */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -35,19 +37,20 @@ define( 'CONFERENCE_SCHEDULE_VERSION', '0.5' );
 define( 'CONFERENCE_SCHEDULE_PLUGIN_URL', 'https://github.com/bamadesigner/conference-schedule' );
 define( 'CONFERENCE_SCHEDULE_PLUGIN_FILE', 'conference-schedule/conference-schedule.php' );
 
-// Require the files we need
+// Require the files we need.
 require_once plugin_dir_path( __FILE__ ) . 'includes/speakers.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/events.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/api.php';
 
-// We only need admin functionality in the admin
+// We only need admin functionality in the admin.
 if ( is_admin() ) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/admin.php';
 }
 
-// Add theme support for featured images
-add_theme_support( 'post-thumbnails' );
-
+/**
+ * Holds the main administrative
+ * functionaliy for the plugin.
+ */
 class Conference_Schedule {
 
 	/**
@@ -104,8 +107,8 @@ class Conference_Schedule {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$className = __CLASS__;
-			self::$instance = new $className;
+			$class_name = __CLASS__;
+			self::$instance = new $class_name;
 		}
 		return self::$instance;
 	}
@@ -121,33 +124,36 @@ class Conference_Schedule {
 		// Is this plugin network active?
 		$this->is_network_active = is_multisite() && ( $plugins = get_site_option( 'active_sitewide_plugins' ) ) && isset( $plugins[ CONFERENCE_SCHEDULE_PLUGIN_FILE ] );
 
-		// Load our textdomain
+		// Load our textdomain.
 		add_action( 'init', array( $this, 'textdomain' ) );
 
-		// Runs on install
+		// Runs on install.
 		register_activation_hook( __FILE__, array( $this, 'install' ) );
 
-		// Runs when the plugin is upgraded
+		// Runs when the plugin is upgraded.
 		add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 1, 2 );
+		
+		// Add theme support.
+		add_action( 'after_setup_theme', array( $this, 'add_theme_support' ) );
 
-		// Adjust the schedule query
+		// Adjust the schedule query.
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_pre_get_posts' ), 20 );
 		add_filter( 'posts_clauses', array( $this, 'filter_posts_clauses' ), 20, 2 );
 
-		// Add needed styles and scripts
+		// Add needed styles and scripts.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ), 20 );
 
-		// Tweak the event pages and add schedule to a page, if necessary
+		// Tweak the event pages and add schedule to a page, if necessary.
 		add_filter( 'the_content', array( $this, 'the_content' ), 1000 );
 
-		// Register custom post types
+		// Register custom post types.
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
 
-		// Register taxonomies
+		// Register taxonomies.
 		add_action( 'init', array( $this, 'register_taxonomies' ), 0 );
 
-		// Add our [print_conference_schedule] shortcode
+		// Add our [print_conference_schedule] shortcode.
 		add_shortcode( 'print_conference_schedule', array( $this, 'conference_schedule_shortcode' ) );
 
 	}
@@ -208,6 +214,19 @@ class Conference_Schedule {
 	}
 
 	/**
+	 * Add theme support.
+	 *
+	 * @access	public
+	 * @since	1.0.0
+	 */
+	public function add_theme_support() {
+
+		// Add theme support for featured images.
+		add_theme_support( 'post-thumbnails' );
+
+	}
+
+	/**
 	 * Returns settings for the front-end.
 	 *
 	 * @access  public
@@ -216,12 +235,12 @@ class Conference_Schedule {
 	 */
 	public function get_settings() {
 
-		// If already set, return the settings
+		// If already set, return the settings.
 		if ( isset( $this->settings ) ) {
 			return $this->settings;
 		}
 
-		// Define the default settings
+		// Define the default settings.
 		$default_settings = array(
 			'schedule_add_page' => '',
 			'session_fields'    => array(
@@ -230,10 +249,10 @@ class Conference_Schedule {
 			'schedule_display_fields' => array(
 				'view_slides',
 				'watch_video',
-			)
+			),
 		);
 
-		// Get/store the settings
+		// Get/store the settings.
 		return $this->settings = get_option( 'conf_schedule', $default_settings );
 	}
 
@@ -246,18 +265,18 @@ class Conference_Schedule {
 	 */
 	public function get_session_fields() {
 
-		// If already set, return the settings
+		// If already set, return the settings.
 		if ( isset( $this->session_fields ) ) {
 			return $this->session_fields;
 		}
 
-		// Get settings
+		// Get settings.
 		$settings = $this->get_settings();
 
-		// Get enabled session fields
-		$session_fields = isset( $settings['session_fields'] ) ? $settings['session_fields'] : array();
+		// Get enabled session fields.
+		$session_fields = ! empty( $settings['session_fields'] ) ? $settings['session_fields'] : array();
 
-		// Make sure its an array
+		// Make sure its an array.
 		if ( ! is_array( $session_fields ) ) {
 			$session_fields = explode( ', ', $session_fields );
 		}
@@ -274,18 +293,18 @@ class Conference_Schedule {
 	 */
 	public function get_schedule_display_fields() {
 
-		// If already set, return the settings
+		// If already set, return the settings.
 		if ( isset( $this->schedule_display_fields ) ) {
 			return $this->schedule_display_fields;
 		}
 
-		// Get settings
+		// Get settings.
 		$settings = $this->get_settings();
 
-		// Get enabled schedule display fields
+		// Get enabled schedule display fields.
 		$display_fields = isset( $settings['schedule_display_fields'] ) ? $settings['schedule_display_fields'] : array();
 
-		// Make sure its an array
+		// Make sure its an array.
 		if ( ! is_array( $display_fields ) ) {
 			$display_fields = explode( ', ', $display_fields );
 		}
@@ -312,25 +331,25 @@ class Conference_Schedule {
 	 */
 	public function filter_pre_get_posts( $query ) {
 
-		// Not in admin
+		// Not in admin.
 		if ( is_admin() ) {
 			return false;
 		}
 
-		// Have to check single array with json queries
+		// Have to check single array with json queries.
 		$post_type = $query->get( 'post_type' );
+		
 		if ( 'schedule' == $post_type
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
-			// Always get all schedule items
+			// Always get all schedule items.
 			$query->set( 'posts_per_page' , '-1' );
 
-			// Default order is by title asc
+			// Default order is by title ASC.
 			$query->set( 'orderby', 'title' );
 			$query->set( 'order', 'ASC' );
-
+			
 		}
-
 	}
 
 	/**
@@ -342,38 +361,39 @@ class Conference_Schedule {
 	public function filter_posts_clauses( $pieces, $query ) {
 		global $wpdb;
 
-		// Not in admin
+		// Not in admin.
 		if ( is_admin() ) {
 			return $pieces;
 		}
 
-		// If we pass a filter telling it to ignore our filter
+		// If we pass a filter telling it to ignore our filter.
 		if ( '1' == $query->get( 'conf_sch_ignore_clause_filter' ) ) {
 			return $pieces;
 		}
 
-		// Only for schedule query
+		// Only for schedule query.
 		$post_type = $query->get( 'post_type' );
+		
 		if ( 'schedule' == $post_type
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
-			// Join to get name info
+			// Join to get name info.
 			foreach( array( 'conf_sch_event_date', 'conf_sch_event_start_time', 'conf_sch_event_end_time' ) as $name_part ) {
 
-				// Might as well store the join info as fields
-				$pieces[ 'fields' ] .= ", {$name_part}.meta_value AS {$name_part}";
+				// Might as well store the join info as fields.
+				$pieces['fields'] .= ", {$name_part}.meta_value AS {$name_part}";
 
-				// "Join" to get the info
-				$pieces[ 'join' ] .= " LEFT JOIN {$wpdb->postmeta} {$name_part} ON {$name_part}.post_id = {$wpdb->posts}.ID AND {$name_part}.meta_key = '{$name_part}'";
+				// "Join" to get the info.
+				$pieces['join'] .= " LEFT JOIN {$wpdb->postmeta} {$name_part} ON {$name_part}.post_id = {$wpdb->posts}.ID AND {$name_part}.meta_key = '{$name_part}'";
 
 			}
 
-			// Get the location information
-			$pieces[ 'fields' ] .= ", IF ( conf_sch_event_location.meta_value IS NOT NULL, ( SELECT post_title FROM {$wpdb->posts} WHERE ID = conf_sch_event_location.meta_value ), '' ) AS conf_sch_event_location";
-			$pieces[ 'join' ] .= " LEFT JOIN {$wpdb->postmeta} conf_sch_event_location ON conf_sch_event_location.post_id = {$wpdb->posts}.ID AND conf_sch_event_location.meta_key = 'conf_sch_event_location'";
+			// Get the location information.
+			$pieces['fields'] .= ", IF ( conf_sch_event_location.meta_value IS NOT NULL, ( SELECT post_title FROM {$wpdb->posts} WHERE ID = conf_sch_event_location.meta_value ), '' ) AS conf_sch_event_location";
+			$pieces['join'] .= " LEFT JOIN {$wpdb->postmeta} conf_sch_event_location ON conf_sch_event_location.post_id = {$wpdb->posts}.ID AND conf_sch_event_location.meta_key = 'conf_sch_event_location'";
 
-			// Setup the orderby
-			$pieces[ 'orderby' ] = " CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC";
+			// Setup the orderby.
+			$pieces['orderby'] = " CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC";
 
 		}
 
@@ -390,40 +410,40 @@ class Conference_Schedule {
 	public function enqueue_styles_scripts() {
 		global $post;
 
-		// Register our icons
+		// Register our icons.
 		wp_register_style( 'conf-schedule-icons', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule-icons.min.css', array(), CONFERENCE_SCHEDULE_VERSION );
 
-		// Register our schedule styles
+		// Register our schedule styles.
 		wp_register_style( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule.min.css', array( 'conf-schedule-icons' ), CONFERENCE_SCHEDULE_VERSION );
 
-		// Register handlebars
+		// Register handlebars.
 		wp_register_script( 'handlebars', '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js' );
 
-		// Get the API route
+		// Get the API route.
 		$wp_rest_api_route = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : '';
 		if ( ! empty( $wp_rest_api_route ) ) {
 			$wp_rest_api_route = "/{$wp_rest_api_route}/wp/v2/";
 		}
 
-		// Enqueue the schedule script when needed
+		// Enqueue the schedule script when needed.
 		if ( is_singular( 'schedule' ) ) {
 
-			// Enqueue our schedule styles
+			// Enqueue our schedule styles.
 			wp_enqueue_style( 'conf-schedule' );
 
-			// Enqueue the schedule script
+			// Enqueue the schedule script.
 			wp_enqueue_script( 'conf-schedule-single', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-single.min.js', array( 'jquery', 'handlebars' ), CONFERENCE_SCHEDULE_VERSION, true );
 
-			// Build data
+			// Build data.
 			$conf_sch_data = array(
 				'post_id'       => $post->ID,
 				'wp_api_route'  => $wp_rest_api_route,
 			);
 
-			// Get display field settings
+			// Get display field settings.
 			$display_fields = conference_schedule()->get_schedule_display_fields();
 
-			// Figure out which fields to display
+			// Figure out which fields to display.
 			if ( ! empty( $display_fields ) ) {
 
 				// If we're set to view slides...
@@ -431,19 +451,18 @@ class Conference_Schedule {
 					$conf_sch_data['view_slides'] = __( 'View Slides', 'conf-schedule' );
 				}
 
-				// If we're set to give feedback
+				// If we're set to give feedback.
 				if ( in_array( 'give_feedback', $display_fields ) ) {
 					$conf_sch_data['give_feedback'] = __( 'Give Feedback', 'conf-schedule' );
 				}
 
-				// If we're set to watch the video
+				// If we're set to watch the video.
 				if ( in_array( 'watch_video', $display_fields ) ) {
 					$conf_sch_data['watch_video'] = __( 'Watch Session', 'conf-schedule' );
 				}
-
 			}
 
-			// Pass some data
+			// Pass some data.
 			wp_localize_script( 'conf-schedule-single', 'conf_sch', $conf_sch_data );
 
 		} else {
@@ -454,13 +473,13 @@ class Conference_Schedule {
 			// If not the shortcode, do we want to add the schedule to the page?
 			$add_schedule_to_page = ! $has_schedule_shortcode ? $this->add_schedule_to_page() : false;
 
-			// Enqueue the schedule script when needed
+			// Enqueue the schedule script when needed.
 			if ( $has_schedule_shortcode || $add_schedule_to_page ) {
 
-				// Enqueue our schedule styles
+				// Enqueue our schedule styles.
 				wp_enqueue_style( 'conf-schedule' );
 
-				// Enqueue the schedule script
+				// Enqueue the schedule script.
 				wp_enqueue_script( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule.min.js', array( 'jquery', 'handlebars' ), CONFERENCE_SCHEDULE_VERSION, true );
 
 				// Build data.
@@ -468,10 +487,10 @@ class Conference_Schedule {
 					'wp_api_route'  => $wp_rest_api_route,
 				);
 
-				// Get display field settings
+				// Get display field settings.
 				$display_fields = conference_schedule()->get_schedule_display_fields();
 
-				// Figure out which fields to display
+				// Figure out which fields to display.
 				if ( ! empty( $display_fields ) ) {
 
 					// If we're set to view slides...
@@ -479,25 +498,22 @@ class Conference_Schedule {
 						$conf_sch_data['view_slides'] = __( 'View Slides', 'conf-schedule' );
 					}
 
-					// If we're set to give feedback
+					// If we're set to give feedback.
 					if ( in_array( 'give_feedback', $display_fields ) ) {
 						$conf_sch_data['give_feedback'] = __( 'Give Feedback', 'conf-schedule' );
 					}
 
-					// If we're set to watch the video
+					// If we're set to watch the video.
 					if ( in_array( 'watch_video', $display_fields ) ) {
 						$conf_sch_data['watch_video'] = __( 'Watch Session', 'conf-schedule' );
 					}
-
 				}
 
-				// Pass some translations
+				// Pass some translations.
 				wp_localize_script( 'conf-schedule', 'conf_sch', $conf_sch_data );
 
 			}
-
 		}
-
 	}
 
 	/**
@@ -561,7 +577,7 @@ class Conference_Schedule {
 
 			// Embed the video.
 			$video_url = get_post_meta( $post->ID, 'conf_sch_event_video_url', true );
-			if ( ! empty( $video_url ) ) {
+			if ( ! empty( $video_url ) ) :
 
 				// Get embed.
 				$video_html = wp_oembed_get( $video_url, array(
@@ -570,7 +586,7 @@ class Conference_Schedule {
 
 				// Filter video html.
 				$video_html = apply_filters( 'conf_schedule_session_video_html', $video_html, $video_url, $post->ID );
-				if ( ! empty( $video_html ) ) {
+				if ( ! empty( $video_html ) ) :
 
 					// Print embed.
 					?>
@@ -580,9 +596,8 @@ class Conference_Schedule {
 					</div>
 					<?php
 
-				}
-
-			}
+				endif;
+			endif;
 
 			?>
 			<div id="conf-sch-single-speakers">
@@ -646,8 +661,8 @@ class Conference_Schedule {
 	 */
 	public function register_custom_post_types() {
 
-		// Define the labels for the locations CPT
-		$locations_labels = apply_filters( 'conf_schedule_locations_CPT_labels', array(
+		// Define the labels for the locations CPT.
+		$locations_labels = apply_filters( 'conf_schedule_locations_cpt_labels', array(
 			'name'                  => _x( 'Locations', 'Post Type General Name', 'conf-schedule' ),
 			'singular_name'         => _x( 'Location', 'Post Type Singular Name', 'conf-schedule' ),
 			'menu_name'             => __( 'Locations', 'conf-schedule' ),
@@ -664,8 +679,8 @@ class Conference_Schedule {
 			'not_found_in_trash'    => __( 'No locations found in Trash', 'conf-schedule' ),
 		));
 
-		// Define the args for the locations CPT
-		$locations_args = apply_filters( 'conf_schedule_locations_CPT_args', array(
+		// Define the args for the locations CPT.
+		$locations_args = apply_filters( 'conf_schedule_locations_cpt_args', array(
 			'label'                 => __( 'Locations', 'conf-schedule' ),
 			'description'           => __( 'The locations content for your conference.', 'conf-schedule' ),
 			'labels'                => $locations_labels,
@@ -680,7 +695,7 @@ class Conference_Schedule {
 			'show_in_rest'			=> true,
 		));
 
-		// Register the locations custom post type
+		// Register the locations custom post type.
 		register_post_type( 'locations', $locations_args );
 
 	}
@@ -693,7 +708,7 @@ class Conference_Schedule {
 	 */
 	public function register_taxonomies() {
 
-		// Define the labels for the event types taxonomy
+		// Define the labels for the event types taxonomy.
 		$types_labels = apply_filters( 'conf_schedule_event_types_labels', array(
 			'name'						=> _x( 'Event Types', 'Taxonomy General Name', 'conf-schedule' ),
 			'singular_name'				=> _x( 'Event Type', 'Taxonomy Singular Name', 'conf-schedule' ),
@@ -713,7 +728,7 @@ class Conference_Schedule {
 			'no_terms'					=> __( 'No event types', 'conf-schedule' ),
 		));
 
-		// Define the arguments for the event types taxonomy
+		// Define the arguments for the event types taxonomy.
 		$types_args = apply_filters( 'conf_schedule_event_types_args', array(
 			'labels'					=> $types_labels,
 			'hierarchical'				=> false,
@@ -726,10 +741,10 @@ class Conference_Schedule {
 			'show_in_rest'				=> true,
 		));
 
-		// Register the event types taxonomy
+		// Register the event types taxonomy.
 		register_taxonomy( 'event_types', array( 'schedule' ), $types_args );
 
-		// Define the labels for the session categories taxonomy
+		// Define the labels for the session categories taxonomy.
 		$session_categories_labels = apply_filters( 'conf_schedule_session_categories_labels', array(
 			'name'						=> _x( 'Session Categories', 'Taxonomy General Name', 'conf-schedule' ),
 			'singular_name'				=> _x( 'Session Category', 'Taxonomy Singular Name', 'conf-schedule' ),
@@ -749,7 +764,7 @@ class Conference_Schedule {
 			'no_terms'					=> __( 'No session categories', 'conf-schedule' ),
 		));
 
-		// Define the arguments for the session categories taxonomy
+		// Define the arguments for the session categories taxonomy.
 		$session_categories_args = apply_filters( 'conf_schedule_session_categories_args', array(
 			'labels'					=> $session_categories_labels,
 			'hierarchical'				=> false,
@@ -762,7 +777,7 @@ class Conference_Schedule {
 			'show_in_rest'				=> true,
 		));
 
-		// Register the session categories taxonomy
+		// Register the session categories taxonomy.
 		register_taxonomy( 'session_categories', array( 'schedule' ), $session_categories_args );
 
 	}
@@ -778,24 +793,25 @@ class Conference_Schedule {
 	public function add_schedule_to_page() {
 		global $post;
 
-		// Make sure we have an ID and a post type
+		// Make sure we have an ID and a post type.
 		if ( empty( $post->ID ) || empty( $post->post_type ) ) {
 			return false;
 		}
 
-		// We only add to pages
+		// We only add to pages.
 		if ( 'page' != $post->post_type ) {
 			return false;
 		}
 
-		// Get settings
+		// Get settings.
 		$settings = $this->get_settings();
 
 		// If we want to add the schedule to this page...
 		if ( ! empty( $settings['schedule_add_page'] ) && $settings['schedule_add_page'] > 0 ) {
+			
 			if ( $post->ID == $settings['schedule_add_page'] ) {
 
-				// Add the schedule
+				// Add the schedule.
 				return true;
 
 			}
@@ -812,6 +828,7 @@ class Conference_Schedule {
 	 * @return	string - the schedule
 	 */
 	public function get_conference_schedule() {
+		
 		ob_start();
 
 		// Get settings.
@@ -929,5 +946,5 @@ function conference_schedule() {
 	return Conference_Schedule::instance();
 }
 
-// Let's get this show on the road
+// Let's get this show on the road.
 conference_schedule();

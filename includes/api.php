@@ -20,8 +20,8 @@ class Conference_Schedule_API {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$className = __CLASS__;
-			self::$instance = new $className;
+			$class_name = __CLASS__;
+			self::$instance = new $class_name;
 		}
 		return self::$instance;
 	}
@@ -79,7 +79,7 @@ class Conference_Schedule_API {
 			'session_follow_up_url',
 			'session_video_url',
 		);
-		foreach( $event_fields as $field_name ) {
+		foreach ( $event_fields as $field_name ) {
 			register_rest_field( 'schedule', $field_name, array(
 				'get_callback'		=> array( $this, 'get_event_field_value' ),
 				'update_callback'	=> null,
@@ -99,7 +99,7 @@ class Conference_Schedule_API {
 			'speaker_twitter',
 			'speaker_linkedin',
 		);
-		foreach( $speaker_fields as $field_name ) {
+		foreach ( $speaker_fields as $field_name ) {
 			register_rest_field( 'speakers', $field_name, array(
 				'get_callback'		=> array( $this, 'get_speaker_field_value' ),
 				'update_callback'	=> null,
@@ -112,7 +112,7 @@ class Conference_Schedule_API {
 			'address',
 			'google_maps_url',
 		);
-		foreach( $location_fields as $field_name ) {
+		foreach ( $location_fields as $field_name ) {
 			register_rest_field( 'locations', $field_name, array(
 				'get_callback'		=> array( $this, 'get_location_field_value' ),
 				'update_callback'	=> null,
@@ -133,69 +133,69 @@ class Conference_Schedule_API {
 	public function get_event_field_value( $object, $field_name, $request ) {
 		global $wpdb;
 
-		// Get the event
+		// Get the event.
 		$event = $this->get_event( $object['id'] );
 
-		switch( $field_name ) {
+		switch ( $field_name ) {
 
-			// Get the start time
+			// Get the start time.
 			case 'event_start_time':
 				$event_start_time = $event->get_start_time();
 				return ! empty( $event_start_time ) ? $event_start_time : null;
 
-			// Get the end time
+			// Get the end time.
 			case 'event_end_time':
 				$event_end_time = $event->get_end_time();
 				return ! empty( $event_end_time ) ? $event_end_time : null;
 
-			// Get the event date/time
+			// Get the event date/time.
 			case 'event_dt':
 				$event_date_time = $event->get_date_time();
 				return ! empty( $event_date_time ) ? $event_date_time : null;
 
-			// Get the event date/time in GMT
+			// Get the event date/time in GMT.
 			case 'event_dt_gmt':
 				$event_date_gmt = $event->get_date_time_gmt();
 				return ! empty( $event_date_gmt ) ? $event_date_gmt : null;
 
-			// Get the event date
+			// Get the event date.
 			case 'event_date':
 				$event_date = $event->get_date();
 				return ! empty( $event_date ) ? $event_date : null;
 
-			// Get the event parent
+			// Get the event parent.
 			case 'event_parent':
 				return $event->get_parent();
 
-			// Get the event date display
+			// Get the event date display.
 			case 'event_date_display':
 				$event_date_display = $event->get_date_display();
 				return ! empty( $event_date_display ) ? $event_date_display : null;
 
-			// Get the event duration
+			// Get the event duration.
 			case 'event_duration':
 				$event_duration = $event->get_duration();
 				return ! empty( $event_duration ) ? $event_duration : null;
 
-			// Build the event time display
+			// Build the event time display.
 			case 'event_time_display':
 				$event_time_display = $event->get_time_display();
 				return ! empty( $event_time_display ) ? $event_time_display : null;
 
 			case 'event_types':
-				$types = wp_get_object_terms( $object[ 'id' ], 'event_types', array( 'fields' => 'slugs' ) );
+				$types = wp_get_object_terms( $object['id'], 'event_types', array( 'fields' => 'slugs' ) );
 				return ! empty( $types ) ? $types : null;
 
 			case 'session_categories':
-				$categories = wp_get_object_terms( $object[ 'id' ], 'session_categories', array( 'fields' => 'names' ) );
+				$categories = wp_get_object_terms( $object['id'], 'session_categories', array( 'fields' => 'names' ) );
 				return ! empty( $categories ) ? $categories : null;
 
-			// Get the hashtag
+			// Get the hashtag.
 			case 'event_hashtag':
 				$event_hashtag = $event->get_hashtag();
 				return ! empty( $event_hashtag ) ? $event_hashtag : null;
 
-			// Get the event location
+			// Get the event location.
 			case 'event_location':
 				$event_location = $event->get_location();
 				return ! empty( $event_location ) ? $event_location : null;
@@ -204,12 +204,12 @@ class Conference_Schedule_API {
 				$event_location_address = $event->get_location_address();
 				return ! empty( $event_location_address ) ? $event_location_address : null;
 
-			// Get the event's location's Google Maps URL
+			// Get the event's location's Google Maps URL.
 			case 'event_google_maps_url':
 				$event_google_maps_url = $event->get_google_maps_url();
 				return ! empty( $event_google_maps_url ) ? $event_google_maps_url : null;
 
-			/**
+			/*
 			 * See if we need to link to the event post in the schedule.
 			 *
 			 * The default is true.
@@ -219,16 +219,17 @@ class Conference_Schedule_API {
 			 */
 			case 'link_to_post':
 
-				// Check the database
-				$sch_link_to_post_db = $wpdb->get_var( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = {$object[ 'id' ]} AND meta_key = 'conf_sch_link_to_post'" );
+				// Check the database.
+				$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $object['id'] ) );
 
-				// If row exists, then check the value
+				// If row exists, then check the value.
 				if ( $sch_link_to_post_db ) {
-					$sch_link_to_post = get_post_meta( $object[ 'id' ], 'conf_sch_link_to_post', true );
+					$sch_link_to_post = get_post_meta( $object['id'], 'conf_sch_link_to_post', true );
 					if ( ! $sch_link_to_post ) {
 						return false;
 					}
 				}
+
 				return true;
 
 			// Get event speakers
@@ -236,7 +237,7 @@ class Conference_Schedule_API {
 				$event_speakers = $event->get_speakers();
 				return ! empty( $event_speakers ) ? $event_speakers : null;
 
-			/**
+			/*
 			 * Livestream URL will only show up
 			 * a certain time before the session starts
 			 * and stay until it ends.
@@ -298,7 +299,7 @@ class Conference_Schedule_API {
 				return ! empty( $field_value ) ? $field_value : null;
 
 			case 'speaker_thumbnail':
-				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $object[ 'id' ] ), 'thumbnail' );
+				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $object['id'] ), 'thumbnail' );
 				return ! empty( $image[0] ) ? $image[0] : null;
 
 		}
@@ -318,12 +319,12 @@ class Conference_Schedule_API {
 		switch ( $field_name ) {
 
 			case 'address':
-				$conf_sch_location_address = get_post_meta( $object[ 'id' ], 'conf_sch_location_address', true );
+				$conf_sch_location_address = get_post_meta( $object['id'], 'conf_sch_location_address', true );
 				return ! empty( $conf_sch_location_address ) ? $conf_sch_location_address : null;
 
 			// Gets the URL for API location endpoints
 			case 'google_maps_url':
-				$google_maps_url = get_post_meta( $object[ 'id' ], 'conf_sch_location_google_maps_url', true );
+				$google_maps_url = get_post_meta( $object['id'], 'conf_sch_location_google_maps_url', true );
 				return ! empty( $google_maps_url ) ? $google_maps_url : null;
 
 		}
@@ -346,5 +347,5 @@ function conference_schedule_api() {
 	return Conference_Schedule_API::instance();
 }
 
-// Let's get this show on the road
+// Let's get this show on the road.
 conference_schedule_api();
