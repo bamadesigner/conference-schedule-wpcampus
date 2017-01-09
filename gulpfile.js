@@ -4,8 +4,10 @@ var gulp = require('gulp');
 var phpcs = require('gulp-phpcs');
 var rename = require('gulp-rename');
 var sass = require('gulp-sass');
+var sort = require('gulp-sort');
 var uglify = require('gulp-uglify');
 var watch = require('gulp-watch');
+var wpPot = require('gulp-wp-pot');
 
 // Define the source paths for each file type
 var src = {
@@ -63,7 +65,23 @@ gulp.task('php',function() {
 		.pipe(phpcs.reporter('log'));
 });
 
+// Create language files
+gulp.task('translate', function () {
+    return gulp.src(src.php)
+    	.pipe(sort())
+        .pipe(wpPot( {
+            domain: 'conf-schedule',
+            destFile: 'conf-schedule.pot',
+            package: 'Conference_Schedule',
+            bugReport: 'https://github.com/bamadesigner/conference-schedule/issues',
+            lastTranslator: 'Rachel Carden <bamadesigner@gmail.com>',
+            team: 'Rachel Carden <bamadesigner@gmail.com>',
+            headers: false
+        } ))
+        .pipe(gulp.dest('languages/conf-schedule.pot'));
+});
+
 // Let's get this party started
-gulp.task('default', ['compile']);
+gulp.task('default', ['compile','translate']);
 gulp.task('compile', ['sass','js']);
 gulp.task('test', ['php']);

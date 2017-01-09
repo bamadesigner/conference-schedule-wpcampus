@@ -455,8 +455,8 @@ class Conference_Schedule_Admin {
 			case 'promote':
 
 				?>
-				<p class="twitter"><a href="https://twitter.com/bamadesigner" title="<?php _e( 'Follow bamadesigner on Twitter', 'conf-schedule' ); ?>" target="_blank"><span class="dashicons dashicons-twitter"></span> <span class="promote-text"><?php _e( 'Follow me on Twitter', 'conf-schedule' ); ?></span></a></p>
-				<p class="donate"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ZCAN2UX7QHZPL&lc=US&item_name=Rachel%20Carden%20%28Conference%20Schedule%29&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="<?php esc_attr_e( 'Donate a few bucks to the plugin', 'conf-schedule' ); ?>" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="<?php esc_attr_e( 'Donate', 'conf-schedule' ); ?>" /> <span class="promote-text"><?php _e( 'and buy me a coffee', 'conf-schedule' ); ?></span></a></p>
+				<p class="twitter"><a href="https://twitter.com/bamadesigner" title="<?php printf( __( 'Follow %1$s on %2$s', 'conf-schedule' ), 'bamadesigner', 'Twitter' ); ?>" target="_blank"><span class="dashicons dashicons-twitter"></span> <span class="promote-text"><?php printf( __( 'Follow %1$s on %2$s', 'conf-schedule' ), 'Rachel', 'Twitter' ); ?></span></a></p>
+				<p class="donate"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ZCAN2UX7QHZPL&lc=US&item_name=Rachel%20Carden%20%28Conference%20Schedule%29&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="<?php esc_attr_e( 'Donate a few bucks to the plugin', 'conf-schedule' ); ?>" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="<?php esc_attr_e( 'Donate', 'conf-schedule' ); ?>" /> <span class="promote-text"><?php printf( __( 'Buy %s a coffee', 'conf-schedule' ), 'Rachel' ); ?></span></a></p>
 				<?php
 
 				break;
@@ -514,7 +514,7 @@ class Conference_Schedule_Admin {
 						<tr>
 							<td>
 								<strong><?php _e( 'Use the shortcode', 'conf-schedule' ); ?></strong>
-								<p class="description"><?php _e( 'Place the shortcode [print_conference_schedule] inside any content to add the schedule to a page.', 'conf-schedule' ); ?></p>
+								<p class="description"><?php printf( __( 'Place the shortcode %s inside any content to add the schedule to a page.', 'conf-schedule' ), '[print_conference_schedule]' ); ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -534,7 +534,7 @@ class Conference_Schedule_Admin {
 
 									?>
 								</select>
-								<p class="description"><?php _e( 'If defined, will automatically add the schedule to the end of the selected page. Otherwise, you can add the schedule with the [print_conference_schedule] shortcode.', 'conf-schedule' ); ?></p>
+								<p class="description"><?php printf( __( 'If defined, will automatically add the schedule to the end of the selected page. Otherwise, you can add the schedule with the %s shortcode.', 'conf-schedule' ), '[print_conference_schedule]' ); ?></p>
 							</td>
 						</tr>
 						<tr>
@@ -681,7 +681,7 @@ class Conference_Schedule_Admin {
 
 			?>
 			<div class="updated notice">
-				<p><?php _e( 'The Conference Schedule plugin depends on the REST API plugin, version 2.0. <a href="' . admin_url('plugins.php') . '">Please activate this plugin</a>. ', 'conf-schedule' ); ?></p>
+				<p><?php printf( __( 'The %1$s plugin depends on the %2$s plugin, version 2.0. %3$sPlease activate this plugin%4$s.', 'conf-schedule' ), 'Conference Schedule', 'REST API', '<a href="' . admin_url( 'plugins.php' ) . '">', '</a>' ); ?></p>
 			</div>
 			<?php
 
@@ -1463,7 +1463,7 @@ class Conference_Schedule_Admin {
 						<th scope="row"><label for="conf-sch-slides-url"><?php _e( 'Slides URL', 'conf-schedule' ); ?></label></th>
 						<td>
 							<input type="url" id="conf-sch-slides-url" name="conf_schedule[event][slides_url]" value="<?php echo esc_attr( $slides_url ); ?>" />
-							<p class="description"><?php _e( "Please provide the URL (or file below) for users to download or view this session's slides. <strong>If a URL and file are provided, the URL will priority.</strong>", 'conf-schedule' ); ?></p>
+							<p class="description"><?php _e( "Please provide the URL (or file below) for users to download or view this session's slides.", 'conf-schedule' ); ?> <strong><?php _e( 'If a URL and file are provided, the URL will take priority.', 'conf-schedule' ); ?></strong></p>
 						</td>
 					</tr>
 					<tr>
@@ -1504,7 +1504,7 @@ class Conference_Schedule_Admin {
 
 							?>
 							<input type="file" accept="application/pdf" id="conf-sch-slides-file-input" style="width:75%;<?php echo $slides_file_hide_input ? 'display:none;' : null; ?>" size="25" name="conf_schedule_event_slides_file" value="" />
-							<p class="description"><?php _e( "You may also upload a file if you wish to host the session's slides for users to download or view. <strong>Only PDF files are allowed.</strong>", 'conf-schedule' ); ?></p>
+							<p class="description"><?php _e( "You may also upload a file if you wish to host the session's slides for users to download or view.", 'conf-schedule' ); ?> <strong><?php printf( __( 'Only %s files are allowed.', 'conf-schedule' ), 'PDF' ); ?></strong></p>
 						</td>
 					</tr>
 					<?php
@@ -1523,7 +1523,7 @@ class Conference_Schedule_Admin {
 						<th scope="row"><label for="conf-sch-feedback-url"><?php _e( 'Feedback URL', 'conf-schedule' ); ?></label></th>
 						<td>
 							<input type="url" id="conf-sch-feedback-url" name="conf_schedule[event][feedback_url]" value="<?php echo esc_attr( $feedback_url ); ?>" />
-							<p class="description"><?php _e( 'Please provide the URL you wish to provide to gather session feedback. <strong>It will display 30 minutes after the session has started, unless you provide a value below.</strong>', 'conf-schedule' ); ?></p>
+							<p class="description"><?php _e( 'Please provide the URL you wish to provide to gather session feedback.', 'conf-schedule' ); ?> <strong><?php _e( 'It will display 30 minutes after the session has started, unless you provide a value below.', 'conf-schedule' ); ?></strong></p>
 						</td>
 					</tr>
 					<tr>
@@ -1602,7 +1602,7 @@ class Conference_Schedule_Admin {
 					<th scope="row"><label for="conf-sch-event-hashtag"><?php _e( 'Hashtag', 'conf-schedule' ); ?></label></th>
 					<td>
 						<input type="text" id="conf-sch-event-hashtag" name="conf_schedule[event][hashtag]" value="<?php echo esc_attr( $event_hashtag ); ?>" class="regular-text" />
-						<p class="description"><?php _e( 'Please provide the hashtag you wish attendees to use for this event. If no hashtag is provided, the schedule will display the speaker(s) Twitter account.', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the hashtag you wish attendees to use for this event. If no hashtag is provided, the schedule will display the speaker(s) %s account.', 'conf-schedule' ), 'Twitter' ); ?></p>
 					</td>
 				</tr>
 			</tbody>
@@ -1648,7 +1648,7 @@ class Conference_Schedule_Admin {
 							<a class="conf-sch-refresh-users" href="#"><?php _e( 'Refresh users', 'conf-schedule' ); ?></a> |
 							<a href="<?php echo admin_url( 'users.php' ); ?>" target="_blank"><?php _e( 'Manage users', 'conf-schedule' ); ?></a>
 						</p>
-						<p class="description"><?php _e( 'Assign this speaker to a WordPress user.', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Assign this speaker to a %s user.', 'conf-schedule' ), 'WordPress' ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -1712,10 +1712,10 @@ class Conference_Schedule_Admin {
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="conf-sch-google-maps-url"><?php _e( 'Google Maps URL', 'conf-schedule' ); ?></label></th>
+					<th scope="row"><label for="conf-sch-google-maps-url"><?php printf( __( '%s URL', 'conf-schedule' ), 'Google Maps' ); ?></label></th>
 					<td>
 						<input type="url" id="conf-sch-google-maps-url" name="conf_schedule[location][google_maps_url]" value="<?php echo esc_attr( $location_google_maps_url ); ?>" class="regular-text" />
-						<p class="description"><?php _e( "Please provide the Google Maps URL for this location.", 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the %s URL for this location.', 'conf-schedule' ), 'Google Maps' ); ?></p>
 					</td>
 				</tr>
 			</tbody>
@@ -1749,28 +1749,28 @@ class Conference_Schedule_Admin {
 					<th scope="row"><label for="conf-sch-facebook">Facebook</label></th>
 					<td>
 						<input type="text" id="conf-sch-facebook" name="conf_schedule[speaker][facebook]" value="<?php echo esc_attr( $speaker_facebook ); ?>" class="regular-text" />
-						<p class="description"><?php _e( 'Please provide the full Facebook URL.', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'Facebook' ); ?></p>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="conf-sch-instagram">Instagram</label></th>
 					<td>
 						<input type="text" id="conf-sch-instagram" name="conf_schedule[speaker][instagram]" value="<?php echo esc_attr( $speaker_instagram ); ?>" class="regular-text" />
-						<p class="description"><?php _e( 'Please provide the Instagram handle or username.', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the %s handle or username.', 'conf-schedule' ), 'Instagram' ); ?></p>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="conf-sch-twitter">Twitter</label></th>
 					<td>
 						<input type="text" id="conf-sch-twitter" name="conf_schedule[speaker][twitter]" value="<?php echo esc_attr( $speaker_twitter ); ?>" class="regular-text" />
-						<p class="description"><?php _e( 'Please provide the Twitter handle, without the "@".', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the %s handle, without the "@".', 'conf-schedule' ), 'Twitter' ); ?></p>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="conf-sch-linkedin">LinkedIn</label></th>
 					<td>
 						<input type="text" id="conf-sch-linkedin" name="conf_schedule[speaker][linkedin]" value="<?php echo esc_attr( $speaker_linkedin ); ?>" class="regular-text" />
-						<p class="description"><?php _e( 'Please provide the full LinkedIn URL.', 'conf-schedule' ); ?></p>
+						<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'LinkedIn' ); ?></p>
 					</td>
 				</tr>
 			</tbody>

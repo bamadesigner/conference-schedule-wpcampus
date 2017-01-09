@@ -1,16 +1,18 @@
 <?php
 
 /**
- * Plugin Name:       Conference Schedule
- * Plugin URI:        @TODO
- * Description:       Helps you build a simple schedule for your conference website.
- * Version:           0.5
- * Author:            Rachel Carden
- * Author URI:        https://bamadesigner.com
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       conf-schedule
- * Domain Path:       /languages
+ * Plugin Name:     Conference Schedule
+ * Plugin URI:      @TODO
+ * Description:     Helps you build a simple schedule for your conference website.
+ * Version:         0.5
+ * Author:          Rachel Carden
+ * Author URI:      https://bamadesigner.com
+ * License:         GPL-2.0+
+ * License URI:		http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:		conf-schedule
+ * Domain Path:		/languages
+ *
+ * Package:			Conference_Schedule
  */
 
 /*
