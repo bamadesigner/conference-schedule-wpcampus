@@ -192,7 +192,7 @@
 
 		// Add Twitter
 		if ( this.speaker_twitter !== null && this.speaker_twitter ) {
-			$social_media_string += '<li class="social-media twitter"><a href="https://twitter.com/' + this.speaker_twitter + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">Twitter</span></a></li>';
+			$social_media_string += '<li class="social-media twitter"><a href="https://twitter.com/' + this.speaker_twitter + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">@' + this.speaker_twitter + '</span></a></li>';
 		}
 
 		// Add Instagram
