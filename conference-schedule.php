@@ -134,7 +134,7 @@ class Conference_Schedule {
 
 		// Runs when the plugin is upgraded.
 		add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 1, 2 );
-		
+
 		// Add theme support.
 		add_action( 'after_setup_theme', array( $this, 'add_theme_support' ) );
 
@@ -340,7 +340,7 @@ class Conference_Schedule {
 
 		// Have to check single array with json queries.
 		$post_type = $query->get( 'post_type' );
-		
+
 		if ( 'schedule' == $post_type
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
@@ -350,7 +350,7 @@ class Conference_Schedule {
 			// Default order is by title ASC.
 			$query->set( 'orderby', 'title' );
 			$query->set( 'order', 'ASC' );
-			
+
 		}
 	}
 
@@ -375,12 +375,12 @@ class Conference_Schedule {
 
 		// Only for schedule query.
 		$post_type = $query->get( 'post_type' );
-		
+
 		if ( 'schedule' == $post_type
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
 			// Join to get name info.
-			foreach( array( 'conf_sch_event_date', 'conf_sch_event_start_time', 'conf_sch_event_end_time' ) as $name_part ) {
+			foreach ( array( 'conf_sch_event_date', 'conf_sch_event_start_time', 'conf_sch_event_end_time' ) as $name_part ) {
 
 				// Might as well store the join info as fields.
 				$pieces['fields'] .= ", {$name_part}.meta_value AS {$name_part}";
@@ -395,7 +395,7 @@ class Conference_Schedule {
 			$pieces['join'] .= " LEFT JOIN {$wpdb->postmeta} conf_sch_event_location ON conf_sch_event_location.post_id = {$wpdb->posts}.ID AND conf_sch_event_location.meta_key = 'conf_sch_event_location'";
 
 			// Setup the orderby.
-			$pieces['orderby'] = " CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC";
+			$pieces['orderby'] = ' CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC';
 
 		}
 
@@ -712,22 +712,22 @@ class Conference_Schedule {
 
 		// Define the labels for the event types taxonomy.
 		$types_labels = apply_filters( 'conf_schedule_event_types_labels', array(
-			'name'						=> _x( 'Event Types', 'Taxonomy General Name', 'conf-schedule' ),
-			'singular_name'				=> _x( 'Event Type', 'Taxonomy Singular Name', 'conf-schedule' ),
-			'menu_name'					=> __( 'Event Types', 'conf-schedule' ),
-			'all_items'					=> __( 'All Event Types', 'conf-schedule' ),
-			'new_item_name'				=> __( 'New Event Type', 'conf-schedule' ),
-			'add_new_item'				=> __( 'Add New Event Type', 'conf-schedule' ),
-			'edit_item'					=> __( 'Edit Event Type', 'conf-schedule' ),
-			'update_item'				=> __( 'Update Event Type', 'conf-schedule' ),
-			'view_item'					=> __( 'View Event Type', 'conf-schedule' ),
-			'separate_items_with_commas'=> __( 'Separate event types with commas', 'conf-schedule' ),
-			'add_or_remove_items'		=> __( 'Add or remove event types', 'conf-schedule' ),
-			'choose_from_most_used'		=> __( 'Choose from the most used event types', 'conf-schedule' ),
-			'popular_items'				=> __( 'Popular event types', 'conf-schedule' ),
-			'search_items'				=> __( 'Search Event Types', 'conf-schedule' ),
-			'not_found'					=> __( 'No event types found.', 'conf-schedule' ),
-			'no_terms'					=> __( 'No event types', 'conf-schedule' ),
+			'name'                          => _x( 'Event Types', 'Taxonomy General Name', 'conf-schedule' ),
+			'singular_name'                 => _x( 'Event Type', 'Taxonomy Singular Name', 'conf-schedule' ),
+			'menu_name'                     => __( 'Event Types', 'conf-schedule' ),
+			'all_items'                     => __( 'All Event Types', 'conf-schedule' ),
+			'new_item_name'                 => __( 'New Event Type', 'conf-schedule' ),
+			'add_new_item'                  => __( 'Add New Event Type', 'conf-schedule' ),
+			'edit_item'                     => __( 'Edit Event Type', 'conf-schedule' ),
+			'update_item'                   => __( 'Update Event Type', 'conf-schedule' ),
+			'view_item'                     => __( 'View Event Type', 'conf-schedule' ),
+			'separate_items_with_commas'    => __( 'Separate event types with commas', 'conf-schedule' ),
+			'add_or_remove_items'           => __( 'Add or remove event types', 'conf-schedule' ),
+			'choose_from_most_used'         => __( 'Choose from the most used event types', 'conf-schedule' ),
+			'popular_items'                 => __( 'Popular event types', 'conf-schedule' ),
+			'search_items'                  => __( 'Search Event Types', 'conf-schedule' ),
+			'not_found'                     => __( 'No event types found.', 'conf-schedule' ),
+			'no_terms'                      => __( 'No event types', 'conf-schedule' ),
 		));
 
 		// Define the arguments for the event types taxonomy.
@@ -748,22 +748,22 @@ class Conference_Schedule {
 
 		// Define the labels for the session categories taxonomy.
 		$session_categories_labels = apply_filters( 'conf_schedule_session_categories_labels', array(
-			'name'						=> _x( 'Session Categories', 'Taxonomy General Name', 'conf-schedule' ),
-			'singular_name'				=> _x( 'Session Category', 'Taxonomy Singular Name', 'conf-schedule' ),
-			'menu_name'					=> __( 'Session Categories', 'conf-schedule' ),
-			'all_items'					=> __( 'All Session Categories', 'conf-schedule' ),
-			'new_item_name'				=> __( 'New Session Category', 'conf-schedule' ),
-			'add_new_item'				=> __( 'Add New Session Category', 'conf-schedule' ),
-			'edit_item'					=> __( 'Edit Session Category', 'conf-schedule' ),
-			'update_item'				=> __( 'Update Session Category', 'conf-schedule' ),
-			'view_item'					=> __( 'View Session Category', 'conf-schedule' ),
-			'separate_items_with_commas'=> __( 'Separate session categories with commas', 'conf-schedule' ),
-			'add_or_remove_items'		=> __( 'Add or remove session categories', 'conf-schedule' ),
-			'choose_from_most_used'		=> __( 'Choose from the most used session categories', 'conf-schedule' ),
-			'popular_items'				=> __( 'Popular session categories', 'conf-schedule' ),
-			'search_items'				=> __( 'Search Session Categories', 'conf-schedule' ),
-			'not_found'					=> __( 'No session categories found.', 'conf-schedule' ),
-			'no_terms'					=> __( 'No session categories', 'conf-schedule' ),
+			'name'                          => _x( 'Session Categories', 'Taxonomy General Name', 'conf-schedule' ),
+			'singular_name'                 => _x( 'Session Category', 'Taxonomy Singular Name', 'conf-schedule' ),
+			'menu_name'                     => __( 'Session Categories', 'conf-schedule' ),
+			'all_items'                     => __( 'All Session Categories', 'conf-schedule' ),
+			'new_item_name'                 => __( 'New Session Category', 'conf-schedule' ),
+			'add_new_item'                  => __( 'Add New Session Category', 'conf-schedule' ),
+			'edit_item'                     => __( 'Edit Session Category', 'conf-schedule' ),
+			'update_item'                   => __( 'Update Session Category', 'conf-schedule' ),
+			'view_item'                     => __( 'View Session Category', 'conf-schedule' ),
+			'separate_items_with_commas'    => __( 'Separate session categories with commas', 'conf-schedule' ),
+			'add_or_remove_items'           => __( 'Add or remove session categories', 'conf-schedule' ),
+			'choose_from_most_used'         => __( 'Choose from the most used session categories', 'conf-schedule' ),
+			'popular_items'                 => __( 'Popular session categories', 'conf-schedule' ),
+			'search_items'                  => __( 'Search Session Categories', 'conf-schedule' ),
+			'not_found'                     => __( 'No session categories found.', 'conf-schedule' ),
+			'no_terms'                      => __( 'No session categories', 'conf-schedule' ),
 		));
 
 		// Define the arguments for the session categories taxonomy.
@@ -810,7 +810,7 @@ class Conference_Schedule {
 
 		// If we want to add the schedule to this page...
 		if ( ! empty( $settings['schedule_add_page'] ) && $settings['schedule_add_page'] > 0 ) {
-			
+
 			if ( $post->ID == $settings['schedule_add_page'] ) {
 
 				// Add the schedule.
@@ -830,7 +830,7 @@ class Conference_Schedule {
 	 * @return	string - the schedule
 	 */
 	public function get_conference_schedule() {
-		
+
 		ob_start();
 
 		// Get settings.

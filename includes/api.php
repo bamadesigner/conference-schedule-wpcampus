@@ -54,7 +54,7 @@ class Conference_Schedule_API {
 	 */
 	public function register_rest_fields() {
 
-		// Add event info
+		// Add event info.
 		$event_fields = array(
 			'event_dt',
 			'event_dt_gmt',
@@ -87,7 +87,7 @@ class Conference_Schedule_API {
 			));
 		}
 
-		// Add speaker info
+		// Add speaker info.
 		$speaker_fields = array(
 			'speaker_thumbnail',
 			'speaker_position',
@@ -107,11 +107,12 @@ class Conference_Schedule_API {
 			));
 		}
 
-		// Add location info
+		// Add location info.
 		$location_fields = array(
 			'address',
 			'google_maps_url',
 		);
+
 		foreach ( $location_fields as $field_name ) {
 			register_rest_field( 'locations', $field_name, array(
 				'get_callback'		=> array( $this, 'get_location_field_value' ),
@@ -232,7 +233,7 @@ class Conference_Schedule_API {
 
 				return true;
 
-			// Get event speakers
+			// Get event speakers.
 			case 'event_speakers':
 				$event_speakers = $event->get_speakers();
 				return ! empty( $event_speakers ) ? $event_speakers : null;
@@ -277,7 +278,7 @@ class Conference_Schedule_API {
 	 */
 	public function get_speaker_field_value( $object, $field_name, $request ) {
 
-		// Define field post meta key
+		// Define field post meta key.
 		$field_meta_key = "conf_sch_{$field_name}";
 
 		switch ( $field_name ) {
@@ -322,13 +323,12 @@ class Conference_Schedule_API {
 				$conf_sch_location_address = get_post_meta( $object['id'], 'conf_sch_location_address', true );
 				return ! empty( $conf_sch_location_address ) ? $conf_sch_location_address : null;
 
-			// Gets the URL for API location endpoints
+			// Gets the URL for API location endpoints.
 			case 'google_maps_url':
 				$google_maps_url = get_post_meta( $object['id'], 'conf_sch_location_google_maps_url', true );
 				return ! empty( $google_maps_url ) ? $google_maps_url : null;
 
 		}
-
 	}
 
 }

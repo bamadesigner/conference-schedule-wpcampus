@@ -113,7 +113,7 @@ class Conference_Schedule_Admin {
 			'orderby'           => 'title',
 			'order'             => 'ASC',
 		));
-		
+
 		if ( ! empty( $speakers ) ) {
 
 			// Build speakers data.
@@ -132,13 +132,13 @@ class Conference_Schedule_Admin {
 				// Get the selected speakers.
 				$selected_speakers = get_post_meta( $schedule_post_id, 'conf_sch_event_speakers', true );
 				if ( ! empty( $selected_speakers ) ) {
-					
+
 					if ( ! is_array( $selected_speakers ) ) {
 						$selected_speakers = explode( ',', $selected_speakers );
 					}
-					
+
 					$speakers_data['selected'] = $selected_speakers;
-					
+
 				}
 			}
 
@@ -231,7 +231,7 @@ class Conference_Schedule_Admin {
 			wp_enqueue_style( 'conf-schedule-admin-post', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'admin-post.min.css', $admin_style_dep, CONFERENCE_SCHEDULE_VERSION );
 
 			// Load assets for the speakers page.
-			switch( $post_type ) {
+			switch ( $post_type ) {
 
 				case 'schedule':
 
@@ -264,7 +264,6 @@ class Conference_Schedule_Admin {
 					break;
 
 			}
-
 		}
 	}
 
@@ -275,7 +274,7 @@ class Conference_Schedule_Admin {
 	 * @since   1.0.0
 	 */
 	public function add_settings_page() {
-		
+
 		$this->settings_page_id = add_submenu_page(
 			'edit.php?post_type=schedule',
 			__( 'Conference Schedule Settings', 'conf-schedule' ),
@@ -283,7 +282,7 @@ class Conference_Schedule_Admin {
 			'edit_posts',
 			'conf-schedule-settings',
 			array( $this, 'print_settings_page' )
-    	);
+		);
 	}
 
 	/**
@@ -432,7 +431,7 @@ class Conference_Schedule_Admin {
 	 */
 	public function print_settings_meta_boxes( $post, $metabox ) {
 
-		switch( $metabox['args']['id'] ) {
+		switch ( $metabox['args']['id'] ) {
 
 			/*
 			 * About meta box.
@@ -551,10 +550,10 @@ class Conference_Schedule_Admin {
 							<td>
 								<label for="conf-schedule-schedule-pre-html" style="margin-bottom:15px;"><strong><?php _e( 'Content to add before the schedule:', 'conf-schedule' ); ?></strong></label>
 								<?php
-									
+
 								// Get the saved pre HTML.
 								$pre_html = ! empty( $settings['pre_html'] ) ? $settings['pre_html'] : '';
-								
+
 								// Print the editor.
 								wp_editor( $pre_html, 'conf-schedule-schedule-pre-html', array(
 									'wpautop'       => true,
@@ -570,10 +569,10 @@ class Conference_Schedule_Admin {
 							<td>
 								<label for="conf-schedule-schedule-post-html" style="margin-bottom:15px;"><strong><?php _e( 'Content to add after the schedule:', 'conf-schedule' ); ?></strong></label>
 								<?php
-									
+
 								// Get the saved post HTML.
 								$post_html = ! empty( $settings['post_html'] ) ? $settings['post_html'] : '';
-								
+
 								// Print the editor.
 								wp_editor( $post_html, 'conf-schedule-schedule-post-html', array(
 									'wpautop'       => true,
@@ -592,7 +591,7 @@ class Conference_Schedule_Admin {
 
 								// Get the saved pre HTML.
 								$pre_event_html = ! empty( $settings['pre_event_html'] ) ? $settings['pre_event_html'] : '';
-								
+
 								// Print the editor.
 								wp_editor( $pre_event_html, 'conf-schedule-event-pre-html', array(
 									'wpautop'       => true,
@@ -611,7 +610,7 @@ class Conference_Schedule_Admin {
 
 								// Get the saved post HTML.
 								$post_event_html = ! empty( $settings['post_event_html'] ) ? $settings['post_event_html'] : '';
-								
+
 								// Print the editor.
 								wp_editor( $post_event_html, 'conf-schedule-event-post-html', array(
 									'wpautop'       => true,
@@ -643,9 +642,7 @@ class Conference_Schedule_Admin {
 
 		// Show instructions for speaker photo.
 		if ( 'speakers' == get_post_type( $post_id ) ) {
-			
 			$content .= '<div class="wp-ui-highlight" style="padding:10px;margin:15px 0 5px 0;">' . __( "Please load the speaker's photo as a featured image. The image needs to be at least 200px wide.", 'conf-schedule' ) . '</div>';
-		
 		}
 
 		return $content;
@@ -697,7 +694,7 @@ class Conference_Schedule_Admin {
 	 */
 	public function add_meta_boxes( $post_type, $post ) {
 
-		switch( $post_type ) {
+		switch ( $post_type ) {
 
 			case 'schedule':
 
@@ -716,7 +713,7 @@ class Conference_Schedule_Admin {
 
 				// Session Details.
 				if ( ! empty( $session_fields ) ) {
-					
+
 					add_meta_box(
 						'conf-schedule-session-details',
 						__( 'Session Details', 'conf-schedule' ),
@@ -805,7 +802,7 @@ class Conference_Schedule_Admin {
 	 */
 	public function print_meta_boxes( $post, $metabox ) {
 
-		switch( $metabox['id'] ) {
+		switch ( $metabox['id'] ) {
 
 			case 'conf-schedule-event-details':
 				$this->print_event_details_form( $post->ID );
@@ -860,7 +857,7 @@ class Conference_Schedule_Admin {
 		}
 
 		// Proceed depending on post type.
-		switch( $post->post_type ) {
+		switch ( $post->post_type ) {
 
 			case 'schedule':
 
@@ -1066,8 +1063,7 @@ class Conference_Schedule_Admin {
 
 									}
 								}
-
-							}  else if ( isset( $_POST['conf_schedule_event_delete_slides_file'] )
+							} elseif ( isset( $_POST['conf_schedule_event_delete_slides_file'] )
 								&& $_POST['conf_schedule_event_delete_slides_file'] > 0 ) {
 
 								// Clear out the meta.
@@ -1236,7 +1232,7 @@ class Conference_Schedule_Admin {
 		$sch_link_to_post = true;
 
 		// Check the database.
-		$sch_link_to_post_db = $wpdb->get_var( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = {$post_id} AND meta_key = 'conf_sch_link_to_post'" );
+		$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $post_id ) );
 
 		// If row exists, then check the value.
 		if ( $sch_link_to_post_db ) {
@@ -1285,16 +1281,16 @@ class Conference_Schedule_Admin {
 						));
 
 						if ( ! empty( $event_children ) ) :
-							
+
 							?>
 							<div id="conf-sch-event-children">
 								<p class="description"><strong><?php
 
-									if ( $event_parent > 0 ) {
-										_e( 'This event has the following sibling events:', 'conf-schedule' );
-									} else {
-										_e( 'This event is a parent to the following events:', 'conf-schedule' );
-									}
+								if ( $event_parent > 0 ) {
+									_e( 'This event has the following sibling events:', 'conf-schedule' );
+								} else {
+									_e( 'This event is a parent to the following events:', 'conf-schedule' );
+								}
 
 								?></p>
 								<ul>
@@ -1444,7 +1440,7 @@ class Conference_Schedule_Admin {
 						<th scope="row"><label for="conf-sch-livestream-url"><?php _e( 'Livestream URL', 'conf-schedule' ); ?></label></th>
 						<td>
 							<input type="text" id="conf-sch-livestream-url" name="conf_schedule[event][livestream_url]" value="<?php echo esc_attr( $livestream_url ); ?>" />
-							<p class="description"><?php _e( "Please provide the URL for users to view the livestream.", 'conf-schedule' ); ?></p>
+							<p class="description"><?php _e( 'Please provide the URL for users to view the livestream.', 'conf-schedule' ); ?></p>
 						</td>
 					</tr>
 					<?php
@@ -1468,7 +1464,8 @@ class Conference_Schedule_Admin {
 					</tr>
 					<tr>
 						<th scope="row"><label for="conf-sch-slides-file-input"><?php _e( 'Slides File', 'conf-schedule' ); ?></label></th>
-						<td><?php
+						<td>
+							<?php
 
 							// Should we hide the input?
 							$slides_file_hide_input = false;

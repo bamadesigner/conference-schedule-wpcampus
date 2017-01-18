@@ -199,7 +199,7 @@ class Conference_Schedule_Event {
 	private $feedback_url;
 
 	/**
-	 * Did we just construct a person?
+	 * Did we just construct something?
 	 *
 	 * @access  public
 	 * @since   1.0.0
