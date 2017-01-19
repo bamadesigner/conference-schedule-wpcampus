@@ -210,6 +210,9 @@ $speaker-thumb-height: 200px;
 $speaker-thumb-top: 5px;
 #conf-sch-single-speakers {
     display: none;
+    border-top: 1px solid rgba( #000, 0.1 );
+    margin-top: 35px;
+    padding-top: 30px;
 
     .conf-sch-single-speakers-title {
         margin-bottom: 12px;

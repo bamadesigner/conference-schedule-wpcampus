@@ -149,6 +149,9 @@ class Conference_Schedule {
 		// Tweak the event pages and add schedule to a page, if necessary.
 		add_filter( 'the_content', array( $this, 'the_content' ), 1000 );
 
+		// Add handlebar templates to the footer when needed.
+		add_action( 'wp_footer', array( $this, 'print_handlebar_templates' ) );
+
 		// Register custom post types.
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
 
@@ -530,7 +533,7 @@ class Conference_Schedule {
 		global $post;
 
 		// For tweaking the single schedule pages.
-		if ( 'schedule' == get_query_var( 'post_type' ) ) {
+		if ( is_singular( 'schedule' ) ) :
 
 			// Get the settings.
 			$settings = $this->get_settings();
@@ -557,20 +560,9 @@ class Conference_Schedule {
 				endif;
 			endif;
 
-			// Add livestream holder.
+			// Add content holders.
 			?>
 			<div id="conf-sch-single-livestream"></div>
-			<?php
-
-			// Add the livestream template.
-			?>
-			<script id="conf-sch-single-ls-template" type="text/x-handlebars-template">
-				{{#if session_livestream_url}}<div class="callout"><a href="{{session_livestream_url}}"><?php _e( 'Watch the livestream', 'conf-schedule' ); ?></a></div>{{/if}}
-			</script>
-			<?php
-
-			// Add the info holders.
-			?>
 			<div id="conf-sch-single-meta"></div>
 			<?php
 
@@ -594,7 +586,7 @@ class Conference_Schedule {
 					?>
 					<div id="conf-sch-single-video">
 						<h2><?php _e( 'Watch The Session', 'conf-schedule' ); ?></h2>
-						<?php echo ! empty( $video_html ) ? $video_html : ''; ?>
+						<?php echo $video_html; ?>
 					</div>
 					<?php
 
@@ -605,26 +597,6 @@ class Conference_Schedule {
 			<div id="conf-sch-single-speakers">
 				<h2 class="conf-sch-single-speakers-title"><?php echo $speakers_archive_title; ?></h2>
 			</div>
-			<script id="conf-sch-single-meta-template" type="text/x-handlebars-template">
-				{{#event_date_display}}<span class="event-meta event-date"><span class="event-meta-label"><?php _e( 'Date', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_date_display}}
-				{{#event_time_display}}<span class="event-meta event-time"><span class="event-meta-label"><?php _e( 'Time', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_time_display}}
-				{{#event_location}}<span class="event-meta event-location"><span class="event-meta-label"><?php _e( 'Location', 'conf-schedule' ); ?>:</span> {{post_title}}</span>{{/event_location}}
-				{{#if session_categories}}<span class="event-meta event-categories"><span class="event-meta-label"><?php _e( 'Categories', 'conf-schedule' ); ?>:</span> {{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</span>{{/if}}
-				{{#event_links}}{{body}}{{/event_links}}
-			</script>
-			<script id="conf-sch-single-speakers-template" type="text/x-handlebars-template">
-				<div class="event-speaker">
-					{{#if title.rendered}}<h3 class="speaker-name">{{{title.rendered}}}</h3>{{/if}}
-					{{{speaker_meta}}}
-					{{{speaker_social_media}}}
-					{{#if content}}
-						<div class="speaker-bio{{#if speaker_thumbnail}} has-photo{{/if}}">
-							{{#if speaker_thumbnail}}<img class="speaker-thumb" src="{{speaker_thumbnail}}" />{{/if}}
-							{{{content.rendered}}}
-						</div>
-					{{/if}}
-				</div>
-			</script>
 			<?php
 
 			// If we have post HTML...
@@ -642,7 +614,8 @@ class Conference_Schedule {
 			endif;
 
 			return ob_get_clean();
-		}
+
+		endif;
 
 		// If we want to add the schedule to a page...
 		if ( $this->add_schedule_to_page() ) {
@@ -653,6 +626,47 @@ class Conference_Schedule {
 		}
 
 		return $the_content;
+	}
+
+	/**
+	 * Add handlebar templates to the footer when needed.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public function print_handlebar_templates() {
+
+		// Add the single event templates.
+		if ( is_singular( 'schedule' ) ) :
+
+			?>
+			<script id="conf-sch-single-ls-template" type="text/x-handlebars-template">
+				{{#if session_livestream_url}}<div class="callout"><a href="{{session_livestream_url}}"><?php _e( 'Watch the livestream', 'conf-schedule' ); ?></a></div>{{/if}}
+			</script>
+			<script id="conf-sch-single-meta-template" type="text/x-handlebars-template">
+				{{#event_date_display}}<span class="event-meta event-date"><span class="event-meta-label"><?php _e( 'Date', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_date_display}}
+				{{#event_time_display}}<span class="event-meta event-time"><span class="event-meta-label"><?php _e( 'Time', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_time_display}}
+				{{#event_location}}<span class="event-meta event-location"><span class="event-meta-label"><?php _e( 'Location', 'conf-schedule' ); ?>:</span> {{post_title}}</span>{{/event_location}}
+				{{#if session_categories}}<span class="event-meta event-categories"><span class="event-meta-label"><?php _e( 'Categories', 'conf-schedule' ); ?>:</span> {{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</span>{{/if}}
+				{{#event_links}}{{body}}{{/event_links}}
+			</script>
+			<script id="conf-sch-single-speakers-template" type="text/x-handlebars-template">
+				<div class="event-speaker">
+					{{#if title.rendered}}<h3 class="speaker-name">{{{title.rendered}}}</h3>{{/if}}
+					{{{speaker_meta}}}
+					{{{speaker_social_media}}}
+					{{#if content}}
+					<div class="speaker-bio{{#if speaker_thumbnail}} has-photo{{/if}}">
+						{{#if speaker_thumbnail}}<img class="speaker-thumb" src="{{speaker_thumbnail}}" />{{/if}}
+						{{{content.rendered}}}
+					</div>
+					{{/if}}
+				</div>
+			</script>
+			<?php
+
+		endif;
+
 	}
 
 	/**
@@ -873,18 +887,18 @@ class Conference_Schedule {
 			endif;
 
 			?>
+			<script id="conference-schedule-template" type="text/x-handlebars-template">
+				<div id="conf-sch-event-{{id}}" class="schedule-event{{#if event_parent}} event-child{{/if}}{{#event_types}} {{.}}{{/event_types}}">
+					{{#event_time_display}}<div class="event-time">{{.}}</div>{{/event_time_display}}
+					{{#title}}{{body}}{{/title}}
+					{{#event_location}}<div class="event-location">{{post_title}}</div>{{/event_location}}
+					{{#if event_address}}<div class="event-address">{{#if event_google_maps_url}}<a href="{{event_google_maps_url}}">{{/if}}{{event_address}}{{#if event_google_maps_url}}</a>{{/if}}</div>{{/if}}
+					{{#if event_speakers}}<div class="event-speakers">{{#each event_speakers}}<div class="event-speaker">{{post_title}}</div>{{/each}}</div>{{/if}}
+					{{#if session_categories}}<div class="event-categories">{{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</div>{{/if}}
+					{{#event_links}}{{body}}{{/event_links}}
+				</div>
+			</script>
 		</div>
-		<script id="conference-schedule-template" type="text/x-handlebars-template">
-			<div id="conf-sch-event-{{id}}" class="schedule-event{{#if event_parent}} event-child{{/if}}{{#event_types}} {{.}}{{/event_types}}">
-				{{#event_time_display}}<div class="event-time">{{.}}</div>{{/event_time_display}}
-				{{#title}}{{body}}{{/title}}
-				{{#event_location}}<div class="event-location">{{post_title}}</div>{{/event_location}}
-				{{#if event_address}}<div class="event-address">{{#if event_google_maps_url}}<a href="{{event_google_maps_url}}">{{/if}}{{event_address}}{{#if event_google_maps_url}}</a>{{/if}}</div>{{/if}}
-				{{#if event_speakers}}<div class="event-speakers">{{#each event_speakers}}<div class="event-speaker">{{post_title}}</div>{{/each}}</div>{{/if}}
-				{{#if session_categories}}<div class="event-categories">{{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</div>{{/if}}
-				{{#event_links}}{{body}}{{/event_links}}
-			</div>
-		</script>
 		<?php
 
 		/*// What time is it?
