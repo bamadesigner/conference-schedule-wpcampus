@@ -26,6 +26,7 @@ var dest = {
 gulp.task('watch', function() {
 	gulp.watch(src.scss, ['sass']);
 	gulp.watch(src.js, ['js']);
+	gulp.watch(src.php, ['test','translate']);
 });
 
 // Sass is pretty awesome, right?
@@ -82,6 +83,6 @@ gulp.task('translate', function () {
 });
 
 // Let's get this party started
-gulp.task('default', ['compile','translate']);
+gulp.task('default', ['compile','test','translate']);
 gulp.task('compile', ['sass','js']);
 gulp.task('test', ['php']);

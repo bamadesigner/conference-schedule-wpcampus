@@ -37,6 +37,9 @@
 		// Will hold all "children" events
 		var $children_events = [];
 
+		// Get current date/time.
+		var current_time = new Date();
+
 		// Get the schedule information
 		$.ajax({
 			url: conf_sch.wp_api_route + 'schedule',
@@ -83,6 +86,7 @@
 					// Make sure time row exists
 					if ( $schedule_by_dates[$item.event_date][$event_time_index] === undefined ) {
 						$schedule_by_dates[$item.event_date][$event_time_index] = {
+							event_date: $item.event_date,
 							start_time: $item.event_start_time,
 							end_time: $item.event_end_time,
 							events: []
@@ -131,7 +135,7 @@
 							}
 
 							// Set the time display to the default time display
-							if ( $row_time_display == '' && $item.event_time_display ) {
+							if ( '' == $row_time_display && $item.event_time_display ) {
 								$row_time_display = $item.event_time_display;
 							}
 
@@ -152,6 +156,29 @@
 						// If we have events, add a row
 						if ( $row_events.length >= 1 ) {
 
+							// Setup the date/time for the row.
+							var row_start_time = new Date( $time_items.event_date );
+							var row_end_time = new Date( $time_items.event_date );
+
+							// Split the times into hour and minute.
+							var row_start_time_pieces = $time_items.start_time.split( ':' );
+							var row_end_time_pieces = $time_items.end_time.split( ':' );
+
+							// Set the hour and minute.
+							row_start_time.setHours( row_start_time_pieces[0], row_start_time_pieces[1] );
+							row_end_time.setHours( row_end_time_pieces[0], row_end_time_pieces[1] );
+
+							// Assign the class for the schedule row status.
+							var schedule_row_status = '';
+
+							if ( row_start_time < current_time && current_time < row_end_time ) {
+								schedule_row_status = 'status-in-progress';
+							} else if ( current_time >= row_end_time ) {
+								schedule_row_status = 'status-past';
+							} else {
+								schedule_row_status = 'status-future';
+							}
+
 							// Will hold the row HTML - start with the time
 							var $schedule_row_html = '<div class="schedule-row-item time">' + $row_time_display + '</div>';
 
@@ -159,7 +186,7 @@
 							$schedule_row_html += '<div class="schedule-row-item events">' + $row_events.join( '' ) + '</div>';
 
 							// Wrap the row
-							$schedule_row_html = '<div class="schedule-row ' + $event_types.join( ' ' ) + '">' + $schedule_row_html + '</div>';
+							$schedule_row_html = '<div class="schedule-row ' + $event_types.join( ' ' ) + ' ' + schedule_row_status + '">' + $schedule_row_html + '</div>';
 
 							// Add to the day
 							$schedule_day_html += $schedule_row_html;

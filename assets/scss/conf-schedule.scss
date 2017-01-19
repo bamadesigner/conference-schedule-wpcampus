@@ -27,36 +27,6 @@ $linkedin-blue: #0077b5;
     transition: $transform;
 }
 
-// For the different event types
-//$event_types: ('keynote': $keynote-bg) ('food': $food-bg) ('social': $social-bg) ('auditorium': $auditorium-bg) ('break': $break-bg);
-
-// Give color to a schedule row
-/*@mixin schedule_row_with_bg($bg_color) {
-    background: none;
-    position: relative;
-    overflow: visible;
-    z-index: 0;
-    border-top: 0;
-
-    &:before {
-        content: '';
-        background: $bg_color;
-        position: absolute;
-        left: -100%;
-        top: 0;
-        width: 300%;
-        height: 100%;
-        border-top: 1px solid $schedule-border-color;
-        border-bottom: 1px solid $schedule-border-color;
-        z-index: -1;
-    }
-
-    &:last-child {
-        border-bottom: 0;
-    }
-
-}*/
-
 .clear {
     clear: both;
 }
@@ -482,9 +452,15 @@ $conf-sch-events-width: 85%;
                 }
             }
 
-            /*&.current {
-                @include schedule_row_with_bg( rgba( #f9ff00, 0.2 ) );
-            }*/
+	        &.status-past {
+		        opacity: 0.4;
+	        }
+
+	        &.status-in-progress {
+		        background: rgba( 0, 128, 0, 0.075 );
+	        }
+
+	        &.status-future {}
         }
 
         .schedule-row.current + .schedule-row {
