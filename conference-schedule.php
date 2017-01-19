@@ -92,6 +92,16 @@ class Conference_Schedule {
 	private $schedule_display_fields;
 
 	/**
+	 * Will be true if we need to
+	 * load the schedule assets.
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 * @var     bool
+	 */
+	private $load_schedule = false;
+
+	/**
 	 * Holds the class instance.
 	 *
 	 * @since	1.0.0
@@ -406,6 +416,17 @@ class Conference_Schedule {
 	}
 
 	/**
+	 * If called, will tell us to
+	 * load the schedule assets.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 */
+	public function load_schedule() {
+		$this->load_schedule = true;
+	}
+
+	/**
 	 * Add styles and scripts for our shortcodes.
 	 *
 	 * @access  public
@@ -479,7 +500,7 @@ class Conference_Schedule {
 			$add_schedule_to_page = ! $has_schedule_shortcode ? $this->add_schedule_to_page() : false;
 
 			// Enqueue the schedule script when needed.
-			if ( $has_schedule_shortcode || $add_schedule_to_page ) {
+			if ( $has_schedule_shortcode || $add_schedule_to_page || $this->load_schedule ) {
 
 				// Enqueue our schedule styles.
 				wp_enqueue_style( 'conf-schedule' );
