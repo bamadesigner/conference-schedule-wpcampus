@@ -9,6 +9,5 @@ You can see the plugin in action on [the HighEdWeb New England website](http://n
 1. Clone the repo
 2. Open the repo in your terminal
 3. Run `npm install`.
-4. Run `composer install`.
-  * If you have any issues with PHPCS, run `composer install` again.
+4. Run `composer install`. _If you have any issues with PHPCS during step 5, run `composer install` again._
 5. Run `gulp`.
