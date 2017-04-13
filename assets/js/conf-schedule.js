@@ -161,12 +161,15 @@
 							var row_end_time = new Date( $time_items.event_date );
 
 							// Split the times into hour and minute.
-							var row_start_time_pieces = $time_items.start_time.split( ':' );
-							var row_end_time_pieces = $time_items.end_time.split( ':' );
+							if ( null !== $time_items.start_time && $time_items.start_time.search( ':' ) > -1 ) {
+								var row_start_time_pieces = $time_items.start_time.split( ':' );
+								row_start_time.setHours( row_start_time_pieces[ 0 ], row_start_time_pieces[ 1 ] );
+							}
 
-							// Set the hour and minute.
-							row_start_time.setHours( row_start_time_pieces[0], row_start_time_pieces[1] );
-							row_end_time.setHours( row_end_time_pieces[0], row_end_time_pieces[1] );
+							if ( null !== $time_items.end_time && $time_items.end_time.search( ':' ) > -1 ) {
+								var row_end_time_pieces = $time_items.end_time.split( ':' );
+								row_end_time.setHours( row_end_time_pieces[ 0 ], row_end_time_pieces[ 1 ] );
+							}
 
 							// Assign the class for the schedule row status.
 							var schedule_row_status = '';
