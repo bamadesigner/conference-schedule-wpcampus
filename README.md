@@ -6,8 +6,14 @@ You can see the plugin in action on [the HighEdWeb New England website](http://n
 
 ## For Development
 
-1. Clone the repo
-2. Open the repo in your terminal
-3. Run `npm install`.
-4. Run `composer install`. _If you have any issues with PHPCS during step 5, run `composer install` again._
-5. Run `gulp`.
+1. [Ensure node.js is installed](https://docs.npmjs.com/getting-started/installing-node) in your environment.
+2. Clone the repo.
+3. Open the repo in your terminal.
+4. Run `npm install` to install all of the npm dependencies.
+5. Run `composer install` to install all of the composer dependencies.
+    * If you have any issues related to composer or PHPCS, run `composer install` again.
+6. Run `gulp` to run all of your default Gulp tasks.
+    * Run `gulp test` to test the plugin code for errors.
+    * Run `gulp compile` to compile assets.
+    * Run `gulp translate` to compile the internationalization files.
+    * Run `gulp watch` to watch for file changes.

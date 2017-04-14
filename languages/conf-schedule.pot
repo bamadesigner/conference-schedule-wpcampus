@@ -6,9 +6,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: https://github.com/bamadesigner/conference-schedule/issues\n"
-"Last-Translator: Rachel Carden <bamadesigner@gmail.com>\n"
 "Language-Team: Rachel Carden <bamadesigner@gmail.com>\n"
+"Last-Translator: Rachel Carden <bamadesigner@gmail.com>\n"
+"Report-Msgid-Bugs-To: https://github.com/bamadesigner/conference-schedule/issues\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: conference-schedule.php:477, conference-schedule.php:524, includes/admin.php:543
@@ -23,213 +23,213 @@ msgstr ""
 msgid "Watch Session"
 msgstr ""
 
-#: conference-schedule.php:609
+#: conference-schedule.php:624
 msgid "Watch The Session"
 msgstr ""
 
-#: conference-schedule.php:665
+#: conference-schedule.php:680
 msgid "Watch the livestream"
 msgstr ""
 
-#: conference-schedule.php:668, includes/admin.php:1249
+#: conference-schedule.php:683, includes/admin.php:1249
 msgid "Date"
 msgstr ""
 
-#: conference-schedule.php:669
+#: conference-schedule.php:684
 msgid "Time"
 msgstr ""
 
-#: conference-schedule.php:670, includes/admin.php:1371
+#: conference-schedule.php:685, includes/admin.php:1371
 msgid "Location"
 msgstr ""
 
-#: conference-schedule.php:671
+#: conference-schedule.php:686
 msgid "Categories"
 msgstr ""
 
-#: conference-schedule.php:703
+#: conference-schedule.php:718
 msgctxt "Post Type General Name"
 msgid "Locations"
 msgstr ""
 
-#: conference-schedule.php:704
+#: conference-schedule.php:719
 msgctxt "Post Type Singular Name"
 msgid "Location"
 msgstr ""
 
-#: conference-schedule.php:705, conference-schedule.php:706, conference-schedule.php:707, conference-schedule.php:721
+#: conference-schedule.php:720, conference-schedule.php:721, conference-schedule.php:722, conference-schedule.php:736
 msgid "Locations"
 msgstr ""
 
-#: conference-schedule.php:708
+#: conference-schedule.php:723
 msgid "All Locations"
 msgstr ""
 
-#: conference-schedule.php:709
+#: conference-schedule.php:724
 msgid "Add New Location"
 msgstr ""
 
-#: conference-schedule.php:710
+#: conference-schedule.php:725
 msgid "New Location"
 msgstr ""
 
-#: conference-schedule.php:711
+#: conference-schedule.php:726
 msgid "Edit Location"
 msgstr ""
 
-#: conference-schedule.php:712
+#: conference-schedule.php:727
 msgid "Update Location"
 msgstr ""
 
-#: conference-schedule.php:713
+#: conference-schedule.php:728
 msgid "View Location"
 msgstr ""
 
-#: conference-schedule.php:714
+#: conference-schedule.php:729
 msgid "Search Locations"
 msgstr ""
 
-#: conference-schedule.php:715
+#: conference-schedule.php:730
 msgid "No locations found."
 msgstr ""
 
-#: conference-schedule.php:716
+#: conference-schedule.php:731
 msgid "No locations found in Trash"
 msgstr ""
 
-#: conference-schedule.php:722
+#: conference-schedule.php:737
 msgid "The locations content for your conference."
 msgstr ""
 
-#: conference-schedule.php:750
+#: conference-schedule.php:765
 msgctxt "Taxonomy General Name"
 msgid "Event Types"
 msgstr ""
 
-#: conference-schedule.php:751
+#: conference-schedule.php:766
 msgctxt "Taxonomy Singular Name"
 msgid "Event Type"
 msgstr ""
 
-#: conference-schedule.php:752, includes/admin.php:1341
+#: conference-schedule.php:767, includes/admin.php:1341
 msgid "Event Types"
 msgstr ""
 
-#: conference-schedule.php:753
+#: conference-schedule.php:768
 msgid "All Event Types"
 msgstr ""
 
-#: conference-schedule.php:754
+#: conference-schedule.php:769
 msgid "New Event Type"
 msgstr ""
 
-#: conference-schedule.php:755
+#: conference-schedule.php:770
 msgid "Add New Event Type"
 msgstr ""
 
-#: conference-schedule.php:756
+#: conference-schedule.php:771
 msgid "Edit Event Type"
 msgstr ""
 
-#: conference-schedule.php:757
+#: conference-schedule.php:772
 msgid "Update Event Type"
 msgstr ""
 
-#: conference-schedule.php:758
+#: conference-schedule.php:773
 msgid "View Event Type"
 msgstr ""
 
-#: conference-schedule.php:759
+#: conference-schedule.php:774
 msgid "Separate event types with commas"
 msgstr ""
 
-#: conference-schedule.php:760
+#: conference-schedule.php:775
 msgid "Add or remove event types"
 msgstr ""
 
-#: conference-schedule.php:761
+#: conference-schedule.php:776
 msgid "Choose from the most used event types"
 msgstr ""
 
-#: conference-schedule.php:762
+#: conference-schedule.php:777
 msgid "Popular event types"
 msgstr ""
 
-#: conference-schedule.php:763
+#: conference-schedule.php:778
 msgid "Search Event Types"
 msgstr ""
 
-#: conference-schedule.php:764
+#: conference-schedule.php:779
 msgid "No event types found."
 msgstr ""
 
-#: conference-schedule.php:765, includes/admin.php:1338
+#: conference-schedule.php:780, includes/admin.php:1338
 msgid "No event types"
 msgstr ""
 
-#: conference-schedule.php:786
+#: conference-schedule.php:801
 msgctxt "Taxonomy General Name"
 msgid "Session Categories"
 msgstr ""
 
-#: conference-schedule.php:787
+#: conference-schedule.php:802
 msgctxt "Taxonomy Singular Name"
 msgid "Session Category"
 msgstr ""
 
-#: conference-schedule.php:788, includes/admin.php:1359
+#: conference-schedule.php:803, includes/admin.php:1359
 msgid "Session Categories"
 msgstr ""
 
-#: conference-schedule.php:789
+#: conference-schedule.php:804
 msgid "All Session Categories"
 msgstr ""
 
-#: conference-schedule.php:790
+#: conference-schedule.php:805
 msgid "New Session Category"
 msgstr ""
 
-#: conference-schedule.php:791
+#: conference-schedule.php:806
 msgid "Add New Session Category"
 msgstr ""
 
-#: conference-schedule.php:792
+#: conference-schedule.php:807
 msgid "Edit Session Category"
 msgstr ""
 
-#: conference-schedule.php:793
+#: conference-schedule.php:808
 msgid "Update Session Category"
 msgstr ""
 
-#: conference-schedule.php:794
+#: conference-schedule.php:809
 msgid "View Session Category"
 msgstr ""
 
-#: conference-schedule.php:795
+#: conference-schedule.php:810
 msgid "Separate session categories with commas"
 msgstr ""
 
-#: conference-schedule.php:796
+#: conference-schedule.php:811
 msgid "Add or remove session categories"
 msgstr ""
 
-#: conference-schedule.php:797
+#: conference-schedule.php:812
 msgid "Choose from the most used session categories"
 msgstr ""
 
-#: conference-schedule.php:798
+#: conference-schedule.php:813
 msgid "Popular session categories"
 msgstr ""
 
-#: conference-schedule.php:799
+#: conference-schedule.php:814
 msgid "Search Session Categories"
 msgstr ""
 
-#: conference-schedule.php:800
+#: conference-schedule.php:815
 msgid "No session categories found."
 msgstr ""
 
-#: conference-schedule.php:801, includes/admin.php:1356
+#: conference-schedule.php:816, includes/admin.php:1356
 msgid "No session categories"
 msgstr ""
 

@@ -7,7 +7,7 @@ var sass = require('gulp-sass');
 var sort = require('gulp-sort');
 var uglify = require('gulp-uglify');
 var watch = require('gulp-watch');
-var wpPot = require('gulp-wp-pot');
+var wp_pot = require('gulp-wp-pot');
 
 // Define the source paths for each file type
 var src = {
@@ -20,7 +20,7 @@ var src = {
 var dest = {
 	scss: './assets/css',
 	js: './assets/js'
-}
+};
 
 // I've got my eyes on you(r file changes)
 gulp.task('watch', function() {
@@ -70,7 +70,7 @@ gulp.task('php',function() {
 gulp.task('translate', function () {
     return gulp.src(src.php)
     	.pipe(sort())
-        .pipe(wpPot( {
+        .pipe(wp_pot( {
             domain: 'conf-schedule',
             destFile: 'conf-schedule.pot',
             package: 'Conference_Schedule',
