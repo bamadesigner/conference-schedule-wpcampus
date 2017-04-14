@@ -535,6 +535,21 @@ class Conference_Schedule {
 					}
 				}
 
+				// Get this site's timezone.
+				$timezone = new DateTimeZone( get_option( 'timezone_string' ) ?: 'UTC' );
+
+				// Get the current time.
+				$current_time = new DateTime( 'now', $timezone );
+
+				// Get the timezone offset.
+				$current_time_offset = $current_time->getOffset();
+
+				// Get the difference in hours.
+				$timezone_offset_hours = ( abs( $current_time_offset ) / 60 ) / 60;
+
+				// Pass the offset in hours.
+				$conf_sch_data['tz_offset'] = ( $current_time_offset < 0 ) ? ( 0 - $timezone_offset_hours ) : $timezone_offset_hours;
+
 				// Pass some translations.
 				wp_localize_script( 'conf-schedule', 'conf_sch', $conf_sch_data );
 

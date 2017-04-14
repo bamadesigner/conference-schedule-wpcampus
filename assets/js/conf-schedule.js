@@ -26,7 +26,6 @@
 			render_conference_schedule();
 
 		}
-
 	});
 
 	///// FUNCTIONS /////
@@ -34,56 +33,70 @@
 	// Get/update the schedule.
 	function render_conference_schedule() {
 
-		// Will hold all "children" events
+		// Will hold all "children" events.
 		var $children_events = [];
 
 		// Get current date/time.
-		var current_time = new Date();
+		var current_dt_local = new Date();
 
-		// Get the schedule information
+		/*
+		 * The offset is positive if the local timezone is behind UTC.
+		 * We're converting so negative if behind.
+		 */
+		var utc_timezone_diff = current_dt_local.getTimezoneOffset() / 60;
+		if ( utc_timezone_diff > 0 ) {
+			utc_timezone_diff = 0 - utc_timezone_diff;
+		} else {
+			utc_timezone_diff = Math.abs( utc_timezone_diff );
+		}
+
+		// Figure out how to convert the event hours to local times.
+		var local_hour_diff = utc_timezone_diff - parseInt( conf_sch.tz_offset );
+
+		// Get the schedule information.
 		$.ajax({
 			url: conf_sch.wp_api_route + 'schedule',
-			success: function( $schedule_items ) {
+			success: function( schedule_items ) {
 
-				// Build the HTML
+				// Build the HTML.
 				var $schedule_html = '';
 
-				// Index by date
+				// Index by date.
 				var $schedule_by_dates = {};
 
-				// Go through each item
-				$.each( $schedule_items, function( $index, $item ) {
+				// Go through each item.
+				$.each( schedule_items, function( $index, $item ) {
 
-					// If this event is a child, don't add (for now)
+					// If this event is a child, don't add (for now).
                 	if ( $item.event_parent > 0 ) {
                 		$children_events.push( $item );
                 		return true;
                 	}
 
-					// Make sure we have a date
+					// Make sure we have a date.
 					if ( ! ( $item.event_date !== undefined && $item.event_date ) ) {
 						return false;
 					}
 
-					// Make sure we have a start time
+					// Make sure we have a start time.
 					if ( ! ( $item.event_start_time !== undefined && $item.event_start_time ) ) {
 						return false;
 					}
 
-					// Build time index
+					// Build time index.
 					var $event_time_index = $item.event_start_time;
 
-					// Add end time
+					// Add end time.
 					if ( $item.event_end_time ) {
 						$event_time_index += ":" + $item.event_end_time;
 					}
 
-					// Make sure array exists for the day
+					// Make sure array exists for the day.
 					if ( $schedule_by_dates[$item.event_date] === undefined ) {
 						$schedule_by_dates[$item.event_date] = {};
 					}
 
-					// Make sure time row exists
+					// Make sure time row exists.
 					if ( $schedule_by_dates[$item.event_date][$event_time_index] === undefined ) {
 						$schedule_by_dates[$item.event_date][$event_time_index] = {
 							event_date: $item.event_date,
@@ -93,56 +106,56 @@
 						};
 					}
 
-					// Add this item by date
+					// Add this item by date.
 					$schedule_by_dates[$item.event_date][$event_time_index]['events'].push( $item );
 
 				});
 
-				// Print out the schedule by date
+				// Print out the schedule by date.
 				$.each( $schedule_by_dates, function( $date, $day_by_time ) {
 
-					// Will hold the day HTML
+					// Will hold the day HTML.
 					var $schedule_day_html = '';
 
-					// Will hold the event day for display
+					// Will hold the event day for display.
 					var $day_display = '';
 
-					// Sort through events by the time
+					// Sort through events by the time.
 					$.each( $day_by_time, function( $time, $time_items ) {
 
-						// Make sure we have events
+						// Make sure we have events.
 						if ( $time_items.events === undefined
 							|| typeof $time_items.events != 'object'
 							|| $time_items.events.length == 0 ) {
 							return false;
 						}
 
-						// Will hold the row time for display
+						// Will hold the row time for display.
 						var $row_time_display = '';
 
-						// Build events HTML
+						// Build events HTML.
 						var $row_events = [];
 
-						// Get event types
+						// Get event types.
 						var $event_types = [];
 
-						// Add the events
+						// Add the events.
 						$.each( $time_items.events, function( $index, $item ) {
 
-							// Get the date
-							if ( $day_display == '' && $item.event_date_display ) {
+							// Get the date.
+							if ( '' == $day_display && $item.event_date_display ) {
 								$day_display = $item.event_date_display;
 							}
 
-							// Set the time display to the default time display
+							// Set the time display to the default time display.
 							if ( '' == $row_time_display && $item.event_time_display ) {
 								$row_time_display = $item.event_time_display;
 							}
 
-							// Render the templates
+							// Render the templates.
 							$row_events.push( $conf_sch_templ( $item ) );
 
-							// Store event types
+							// Store event types.
 							if ( $item.event_types && $.isArray( $item.event_types ) ) {
 								$.each( $item.event_types, function( $index, $type ) {
 									if ( $type != '' && $.inArray( $type, $event_types ) == -1 ) {
@@ -150,55 +163,71 @@
 									}
 								});
 							}
-
 						});
 
-						// If we have events, add a row
+						// If we have events, add a row.
 						if ( $row_events.length >= 1 ) {
 
-							// Setup the date/time for the row.
-							var row_start_time = new Date( $time_items.event_date );
-							var row_end_time = new Date( $time_items.event_date );
+							// Split up the date and times.
+							var row_date_pieces = null !== $time_items.event_date && $time_items.event_date.search( '-' ) > -1 ? $time_items.event_date.split( '-' ) : [];
+							var row_start_time_pieces = null !== $time_items.start_time && $time_items.start_time.search( ':' ) > -1 ? $time_items.start_time.split( ':' ) : [];
+							var row_end_time_pieces = null !== $time_items.end_time && $time_items.end_time.search( ':' ) > -1 ? $time_items.end_time.split( ':' ) : [];
 
-							// Split the times into hour and minute.
-							if ( null !== $time_items.start_time && $time_items.start_time.search( ':' ) > -1 ) {
-								var row_start_time_pieces = $time_items.start_time.split( ':' );
-								row_start_time.setHours( row_start_time_pieces[ 0 ], row_start_time_pieces[ 1 ] );
-							}
+							// Get the date year, month, and day.
+							var row_start_dt_year = parseInt( row_date_pieces[0] );
+							var row_start_dt_month = parseInt( row_date_pieces[1] ) - 1;
+							var row_start_dt_day = parseInt( row_date_pieces[2] );
 
-							if ( null !== $time_items.end_time && $time_items.end_time.search( ':' ) > -1 ) {
-								var row_end_time_pieces = $time_items.end_time.split( ':' );
-								row_end_time.setHours( row_end_time_pieces[ 0 ], row_end_time_pieces[ 1 ] );
+							// Set the hour and minute. Convert the hour to local time.
+							var row_start_hour = parseInt( row_start_time_pieces[0] ) + local_hour_diff;
+							var row_start_minute = parseInt( row_start_time_pieces[1] );
+
+							// Set the start date/time.
+							var row_start_dt = new Date( row_start_dt_year, row_start_dt_month, row_start_dt_day, row_start_hour, row_start_minute );
+
+							// Set the end date/time.
+							var row_end_dt = null;
+							if ( row_end_time_pieces.length > 0 ) {
+
+								// Set the end hour and minute. Convert the hour to local time.
+								var row_end_hour = parseInt( row_end_time_pieces[0] ) + local_hour_diff;
+								var row_end_minute = parseInt( row_end_time_pieces[1] );
+
+								// Set the new end date/time.
+								row_end_dt = new Date( row_start_dt_year, row_start_dt_month, row_start_dt_day, row_end_hour, row_end_minute );
+
 							}
 
 							// Assign the class for the schedule row status.
 							var schedule_row_status = '';
 
-							if ( row_start_time < current_time && current_time < row_end_time ) {
-								schedule_row_status = 'status-in-progress';
-							} else if ( current_time >= row_end_time ) {
-								schedule_row_status = 'status-past';
-							} else {
-								schedule_row_status = 'status-future';
+							// Only need to add status if we have an end date/time.
+							if ( null !== row_end_dt ) {
+								if ( row_start_dt < current_dt_local && current_dt_local < row_end_dt ) {
+									schedule_row_status = 'status-in-progress';
+								} else if ( current_dt_local >= row_end_dt ) {
+									schedule_row_status = 'status-past';
+								} else {
+									schedule_row_status = 'status-future';
+								}
 							}
 
-							// Will hold the row HTML - start with the time
+							// Will hold the row HTML - start with the time.
 							var $schedule_row_html = '<div class="schedule-row-item time">' + $row_time_display + '</div>';
 
-							// Add the events
+							// Add the events.
 							$schedule_row_html += '<div class="schedule-row-item events">' + $row_events.join( '' ) + '</div>';
 
-							// Wrap the row
+							// Wrap the row.
 							$schedule_row_html = '<div class="schedule-row ' + $event_types.join( ' ' ) + ' ' + schedule_row_status + '">' + $schedule_row_html + '</div>';
 
-							// Add to the day
+							// Add to the day.
 							$schedule_day_html += $schedule_row_html;
 
 						}
-
 					});
 
-					// Build the column header row
+					// Build the column header row.
 					/*var $schedule_header = '<div class="schedule-header-item time">Time</div>';
 					$schedule_header += '<div class="schedule-header-item events">';
 					$schedule_header += '<div class="schedule-header-event">Auditorium</div>';
@@ -215,7 +244,7 @@
 					// Prefix the date header.
 					$schedule_day_html = '<h2 class="schedule-header">' + $day_display + '</h2>' + $schedule_day_html;
 
-					// Add to schedule
+					// Add to schedule.
 					$schedule_html += $schedule_day_html;
 
 				});
@@ -226,30 +255,29 @@
 			},
 			complete: function() {
 
-				// Process the children
-            	if ( $children_events.length >= 1 ) {
-            		$.each( $children_events, function( $index, $item ) {
+				// Process the children.
+				if ( $children_events.length >= 1 ) {
+					$.each( $children_events, function( $index, $item ) {
 
-            			// Get the parent
-            			var $event_parent = $( '#conf-sch-event-' + $item.event_parent );
-            			if ( $event_parent.length > 0 ) {
+						// Get the parent.
+						var $event_parent = $( '#conf-sch-event-' + $item.event_parent );
+						if ( $event_parent.length > 0 ) {
 
-            				// Make sure the parent knows it's a parent
-            				$event_parent.addClass( 'event-parent' );
+							// Make sure the parent knows it's a parent.
+							$event_parent.addClass( 'event-parent' );
 
-            				// Make sure it has a child div
-            				var $event_children = $event_parent.find( '.event-children' );
-            				if ( $event_children.length == 0 ) {
-            					$event_children = $( '<div class="event-children"></div>' ).appendTo( $event_parent );
-            				}
+							// Make sure it has a child div.
+							var $event_children = $event_parent.find( '.event-children' );
+							if ( $event_children.length == 0 ) {
+								$event_children = $( '<div class="event-children"></div>' ).appendTo( $event_parent );
+							}
 
-            				// Render the templates
-            				$event_children.append( $conf_sch_templ( $item ) );
+							// Render the templates.
+							$event_children.append( $conf_sch_templ( $item ) );
 
-            			}
-
-            		});
-            	}
+						}
+					});
+				}
 
 				// Remove loading status and fade schedule in.
 				$conf_sch_container.children().fadeOut();
@@ -258,10 +286,9 @@
 
 			}
 		});
-
 	}
 
-	// Format the title
+	// Format the title.
 	Handlebars.registerHelper( 'title', function( $options ) {
 		var $new_title = this.title.rendered;
 		if ( $new_title !== undefined && $new_title ) {
@@ -273,7 +300,7 @@
 		return null;
 	});
 
-	// Format the excerpt
+	// Format the excerpt.
 	Handlebars.registerHelper( 'excerpt', function( $options ) {
 		var $new_excerpt = this.excerpt.rendered;
 		if ( $new_excerpt !== undefined && $new_excerpt ) {
@@ -282,10 +309,10 @@
 		return null;
 	});
 
-	// Format the event meta links
+	// Format the event meta links.
 	Handlebars.registerHelper( 'event_links', function( $options ) {
 
-		// Build the string
+		// Build the string.
 		var $event_links_string = '';
 
 		// Do we have an event hashtag?
