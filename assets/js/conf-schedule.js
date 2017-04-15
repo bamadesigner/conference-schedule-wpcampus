@@ -347,6 +347,7 @@
 		if ( $event_links_string ) {
 			return new Handlebars.SafeString( '<ul class="conf-sch-event-links">' + $event_links_string + '</ul>' );
 		}
+
 		return null;
 	});
 
