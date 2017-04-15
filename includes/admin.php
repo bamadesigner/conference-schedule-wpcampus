@@ -84,21 +84,14 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Method to keep our instance from being cloned.
+	 * Method to keep our instance from
+	 * being cloned or unserialized.
 	 *
 	 * @since	1.0.0
 	 * @access	private
 	 * @return	void
 	 */
 	private function __clone() {}
-
-	/**
-	 * Method to keep our instance from being unserialized.
-	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @return	void
-	 */
 	private function __wakeup() {}
 
 	/**
@@ -106,12 +99,23 @@ class Conference_Schedule_Admin {
 	 */
 	public function ajax_get_speakers() {
 
+		// Get post statues.
+		$post_statuses = get_post_stati();
+
+		// Remove the ones we don't want.
+		foreach ( array( 'auto-draft', 'inherit', 'private', 'trash' ) as $status ) {
+			if ( isset( $post_statuses[ $status ] ) ) {
+				unset( $post_statuses[ $status ] );
+			}
+		}
+
 		// Get list of speakers.
 		$speakers = get_posts( array(
 			'post_type'         => 'speakers',
 			'posts_per_page'    => -1,
 			'orderby'           => 'title',
 			'order'             => 'ASC',
+			'post_status'       => $post_statuses,
 		));
 
 		if ( ! empty( $speakers ) ) {
@@ -130,15 +134,17 @@ class Conference_Schedule_Admin {
 			if ( $schedule_post_id > 0 ) {
 
 				// Get the selected speakers.
-				$selected_speakers = get_post_meta( $schedule_post_id, 'conf_sch_event_speakers', true );
+				$selected_speakers = get_post_meta( $schedule_post_id, 'conf_sch_event_speaker', false );
+
+				// Make sure it has only IDs.
+				$selected_speakers = array_filter( $selected_speakers, 'is_numeric' );
+
+				// Convert everything to integers.
+				$selected_speakers = array_map( 'intval', $selected_speakers );
+
+				// Store selected speakers.
 				if ( ! empty( $selected_speakers ) ) {
-
-					if ( ! is_array( $selected_speakers ) ) {
-						$selected_speakers = explode( ',', $selected_speakers );
-					}
-
 					$speakers_data['selected'] = $selected_speakers;
-
 				}
 			}
 
@@ -850,7 +856,7 @@ class Conference_Schedule_Admin {
 
 		// Make sure user has permissions.
 		$post_type_object = get_post_type_object( $post->post_type );
-		$user_has_cap = $post_type_object && isset( $post_type_object->cap->edit_post ) ? current_user_can( $post_type_object->cap->edit_post ) : false;
+		$user_has_cap = $post_type_object && isset( $post_type_object->cap->edit_post ) ? current_user_can( $post_type_object->cap->edit_post, $post_id ) : false;
 
 		if ( ! $user_has_cap ) {
 			return;
@@ -973,24 +979,55 @@ class Conference_Schedule_Admin {
 							 */
 							if ( isset( $_POST['conf_schedule']['event']['speakers'] ) ) {
 
-								$event_speakers = $_POST['conf_schedule']['event']['speakers'];
+								// Get the speakers being updated.
+								$saved_event_speakers = $_POST['conf_schedule']['event']['speakers'];
 
 								// Make sure its an array.
-								if ( ! is_array( $event_speakers ) ) {
-									$event_speakers = explode( ',', $event_speakers );
+								if ( ! is_array( $saved_event_speakers ) ) {
+									$saved_event_speakers = explode( ',', $saved_event_speakers );
 								}
 
 								// Make sure it has only IDs.
-								$event_speakers = array_filter( $event_speakers, 'is_numeric' );
+								$saved_event_speakers = array_filter( $saved_event_speakers, 'is_numeric' );
 
-								// Convert to integer.
-								$event_speakers = array_map( 'intval', $event_speakers );
+								// Convert to integers.
+								$saved_event_speakers = array_map( 'intval', $saved_event_speakers );
 
-								// Update/save value.
-								update_post_meta( $post_id, 'conf_sch_event_speakers', $event_speakers );
+								// Get the current speakers.
+								$current_event_speakers = get_post_meta( $post_id, 'conf_sch_event_speaker', false );
+
+								// Make sure it has only IDs.
+								$current_event_speakers = array_filter( $current_event_speakers, 'is_numeric' );
+
+								// Convert to integers.
+								$current_event_speakers = array_map( 'intval', $current_event_speakers );
+
+								// Check current speakers against saved speakers.
+								if ( ! empty( $current_event_speakers ) ) {
+									foreach ( $current_event_speakers as $current_speaker ) {
+
+										// Find the current speaker in saved speakers.
+										$current_speaker_search = array_search( $current_speaker, $saved_event_speakers );
+
+										// If current speaker is still set, then do nothing and remove from saved speakers.
+										if ( $current_speaker_search >= 0 ) {
+											unset( $saved_event_speakers[ $current_speaker_search ] );
+										} else {
+
+											// Otherwise, delete current speaker.
+											delete_post_meta( $post_id, 'conf_sch_event_speaker', $current_speaker );
+
+										}
+									}
+								}
+
+								// Go through remaining saved speakers and add to database.
+								foreach ( $saved_event_speakers as $event_speaker ) {
+									add_post_meta( $post_id, 'conf_sch_event_speaker', $event_speaker, false );
+								}
 
 							} else {
-								update_post_meta( $post_id, 'conf_sch_event_speakers', null );
+								delete_post_meta( $post_id, 'conf_sch_event_speaker' );
 							}
 
 							/*

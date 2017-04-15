@@ -174,21 +174,14 @@ class Conference_Schedule {
 	}
 
 	/**
-	 * Method to keep our instance from being cloned.
+	 * Method to keep our instance from
+	 * being cloned or unserialized.
 	 *
 	 * @since	1.0.0
 	 * @access	private
 	 * @return	void
 	 */
 	private function __clone() {}
-
-	/**
-	 * Method to keep our instance from being unserialized.
-	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @return	void
-	 */
 	private function __wakeup() {}
 
 	/**

@@ -398,7 +398,7 @@
 			cache: false,
 			data: {
 				action: 'conf_sch_get_speakers',
-				schedule_post_id: $( '#post_ID' ).val(),
+				schedule_post_id: $( '#post_ID' ).val()
 			},
 			success: function( speakers_data ) {
 

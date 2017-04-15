@@ -12,7 +12,7 @@ var wp_pot = require('gulp-wp-pot');
 // Define the source paths for each file type
 var src = {
     scss: 'assets/scss/*.scss',
-    js: ['assets/js/*.js','!assets/js/*.min.js','!assets/js/*-min.js'],
+    js: ['assets/js/*.js','!assets/js/*.min.js'],
     php: ['**/*.php','!vendor/**','!node_modules/**']
 };
 
