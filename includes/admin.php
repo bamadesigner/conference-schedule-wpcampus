@@ -81,6 +81,12 @@ class Conference_Schedule_Admin {
 		// Set it up so we can do file uploads.
 		add_action( 'post_edit_form_tag' , array( $this, 'post_edit_form_tag' ) );
 
+		// Add custom columns.
+		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
+
+		// Populate our custom admin columns.
+		add_action( 'manage_schedule_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
+
 	}
 
 	/**
@@ -117,7 +123,6 @@ class Conference_Schedule_Admin {
 			'order'             => 'ASC',
 			'post_status'       => $post_statuses,
 		));
-
 		if ( ! empty( $speakers ) ) {
 
 			// Build speakers data.
@@ -744,6 +749,16 @@ class Conference_Schedule_Admin {
 
 			case 'speakers':
 
+				// Speaker Events.
+				add_meta_box(
+					'conf-schedule-speaker-events',
+					__( 'Speaker Events', 'conf-schedule' ),
+					array( $this, 'print_meta_boxes' ),
+					$post_type,
+					'normal',
+					'high'
+				);
+
 				// Speaker Details.
 				add_meta_box(
 					'conf-schedule-speaker-details',
@@ -822,6 +837,10 @@ class Conference_Schedule_Admin {
 				$this->print_event_social_media_form( $post->ID );
 				break;
 
+			case 'conf-schedule-speaker-events':
+				$this->print_speaker_events( $post->ID );
+				break;
+
 			case 'conf-schedule-speaker-details':
 				$this->print_speaker_details_form( $post->ID );
 				break;
@@ -851,6 +870,11 @@ class Conference_Schedule_Admin {
 
 		// Disregard on autosave.
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		// Not for auto drafts.
+		if ( 'auto-draft' == $post->post_status ) {
 			return;
 		}
 
@@ -1317,6 +1341,19 @@ class Conference_Schedule_Admin {
 							'post_status' => 'any',
 						));
 
+						// Remove the current post.
+						if ( ! empty( $event_children ) ) {
+							$new_event_children = array();
+							foreach ( $event_children as $child ) {
+
+								// Don't show the current event.
+								if ( $child->ID != $post_id ) {
+									$new_event_children[] = $child;
+								}
+							}
+							$event_children = $new_event_children;
+						}
+
 						if ( ! empty( $event_children ) ) :
 
 							?>
@@ -1329,7 +1366,7 @@ class Conference_Schedule_Admin {
 									_e( 'This event is a parent to the following events:', 'conf-schedule' );
 								}
 
-								?></p>
+								?></strong></p>
 								<ul>
 									<?php
 
@@ -1646,6 +1683,43 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
+	 * Print the speaker events.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker
+	 */
+	public function print_speaker_events( $post_id ) {
+
+		// Get the speaker and its events.
+		$speaker = new Conference_Schedule_Speaker( $post_id );
+		$events = $speaker->get_events();
+
+		// Print events.
+		if ( empty( $events ) ) :
+			?><p class="description"><?php _e( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p><?php
+		else :
+
+			?>
+			<ul>
+				<?php
+
+				foreach( $events as $event ) :
+
+					?>
+					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
+					<?php
+
+				endforeach;
+
+				?>
+			</ul>
+			<?php
+
+		endif;
+	}
+
+	/**
 	 * Print the speaker details form for a particular speaker.
 	 *
 	 * @access  public
@@ -1828,6 +1902,69 @@ class Conference_Schedule_Admin {
 		}
 	}
 
+	/**
+	 * Add custom admin columns.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   $columns - array - An array of column names.
+	 * @param   $post_type - string - The post type slug.
+	 * @return  array - the filtered column names.
+	 */
+	public function add_posts_columns( $columns, $post_type ) {
+
+		// Only for these post types.
+		if ( ! in_array( $post_type, array( 'schedule' ) ) ) {
+			return $columns;
+		}
+
+		// Store new columns.
+		$new_columns = array();
+
+		foreach ( $columns as $key => $value ) {
+
+			// Add to new columns.
+			$new_columns[ $key ] = $value;
+
+			// Add custom columns after title.
+			if ( 'title' == $key ) {
+				$new_columns['conf-sch-speakers'] = __( 'Speakers', 'conf-schedule' );
+			}
+		}
+
+		return $new_columns;
+	}
+
+	/**
+	 * Populate our custom admin columns.
+	 *
+	 * @param   $column - string - The name of the column to display.
+	 * @param   $post_id - int - The current post ID.
+	 */
+	public function populate_posts_columns( $column, $post_id ) {
+
+		// Add data for our custom date column.
+		if ( 'conf-sch-speakers' == $column ) {
+
+			// Get event.
+			$event = new Conference_Schedule_Event( $post_id );
+
+			// Get event speakers.
+			$speakers = $event->get_speakers();
+			if ( $speakers ) {
+
+				// Build string of speakers.
+				$speakers_list = array();
+				foreach ( $speakers as $speaker ) {
+					$speakers_list[] = '<a href="' . get_edit_post_link( $speaker->ID ) . '">' . $speaker->post_title . '</a>';
+				}
+
+				// Print speakers list.
+				echo implode( '<br>', $speakers_list );
+
+			}
+		}
+	}
 }
 
 /**

@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:     Conference Schedule
- * Plugin URI:      @TODO
+ * Plugin URI:      https://github.com/bamadesigner/conference-schedule
  * Description:     Helps you build a simple schedule for your conference website.
  * Version:         0.5
  * Author:          Rachel Carden

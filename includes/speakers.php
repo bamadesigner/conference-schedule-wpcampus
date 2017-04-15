@@ -8,6 +8,15 @@
 class Conference_Schedule_Speaker {
 
 	/**
+	 * Will hold the speaker's events.
+	 *
+	 * @since   1.0.0
+	 * @access  private
+	 * @var     array
+	 */
+	private $events;
+
+	/**
 	 * Will hold the speaker's
 	 * post ID if a valid speaker.
 	 *
@@ -43,6 +52,38 @@ class Conference_Schedule_Speaker {
 			$this->ID = $this->post->ID;
 		}
 
+	}
+
+	/**
+	 * Get the speaker's events.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  array - the events
+	 */
+	public function get_events() {
+
+		// Make sure we have an ID.
+		if ( ! $this->ID ) {
+			return array();
+		}
+
+		// Return events if already set.
+		if ( isset( $this->events ) ) {
+			return $this->events;
+		}
+
+		// Get the events.
+		return $this->events = get_posts( array(
+			'posts_per_page'   => -1,
+			'orderby'          => 'title',
+			'order'            => 'ASC',
+			'meta_key'         => 'conf_sch_event_speaker',
+			'meta_value'       => $this->ID,
+			'post_type'        => 'schedule',
+			'post_status'      => 'any',
+			'suppress_filters' => true,
+		));
 	}
 
 }

@@ -214,7 +214,6 @@ class Conference_Schedule_Event {
 		if ( ! empty( $this->post->ID ) ) {
 			$this->ID = $this->post->ID;
 		}
-
 	}
 
 	/**
@@ -608,12 +607,12 @@ class Conference_Schedule_Event {
 	 */
 	public function get_speakers() {
 
-		// Make sure we have an ID
-		if ( ! ( $this->ID >= 1 ) ) {
-			return false;
+		// Make sure we have an ID.
+		if ( ! $this->ID ) {
+			return array();
 		}
 
-		// If already set, return the speakers
+		// If already set, return the speakers.
 		if ( isset( $this->speakers ) ) {
 			return $this->speakers;
 		}
@@ -621,14 +620,9 @@ class Conference_Schedule_Event {
 		// Will hold speakers
 		$speakers = array();
 
-		// Get speaker ID
-		$event_speaker_ids = get_post_meta( $this->ID, 'conf_sch_event_speakers', true );
+		// Get speaker IDs.
+		$event_speaker_ids = get_post_meta( $this->ID, 'conf_sch_event_speaker', false );
 		if ( ! empty( $event_speaker_ids ) ) {
-
-			// Make sure its an array.
-			if ( ! is_array( $event_speaker_ids ) ) {
-				$event_speaker_ids = implode( ',', $event_speaker_ids );
-			}
 
 			// Get speakers info.
 			foreach ( $event_speaker_ids as $speaker_id ) {

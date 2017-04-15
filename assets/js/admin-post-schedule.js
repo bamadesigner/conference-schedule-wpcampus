@@ -26,7 +26,7 @@
 			sch_time_field.timepicker({
 				step: 15,
 				timeFormat: 'g:i a',
-				minTime: '5:00 am',
+				minTime: '5:00 am'
 			});
 		}
 
