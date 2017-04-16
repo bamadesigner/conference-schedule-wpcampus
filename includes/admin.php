@@ -9,9 +9,9 @@ class Conference_Schedule_Admin {
 	/**
 	 * ID of the settings page
 	 *
-	 * @since 1.0.0
-	 * @access public
-	 * @var string
+	 * @since   1.0.0
+	 * @access  public
+	 * @var     string
 	 */
 	public $settings_page_id;
 
@@ -50,6 +50,9 @@ class Conference_Schedule_Admin {
 		// Return data to AJAX.
 		add_action( 'wp_ajax_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
 		add_action( 'wp_ajax_conf_sch_get_users', array( $this, 'ajax_get_users' ) );
+		add_action( 'wp_ajax_conf_sch_get_terms', array( $this, 'ajax_get_terms' ) );
+		add_action( 'wp_ajax_conf_sch_get_posts', array( $this, 'ajax_get_posts' ) );
+		add_action( 'wp_ajax_conf_sch_get_events', array( $this, 'ajax_get_events' ) );
 
 		// Add styles and scripts for the tools page.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ), 20 );
@@ -102,6 +105,10 @@ class Conference_Schedule_Admin {
 
 	/**
 	 * Print list of speakers in JSON for AJAX.
+	 *
+	 * @since   1.0.0
+	 * @access  public
+	 * @return  void
 	 */
 	public function ajax_get_speakers() {
 
@@ -123,13 +130,13 @@ class Conference_Schedule_Admin {
 			'order'             => 'ASC',
 			'post_status'       => $post_statuses,
 		));
-		if ( ! empty( $speakers ) ) {
 
-			// Build speakers data.
-			$speakers_data = array(
-				'selected'  => array(),
-				'speakers'  => $speakers,
-			);
+		if ( empty( $speakers ) ) {
+			echo json_encode( array() );
+		} {
+
+			// Will hold selected speaker IDs.
+			$selected = array();
 
 			/*
 			 * If we passed a schedule post ID,
@@ -139,22 +146,18 @@ class Conference_Schedule_Admin {
 			if ( $schedule_post_id > 0 ) {
 
 				// Get the selected speakers.
-				$selected_speakers = get_post_meta( $schedule_post_id, 'conf_sch_event_speaker', false );
+				$selected = get_post_meta( $schedule_post_id, 'conf_sch_event_speaker', false );
 
-				// Make sure it has only IDs.
-				$selected_speakers = array_filter( $selected_speakers, 'is_numeric' );
-
-				// Convert everything to integers.
-				$selected_speakers = array_map( 'intval', $selected_speakers );
-
-				// Store selected speakers.
-				if ( ! empty( $selected_speakers ) ) {
-					$speakers_data['selected'] = $selected_speakers;
+				// If selected, add to speakers data.
+				if ( ! empty( $selected ) ) {
+					foreach ( $speakers as $speaker ) {
+						$speaker->is_selected = in_array( $speaker->ID, $selected );
+					}
 				}
 			}
 
 			// Print the speakers data.
-			echo json_encode( $speakers_data );
+			echo json_encode( $speakers );
 
 		}
 
@@ -163,6 +166,10 @@ class Conference_Schedule_Admin {
 
 	/**
 	 * Print list of users in JSON for AJAX.
+	 *
+	 * @since   1.0.0
+	 * @access  public
+	 * @return  void
 	 */
 	public function ajax_get_users() {
 
@@ -199,11 +206,150 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
+	 * Print terms in JSON for AJAX.
+	 *
+	 * @since   1.0.0
+	 * @access  public
+	 * @return  void
+	 */
+	public function ajax_get_terms() {
+
+		// Get taxonomy name.
+		$taxonomy_name = isset( $_GET['taxonomy'] ) ? $_GET['taxonomy'] : '';
+		if ( ! empty( $taxonomy_name ) ) {
+
+			// If we have a post ID, then get selected terms.
+			$post_id = isset( $_GET['post_id'] ) ? $_GET['post_id'] : 0;
+			$selected_terms = $post_id ? wp_get_object_terms( $post_id, $taxonomy_name, array( 'fields' => 'ids' ) ) : array();
+
+			// Get terms.
+			$terms = get_terms( array(
+				'taxonomy'      => $taxonomy_name,
+				'hide_empty'    => false,
+				'orderby'       => 'name',
+				'order'         => 'ASC',
+				'fields'        => 'all',
+			));
+
+			// Print the terms.
+			if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+
+				// Mark selected terms.
+				if ( ! empty( $selected_terms ) ) {
+					foreach ( $terms as $term ) {
+						$term->is_selected = in_array( $term->term_id, $selected_terms );
+					}
+				}
+
+				echo json_encode( $terms );
+
+			} else {
+				echo json_encode( array() );
+			}
+		}
+
+		wp_die();
+	}
+
+	/**
+	 * Print posts in JSON for AJAX.
+	 *
+	 * @since   1.0.0
+	 * @access  public
+	 * @return  void
+	 */
+	public function ajax_get_posts() {
+
+		// Get post type.
+		$post_type = isset( $_GET['post_type'] ) ? $_GET['post_type'] : '';
+		if ( ! empty( $post_type ) ) {
+
+			// Get the posts.
+			$posts = get_posts( array(
+				'post_type'         => $post_type,
+				'posts_per_page'    => -1,
+				'post_status'       => array( 'publish', 'future', 'draft', 'pending' ),
+				'orderby'           => 'title',
+				'order'             => 'ASC',
+				'suppress_filters'  => true,
+			));
+			if ( ! empty( $posts ) ) {
+
+				// If we have a post ID and meta key, then get selected posts.
+				$post_id = isset( $_GET['post_id'] ) ? $_GET['post_id'] : 0;
+				$meta_key = isset( $_GET['meta_key'] ) ? $_GET['meta_key'] : '';
+				if ( $post_id && $meta_key ) {
+
+					// Get the selected posts.
+					$selected_posts = get_post_meta( $post_id, $meta_key, false );
+					if ( ! empty( $selected_posts ) ) {
+
+						// Mark selected posts.
+						if ( ! empty( $selected_posts ) ) {
+							foreach ( $posts as $post ) {
+								$post->is_selected = in_array( $post->ID, $selected_posts );
+							}
+						}
+					}
+				}
+			}
+
+			echo json_encode( $posts );
+
+		} else {
+			echo json_encode( array() );
+		}
+
+		wp_die();
+	}
+
+	/**
+	 * Print events in JSON for AJAX
+	 * with selected parent.
+	 *
+	 * @since   1.0.0
+	 * @access  public
+	 * @return  void
+	 */
+	public function ajax_get_events() {
+
+		// Get the posts.
+		$posts = get_posts( array(
+			'post_type'         => 'schedule',
+			'posts_per_page'    => -1,
+			'post_status'       => array( 'publish', 'future', 'draft', 'pending' ),
+			'orderby'           => 'title',
+			'order'             => 'ASC',
+			'suppress_filters'  => true,
+		));
+		if ( ! empty( $posts ) ) {
+
+			// If we're trying to detect an event's parent...
+			$select_parent = isset( $_GET['select_parent'] ) ? $_GET['select_parent'] : 0;
+			if ( $select_parent > 0 ) {
+
+				// Get event parent.
+				$selected_parent = get_post_field( 'post_parent', $select_parent );
+
+				// Mark selected posts.
+				foreach ( $posts as $post ) {
+					$post->is_selected = ( $selected_parent == $post->ID );
+				}
+			}
+		}
+
+		echo json_encode( $posts );
+
+		wp_die();
+	}
+
+	/**
 	 * Add styles and scripts in the admin.
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	string - $hook_suffix - the ID of the current page
+	 * @param   string - $hook_suffix - the ID of the current page
+	 * @return  void
 	 */
 	public function enqueue_styles_scripts( $hook_suffix ) {
 		global $post_type, $post_id;
@@ -253,16 +399,9 @@ class Conference_Schedule_Admin {
 					// Enqueue the post script.
 					wp_enqueue_script( 'conf-schedule-admin-schedule', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-schedule.min.js', array( 'jquery', 'jquery-ui-datepicker', 'timepicker', 'select2' ), CONFERENCE_SCHEDULE_VERSION, true );
 
-					// Get the API route.
-					$wp_rest_api_route = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : '';
-					if ( ! empty( $wp_rest_api_route ) ) {
-						$wp_rest_api_route = "/{$wp_rest_api_route}/wp/v2/";
-					}
-
 					// Pass info to the script.
 					wp_localize_script( 'conf-schedule-admin-schedule', 'conf_sch', array(
-						'post_id'       => $post_id,
-						'wp_api_route'  => $wp_rest_api_route,
+						'post_id' => $post_id,
 					));
 
 					break;
@@ -283,6 +422,7 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function add_settings_page() {
 
@@ -301,6 +441,7 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function print_settings_page() {
 
@@ -362,6 +503,7 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function register_settings() {
 		register_setting( 'conf_schedule', 'conf_schedule', array( $this, 'update_settings' ) );
@@ -384,6 +526,7 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function add_settings_meta_boxes() {
 
@@ -437,8 +580,9 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param 	array - $post - information about the current post, which is empty because there is no current post on a settings page
-	 * @param 	array - $metabox - information about the metabox
+	 * @param   array - $post - information about the current post, which is empty because there is no current post on a settings page
+	 * @param   array - $metabox - information about the metabox
+	 * @return  void
 	 */
 	public function print_settings_meta_boxes( $post, $metabox ) {
 
@@ -647,7 +791,10 @@ class Conference_Schedule_Admin {
 	 * Adds instructions to the admin thumbnail meta box.
 	 *
 	 * @access  public
-	 * @since   1.1.0
+	 * @since   1.0.0
+	 * @param   $content - string - the default HTML
+	 * @param   $post_id - ID - the post ID
+	 * @return  string - the filtered HTML
 	 */
 	public function filter_admin_post_thumbnail_html( $content, $post_id ) {
 
@@ -663,7 +810,8 @@ class Conference_Schedule_Admin {
 	 * Prints any needed admin notices.
 	 *
 	 * @access  public
-	 * @since   1.1.0
+	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function print_admin_notice() {
 		global $hook_suffix, $post_type;
@@ -702,6 +850,9 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @param   $post_type - string - the post type
+	 * @param   $post - WP_Post - the post object
+	 * @return  void
 	 */
 	public function add_meta_boxes( $post_type, $post ) {
 
@@ -804,6 +955,7 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @return  void
 	 */
 	public function remove_meta_boxes() {
 
@@ -820,6 +972,9 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
+	 * @param   $post - WP_Post - the post object
+	 * @param   $metabox - array - meta box arguments
+	 * @return  void
 	 */
 	public function print_meta_boxes( $post, $metabox ) {
 
@@ -862,9 +1017,10 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the post being saved
-	 * @param	WP_Post - $post - the post object
-	 * @param	bool - $update - whether this is an existing post being updated or not
+	 * @param   int - $post_id - the ID of the post being saved
+	 * @param   WP_Post - $post - the post object
+	 * @param   bool - $update - whether this is an existing post being updated or not
+	 * @return  void
 	 */
 	function save_meta_box_data( $post_id, $post, $update ) {
 
@@ -1003,53 +1159,44 @@ class Conference_Schedule_Admin {
 							 */
 							if ( isset( $_POST['conf_schedule']['event']['speakers'] ) ) {
 
-								// Get the speakers being updated.
-								$saved_event_speakers = $_POST['conf_schedule']['event']['speakers'];
+								// Get new speakers.
+								$new_event_speakers = $_POST['conf_schedule']['event']['speakers'];
 
 								// Make sure its an array.
-								if ( ! is_array( $saved_event_speakers ) ) {
-									$saved_event_speakers = explode( ',', $saved_event_speakers );
+								if ( ! is_array( $new_event_speakers ) ) {
+									$new_event_speakers = explode( ',', $new_event_speakers );
 								}
 
 								// Make sure it has only IDs.
-								$saved_event_speakers = array_filter( $saved_event_speakers, 'is_numeric' );
+								$new_event_speakers = array_filter( $new_event_speakers, 'is_numeric' );
 
-								// Convert to integers.
-								$saved_event_speakers = array_map( 'intval', $saved_event_speakers );
+								// Get existing speakers.
+								$existing_event_speakers = get_post_meta( $post_id, 'conf_sch_event_speaker', false );
 
-								// Get the current speakers.
-								$current_event_speakers = get_post_meta( $post_id, 'conf_sch_event_speaker', false );
+								// Go through existing speakers and update.
+								if ( ! empty( $existing_event_speakers ) ) {
+									foreach ( $existing_event_speakers as $speaker_id ) {
 
-								// Make sure it has only IDs.
-								$current_event_speakers = array_filter( $current_event_speakers, 'is_numeric' );
-
-								// Convert to integers.
-								$current_event_speakers = array_map( 'intval', $current_event_speakers );
-
-								// Check current speakers against saved speakers.
-								if ( ! empty( $current_event_speakers ) ) {
-									foreach ( $current_event_speakers as $current_speaker ) {
-
-										// Find the current speaker in saved speakers.
-										$current_speaker_search = array_search( $current_speaker, $saved_event_speakers );
-
-										// If current speaker is still set, then do nothing and remove from saved speakers.
-										if ( $current_speaker_search >= 0 ) {
-											unset( $saved_event_speakers[ $current_speaker_search ] );
+										/*
+										 * If the existing speaker is not in
+										 * the new speaker set, then delete.
+										 *
+										 * Otherwise, remove from new set.
+										 */
+										if ( ! in_array( $speaker_id, $new_event_speakers ) ) {
+											delete_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id );
 										} else {
-
-											// Otherwise, delete current speaker.
-											delete_post_meta( $post_id, 'conf_sch_event_speaker', $current_speaker );
-
+											unset( $new_event_speakers[ array_search( $speaker_id, $new_event_speakers ) ] );
 										}
 									}
 								}
 
-								// Go through remaining saved speakers and add to database.
-								foreach ( $saved_event_speakers as $event_speaker ) {
-									add_post_meta( $post_id, 'conf_sch_event_speaker', $event_speaker, false );
+								// Go through and add new speakers.
+								if ( ! empty( $new_event_speakers ) ) {
+									foreach ( $new_event_speakers as $speaker_id ) {
+										add_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id, FALSE );
+									}
 								}
-
 							} else {
 								delete_post_meta( $post_id, 'conf_sch_event_speaker' );
 							}
@@ -1269,7 +1416,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the event
+	 * @param   int - $post_id - the ID of the event
+	 * @return  void
 	 */
 	public function print_event_details_form( $post_id ) {
 		global $wpdb;
@@ -1347,9 +1495,9 @@ class Conference_Schedule_Admin {
 							foreach ( $event_children as $child ) {
 
 								// Don't show the current event.
-								if ( $child->ID != $post_id ) {
+								if ( $child->ID != $post_id ) :
 									$new_event_children[] = $child;
-								}
+								endif;
 							}
 							$event_children = $new_event_children;
 						}
@@ -1488,7 +1636,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the event
+	 * @param   int - $post_id - the ID of the event.
+	 * @return  void
 	 */
 	public function print_session_details_form( $post_id ) {
 
@@ -1656,7 +1805,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the event
+	 * @param   int - $post_id - the ID of the event.
+	 * @return  void
 	 */
 	public function print_event_social_media_form( $post_id ) {
 
@@ -1683,48 +1833,12 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Print the speaker events.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @param   int - $post_id - the ID of the speaker
-	 */
-	public function print_speaker_events( $post_id ) {
-
-		// Get the speaker and its events.
-		$speaker = new Conference_Schedule_Speaker( $post_id );
-		$events = $speaker->get_events();
-
-		// Print events.
-		if ( empty( $events ) ) :
-			?><p class="description"><?php _e( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p><?php
-		else :
-
-			?>
-			<ul>
-				<?php
-
-				foreach( $events as $event ) :
-
-					?>
-					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
-					<?php
-
-				endforeach;
-
-				?>
-			</ul>
-			<?php
-
-		endif;
-	}
-
-	/**
 	 * Print the speaker details form for a particular speaker.
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the speaker
+	 * @param   int - $post_id - the ID of the speaker.
+	 * @return  void
 	 */
 	public function print_speaker_details_form( $post_id ) {
 
@@ -1798,7 +1912,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the location
+	 * @param   int - $post_id - the ID of the location.
+	 * @return  void
 	 */
 	public function print_location_details_form( $post_id ) {
 
@@ -1837,7 +1952,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	int - $post_id - the ID of the speaker
+	 * @param   int - $post_id - the ID of the speaker.
+	 * @return  void
 	 */
 	public function print_speaker_social_media_form( $post_id ) {
 
@@ -1892,7 +2008,8 @@ class Conference_Schedule_Admin {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @param	WP_Post - $post - the post object
+	 * @param   WP_Post - $post - the post object.
+	 * @return  void
 	 */
 	public function post_edit_form_tag( $post ) {
 
@@ -1938,8 +2055,11 @@ class Conference_Schedule_Admin {
 	/**
 	 * Populate our custom admin columns.
 	 *
+	 * @access  public
+	 * @since   1.0.0
 	 * @param   $column - string - The name of the column to display.
 	 * @param   $post_id - int - The current post ID.
+	 * @return  void
 	 */
 	public function populate_posts_columns( $column, $post_id ) {
 
@@ -1964,6 +2084,44 @@ class Conference_Schedule_Admin {
 
 			}
 		}
+	}
+
+	/**
+	 * Print the speaker events.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 * @return  void
+	 */
+	public function print_speaker_events( $post_id ) {
+
+		// Get the speaker and its events.
+		$speaker = new Conference_Schedule_Speaker( $post_id );
+		$events = $speaker->get_events();
+
+		// Print events.
+		if ( empty( $events ) ) :
+			?><p class="description"><?php _e( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p><?php
+		else :
+
+			?>
+			<ul>
+				<?php
+
+				foreach( $events as $event ) :
+
+					?>
+					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
+					<?php
+
+				endforeach;
+
+				?>
+			</ul>
+			<?php
+
+		endif;
 	}
 }
 
