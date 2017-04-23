@@ -51,7 +51,7 @@ if ( is_admin() ) {
 
 /**
  * Holds the main administrative
- * functionaliy for the plugin.
+ * functionality for the plugin.
  */
 class Conference_Schedule {
 

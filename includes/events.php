@@ -520,6 +520,10 @@ class Conference_Schedule_Event {
 			// Get the location post.
 			$event_post = get_post( $location_id );
 			if ( ! empty( $event_post ) ) {
+
+				// Add the permalink.
+				$event_post->permalink = get_permalink( $location_id );
+
 				return $this->location = $event_post;
 			}
 		}
