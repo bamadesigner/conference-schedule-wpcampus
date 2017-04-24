@@ -67,7 +67,7 @@ class Conference_Schedule_Admin {
 		add_action( 'admin_head-schedule_page_conf-schedule-settings', array( $this, 'add_settings_meta_boxes' ) );
 
 		// Add instructions to thumbnail admin meta box.
-		add_filter( 'admin_post_thumbnail_html', array( $this, 'filter_admin_post_thumbnail_html' ), 1, 2 );
+		add_filter( 'admin_post_thumbnail_html', array( $this, 'filter_admin_post_thumbnail_html' ), 100, 2 );
 
 		// Add admin notices.
 		add_action( 'admin_notices', array( $this, 'print_admin_notice' ) );
@@ -912,6 +912,16 @@ class Conference_Schedule_Admin {
 					'high'
 				);
 
+				// Contact Information.
+				add_meta_box(
+					'conf-schedule-speaker-contact',
+					__( 'Contact Information', 'conf-schedule' ),
+					array( $this, 'print_meta_boxes' ),
+					$post_type,
+					'normal',
+					'high'
+				);
+
 				// Speaker Details.
 				add_meta_box(
 					'conf-schedule-speaker-details',
@@ -996,6 +1006,10 @@ class Conference_Schedule_Admin {
 
 			case 'conf-schedule-speaker-events':
 				$this->print_speaker_events( $post->ID );
+				break;
+
+			case 'conf-schedule-speaker-contact':
+				$this->print_speaker_contact_form( $post->ID );
 				break;
 
 			case 'conf-schedule-speaker-details':
@@ -1317,6 +1331,30 @@ class Conference_Schedule_Admin {
 
 				// Make sure event fields are set.
 				if ( isset( $_POST['conf_schedule'] ) && isset( $_POST['conf_schedule']['speaker'] ) ) {
+
+					/*
+					 * Check if our speaker contact nonce is set because the
+					 * 'save_post' action can be triggered at other times.
+					 */
+					if ( isset( $_POST['conf_schedule_save_speaker_contact_nonce'] ) ) {
+
+						// Verify the nonce.
+						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_contact_nonce'], 'conf_schedule_save_speaker_contact' ) ) {
+
+							// Process each field.
+							foreach ( array( 'email', 'phone' ) as $field_name ) {
+								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
+
+									// Sanitize the value.
+									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
+
+									// Update/save value.
+									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
+
+								}
+							}
+						}
+					}
 
 					/*
 					 * Check if our speaker details nonce is set because the
@@ -2128,6 +2166,46 @@ class Conference_Schedule_Admin {
 			<?php
 
 		endif;
+	}
+
+	/**
+	 * Print the speaker contact form for a particular speaker.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 */
+	public function print_speaker_contact_form( $post_id ) {
+
+		// Add a nonce field so we can check for it when saving the data.
+		wp_nonce_field( 'conf_schedule_save_speaker_contact', 'conf_schedule_save_speaker_contact_nonce' );
+
+		// Get saved speaker contact information.
+		$speaker_email = get_post_meta( $post_id, 'conf_sch_speaker_email', true );
+		$speaker_phone = get_post_meta( $post_id, 'conf_sch_speaker_phone', true );
+
+		?>
+		<p class="description conf-schedule-post-desc"><?php printf( __( "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ), 'Conference Schedule' ); ?></p>
+		<table class="form-table conf-schedule-post">
+			<tbody>
+			<tr>
+				<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
+				<td>
+					<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
+					<p class="description"><?php _e( 'Please provide an email address that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="conf-sch-phone"><?php _e( 'Phone', 'conf-schedule' ); ?></label></th>
+				<td>
+					<input type="tel" id="conf-sch-phone" name="conf_schedule[speaker][phone]" value="<?php echo esc_attr( $speaker_phone ); ?>" class="regular-text" />
+					<p class="description"><?php _e( 'Please provide a phone number that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<?php
+
 	}
 }
 
