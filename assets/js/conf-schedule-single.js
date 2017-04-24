@@ -115,22 +115,27 @@
 
 		// Do we have a hashtag?
 		if ( this.event_hashtag !== null && this.event_hashtag ) {
-			$event_links_string += '<li class="event-twitter"><a href="https://twitter.com/search?q=%23' + this.event_hashtag + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">#' + this.event_hashtag + '</span></a></li>';
+			$event_links_string += '<li class="event-link event-twitter"><a href="https://twitter.com/search?q=%23' + this.event_hashtag + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">#' + this.event_hashtag + '</span></a></li>';
 		}
 
 		// Do we have a slides URL?
 		if ( conf_sch.view_slides !== null && conf_sch.view_slides != '' && this.session_slides_url !== null && this.session_slides_url ) {
-			$event_links_string += '<li class="event-slides"><a href="' + this.session_slides_url + '">' + conf_sch.view_slides + '</span></a></li>';
+			$event_links_string += '<li class="event-link event-slides"><a href="' + this.session_slides_url + '">' + conf_sch.view_slides + '</span></a></li>';
+		}
+
+		// Do we have a livestream URL?
+		if ( conf_sch.view_livestream !== null && '' != conf_sch.view_livestream && this.session_livestream_url !== null && this.session_livestream_url ) {
+			$event_links_string += '<li class="event-link event-livestream"><a href="' + this.session_livestream_url + '">' + conf_sch.view_livestream + '</span></a></li>';
 		}
 
 		// Do we have a feedback URL?
 		if ( conf_sch.give_feedback !== null && conf_sch.give_feedback != '' && this.session_feedback_url !== null && this.session_feedback_url ) {
-			$event_links_string += '<li class="event-feedback"><a href="' + this.session_feedback_url + '">' + conf_sch.give_feedback + '</span></a></li>';
+			$event_links_string += '<li class="event-link event-feedback"><a href="' + this.session_feedback_url + '">' + conf_sch.give_feedback + '</span></a></li>';
 		}
 
 		// Do we have a video URL?
 		if ( conf_sch.watch_video !== null && conf_sch.watch_video != '' && this.session_video_url !== null && this.session_video_url ) {
-			$event_links_string += '<li class="event-video"><a href="' + this.session_video_url + '">' + conf_sch.watch_video + '</span></a></li>';
+			$event_links_string += '<li class="event-link event-video"><a href="' + this.session_video_url + '">' + conf_sch.watch_video + '</span></a></li>';
 		}
 
 		if ( $event_links_string ) {

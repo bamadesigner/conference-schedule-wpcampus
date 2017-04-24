@@ -63,8 +63,11 @@ $linkedin-blue: #0077b5;
             }
         }
 
+	    &.event-link {
+		    font-weight: bold;
+	    }
+
         &.event-twitter {
-            font-weight: bold;
 
             a {
                 background-color: $twitter-blue;
@@ -79,7 +82,6 @@ $linkedin-blue: #0077b5;
         }
 
         &.event-slides {
-            font-weight: bold;
 
             a {
                 background-color: #02528d;
@@ -92,7 +94,6 @@ $linkedin-blue: #0077b5;
         }
 
         &.event-feedback {
-            font-weight: bold;
 
             a {
                 background-color: #46852b;
@@ -104,8 +105,8 @@ $linkedin-blue: #0077b5;
             }
         }
 
+	    &.event-livestream,
 	    &.event-video {
-		    font-weight: bold;
 
 		    a {
 			    background-color: #662d91;
@@ -117,6 +118,27 @@ $linkedin-blue: #0077b5;
 		    }
 	    }
     }
+}
+
+#conf-sch-single-livestream {
+	margin: 0 0 30px 0;
+
+	a {
+		display: block;
+		background-color: #662d91;
+		color: #fff;
+		padding: 15px 20px;
+		text-align: center;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		text-decoration: none;
+		@include set-transition( background-color 1s ease );
+
+		&:hover {
+			background-color: darken( #662d91, 10% );
+		}
+	}
 }
 
 // Customize the single schedule pages
@@ -378,6 +400,10 @@ $conf-sch-events-width: 85%;
                     font-size: 0.95em;
                     line-height: 1.3;
                     opacity: 0.8;
+
+	                a {
+		                color: inherit;
+	                }
                 }
 
                 .event-categories {
@@ -390,7 +416,7 @@ $conf-sch-events-width: 85%;
                     line-height: 1.3;
                     color: #222;
                     font-weight: bold;
-                    margin: 3px 0 0 0;
+                    margin: 5px 0 0 0;
                 }
 
                 .event-desc {
@@ -452,15 +478,16 @@ $conf-sch-events-width: 85%;
                 }
             }
 
-	        &.status-past {
-		        opacity: 0.4;
+            /* @TODO Get this working for events that have passed. */
+	        /*&.status-past {
+		        opacity: 0.5;
 	        }
 
 	        &.status-in-progress {
 		        background: rgba( 0, 128, 0, 0.075 );
 	        }
 
-	        &.status-future {}
+	        &.status-future {}*/
         }
 
         .schedule-row.current + .schedule-row {

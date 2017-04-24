@@ -283,7 +283,7 @@ class Conference_Schedule {
 		$default_settings = array(
 			'schedule_add_page' => '',
 			'session_fields'    => array(
-				'slides_url',
+				'slides',
 			),
 			'schedule_display_fields' => array(
 				'view_slides',
