@@ -4,29 +4,26 @@
 	// When the document is ready...
 	$(document).ready(function() {
 
+		// Set the users <select> field.
+		var $users_select = $( '#conf-sch-users' ).css({'background':'red'});
+
+		// Setup as select2 field.
+		$users_select.select2();
+
 		// Populate the users and refresh when you click.
-		conf_sch_populate_users();
+		$users_select.conf_sch_populate_users();
 		$( '.conf-sch-refresh-users' ).on( 'click', function( $event ) {
 			$event.preventDefault();
-			conf_sch_populate_users();
+			$users_select.conf_sch_populate_users();
 			return false;
 		});
-
 	});
 
-	// Populate the users field.
-	function conf_sch_populate_users() {
+	// Populate a users field.
+	$.fn.conf_sch_populate_users = function() {
 
 		// Set the <select> and disable.
-		var $users_select = $( '#conf-sch-users' );
-
-		// Only if the select exists.
-		if ( 0 == $users_select.length ) {
-			return;
-		}
-
-		// Disable the select until it loads.
-		$users_select.prop( 'disabled', 'disabled' );
+		var $users_select = $( this ).prop( 'disabled', 'disabled' );
 
 		// Reset the <select>.
 		$users_select.empty();
@@ -43,7 +40,7 @@
 			cache: false,
 			data: {
 				action: 'conf_sch_get_users',
-				speaker_post_id: $( '#post_ID' ).val(),
+				speaker_post_id: $( '#post_ID' ).val()
 			},
 			success: function( user_data ) {
 
@@ -62,15 +59,15 @@
 				$.each( user_data.users, function( index, value ) {
 
 					// Build the user option.
-					var user_option = $( '<option value="' + value.ID + '">' + value.data.display_name + ' (' + value.data.user_login + ')</option>' );
+					var $user_option = $( '<option value="' + value.ID + '">' + value.data.display_name + ' (' + value.data.user_login + ')</option>' );
 
 					// Mark as selected.
 					if ( selected_user_id == value.ID ) {
-						user_option.attr( 'selected', true );
+						$user_option.attr( 'selected', true );
 					}
 
 					// Add to select field.
-					$users_select.append( user_option );
+					$users_select.append( $user_option );
 
 				});
 
@@ -79,7 +76,6 @@
 
 			}
 		});
-
 	}
 
 })( jQuery );

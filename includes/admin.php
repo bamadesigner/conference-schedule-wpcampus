@@ -387,6 +387,9 @@ class Conference_Schedule_Admin {
 			// Enqueue the post styles.
 			wp_enqueue_style( 'conf-schedule-admin-post', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'admin-post.min.css', $admin_style_dep, CONFERENCE_SCHEDULE_VERSION );
 
+			// Register the various script dependencies.
+			wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'select2.min.js', array( 'jquery' ), CONFERENCE_SCHEDULE_VERSION, true );
+
 			// Load assets for the speakers page.
 			switch ( $post_type ) {
 
@@ -394,7 +397,6 @@ class Conference_Schedule_Admin {
 
 					// Register the various script dependencies.
 					wp_register_script( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'timepicker.min.js', array( 'jquery' ), CONFERENCE_SCHEDULE_VERSION, true );
-					wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'select2.min.js', array( 'jquery' ), CONFERENCE_SCHEDULE_VERSION, true );
 
 					// Enqueue the post script.
 					wp_enqueue_script( 'conf-schedule-admin-schedule', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-schedule.min.js', array( 'jquery', 'jquery-ui-datepicker', 'timepicker', 'select2' ), CONFERENCE_SCHEDULE_VERSION, true );
@@ -409,7 +411,7 @@ class Conference_Schedule_Admin {
 				case 'speakers':
 
 					// Enqueue the post script.
-					wp_enqueue_script( 'conf-schedule-admin-speakers', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-speakers.min.js', array( 'jquery' ), CONFERENCE_SCHEDULE_VERSION, true );
+					wp_enqueue_script( 'conf-schedule-admin-speakers', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-speakers.min.js', array( 'jquery', 'select2' ), CONFERENCE_SCHEDULE_VERSION, true );
 
 					break;
 
@@ -900,7 +902,7 @@ class Conference_Schedule_Admin {
 
 			case 'speakers':
 
-				// Speaker Events.
+				// Speaker Events
 				add_meta_box(
 					'conf-schedule-speaker-events',
 					__( 'Speaker Events', 'conf-schedule' ),
@@ -2087,7 +2089,7 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Print the speaker events.
+	 * Print a list of the speaker's events.
 	 *
 	 * @access  public
 	 * @since   1.0.0
@@ -2102,7 +2104,11 @@ class Conference_Schedule_Admin {
 
 		// Print events.
 		if ( empty( $events ) ) :
-			?><p class="description"><?php _e( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p><?php
+
+			?>
+			<p class="description"><?php _( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p>
+			<?php
+
 		else :
 
 			?>
