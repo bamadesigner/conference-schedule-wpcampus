@@ -5,7 +5,7 @@
 	$(document).ready(function() {
 
 		// Set the users <select> field.
-		var $users_select = $( '#conf-sch-users' ).css({'background':'red'});
+		var $users_select = $( '#conf-sch-users' );
 
 		// Setup as select2 field.
 		$users_select.select2();
