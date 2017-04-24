@@ -43,7 +43,7 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: conference-schedule.php:720, includes/admin.php:1635
+#: conference-schedule.php:720, includes/admin.php:1637
 msgid "Location"
 msgstr ""
 
@@ -115,7 +115,7 @@ msgctxt "Taxonomy Singular Name"
 msgid "Event Type"
 msgstr ""
 
-#: conference-schedule.php:802, includes/admin.php:1605
+#: conference-schedule.php:802, includes/admin.php:1607
 msgid "Event Types"
 msgstr ""
 
@@ -167,7 +167,7 @@ msgstr ""
 msgid "No event types found."
 msgstr ""
 
-#: conference-schedule.php:815, includes/admin.php:1602
+#: conference-schedule.php:815, includes/admin.php:1604
 msgid "No event types"
 msgstr ""
 
@@ -181,7 +181,7 @@ msgctxt "Taxonomy Singular Name"
 msgid "Session Category"
 msgstr ""
 
-#: conference-schedule.php:838, includes/admin.php:1623
+#: conference-schedule.php:838, includes/admin.php:1625
 msgid "Session Categories"
 msgstr ""
 
@@ -233,7 +233,7 @@ msgstr ""
 msgid "No session categories found."
 msgstr ""
 
-#: conference-schedule.php:851, includes/admin.php:1620
+#: conference-schedule.php:851, includes/admin.php:1622
 msgid "No session categories"
 msgstr ""
 
@@ -421,263 +421,263 @@ msgstr ""
 msgid "For example, lightning talks are usually events where multiple sessions equal one block on the schedule. To group events, create a \"parent\" event and assign them all under the same parent."
 msgstr ""
 
-#: includes/admin.php:1554
+#: includes/admin.php:1556
 msgid "This event has the following sibling events:"
 msgstr ""
 
-#: includes/admin.php:1556
+#: includes/admin.php:1558
 msgid "This event is a parent to the following events:"
 msgstr ""
 
-#: includes/admin.php:1587
+#: includes/admin.php:1589
 msgid "Start Time"
 msgstr ""
 
-#: includes/admin.php:1593
+#: includes/admin.php:1595
 msgid "End Time"
 msgstr ""
 
-#: includes/admin.php:1611
+#: includes/admin.php:1613
 msgid "Refresh event types"
 msgstr ""
 
-#: includes/admin.php:1612
+#: includes/admin.php:1614
 msgid "Manage event types"
 msgstr ""
 
-#: includes/admin.php:1629
+#: includes/admin.php:1631
 msgid "Refresh categories"
 msgstr ""
 
-#: includes/admin.php:1630
+#: includes/admin.php:1632
 msgid "Manage categories"
 msgstr ""
 
-#: includes/admin.php:1637, includes/admin.php:1638
+#: includes/admin.php:1639, includes/admin.php:1640
 msgid "No location"
 msgstr ""
 
-#: includes/admin.php:1641
+#: includes/admin.php:1643
 msgid "Refresh locations"
 msgstr ""
 
-#: includes/admin.php:1642
+#: includes/admin.php:1644
 msgid "Manage locations"
 msgstr ""
 
-#: includes/admin.php:1650
+#: includes/admin.php:1652
 msgid "No speakers"
 msgstr ""
 
-#: includes/admin.php:1653, includes/admin.php:2174, includes/speakers.php:168, includes/speakers.php:169, includes/speakers.php:170, includes/speakers.php:184
+#: includes/admin.php:1655, includes/admin.php:2176, includes/speakers.php:168, includes/speakers.php:169, includes/speakers.php:170, includes/speakers.php:184
 msgid "Speakers"
 msgstr ""
 
-#: includes/admin.php:1659
+#: includes/admin.php:1661
 msgid "Refresh speakers"
 msgstr ""
 
-#: includes/admin.php:1660
+#: includes/admin.php:1662
 msgid "Manage speakers"
 msgstr ""
 
-#: includes/admin.php:1665
+#: includes/admin.php:1667
 msgid "Include Link to Event Post in Schedule"
 msgstr ""
 
-#: includes/admin.php:1667
+#: includes/admin.php:1669
 msgid "If checked, will include a link to the event's post in the schedule."
 msgstr ""
 
-#: includes/admin.php:1705
+#: includes/admin.php:1707
 msgid "Livestream URL"
 msgstr ""
 
-#: includes/admin.php:1708
+#: includes/admin.php:1710
 msgid "Please provide the URL for users to view the livestream."
 msgstr ""
 
-#: includes/admin.php:1724
+#: includes/admin.php:1726
 msgid "Slides URL"
 msgstr ""
 
-#: includes/admin.php:1727
+#: includes/admin.php:1729
 msgid "Please provide the URL (or file below) for users to download or view this session's slides."
 msgstr ""
 
-#: includes/admin.php:1727
+#: includes/admin.php:1729
 msgid "If a URL and file are provided, the URL will take priority."
 msgstr ""
 
-#: includes/admin.php:1731
+#: includes/admin.php:1733
 msgid "Slides File"
 msgstr ""
 
-#: includes/admin.php:1757
+#: includes/admin.php:1759
 msgid "Remove the file"
 msgstr ""
 
-#: includes/admin.php:1769
+#: includes/admin.php:1771
 msgid "You may also upload a file if you wish to host the session's slides for users to download or view."
 msgstr ""
 
-#: includes/admin.php:1769
+#: includes/admin.php:1771
 msgid "Only %s files are allowed."
 msgstr ""
 
-#: includes/admin.php:1785
+#: includes/admin.php:1787
 msgid "Feedback URL"
 msgstr ""
 
-#: includes/admin.php:1788
+#: includes/admin.php:1790
 msgid "Please provide the URL you wish to provide to gather session feedback."
 msgstr ""
 
-#: includes/admin.php:1788
+#: includes/admin.php:1790
 msgid "It will display 30 minutes after the session has started, unless you provide a value below."
 msgstr ""
 
-#: includes/admin.php:1792
+#: includes/admin.php:1794
 msgid "Feedback Reveal Delay Seconds"
 msgstr ""
 
-#: includes/admin.php:1795
+#: includes/admin.php:1797
 msgid "Please provide the number of seconds after the start of the session after which the feedback button will be revealed.  1800 is the default (30 minutes)."
 msgstr ""
 
-#: includes/admin.php:1810
+#: includes/admin.php:1812
 msgid "Follow Up URL"
 msgstr ""
 
-#: includes/admin.php:1813
+#: includes/admin.php:1815
 msgid "Please provide the URL you wish to provide for session follow-up materials."
 msgstr ""
 
-#: includes/admin.php:1828
+#: includes/admin.php:1830
 msgid "Video URL"
 msgstr ""
 
-#: includes/admin.php:1831
+#: includes/admin.php:1833
 msgid "Please provide the URL you wish to provide for the session recording."
 msgstr ""
 
-#: includes/admin.php:1865
+#: includes/admin.php:1867
 msgid "Hashtag"
 msgstr ""
 
-#: includes/admin.php:1868
+#: includes/admin.php:1870
 msgid "Please provide the hashtag you wish attendees to use for this event. If no hashtag is provided, the schedule will display the speaker(s) %s account."
 msgstr ""
 
-#: includes/admin.php:1895
+#: includes/admin.php:1897
 msgid "This speaker is not assigned to any events."
 msgstr ""
 
-#: includes/admin.php:1936
+#: includes/admin.php:1938
 msgid "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes."
 msgstr ""
 
-#: includes/admin.php:1940
-msgid "Email Address"
-msgstr ""
-
-#: includes/admin.php:1943
-msgid "Please provide an email address that may be used to contact the speaker."
-msgstr ""
-
-#: includes/admin.php:1947
-msgid "Phone"
-msgstr ""
-
-#: includes/admin.php:1950
-msgid "Please provide a phone number that may be used to contact the speaker."
-msgstr ""
-
-#: includes/admin.php:1979
-msgid "The speaker's profile information will be displayed on the front-end of the website."
-msgstr ""
-
-#: includes/admin.php:1983
+#: includes/admin.php:1942
 msgid "WordPress User"
 msgstr ""
 
-#: includes/admin.php:1988
+#: includes/admin.php:1947
 msgid "Do not assign to a user"
 msgstr ""
 
-#: includes/admin.php:1995
+#: includes/admin.php:1954
 msgid "Refresh users"
 msgstr ""
 
-#: includes/admin.php:1996
+#: includes/admin.php:1955
 msgid "Manage users"
 msgstr ""
 
-#: includes/admin.php:1998
+#: includes/admin.php:1957
 msgid "Assign this speaker to a %s user."
 msgstr ""
 
-#: includes/admin.php:2002
+#: includes/admin.php:1961
+msgid "Email Address"
+msgstr ""
+
+#: includes/admin.php:1964
+msgid "Please provide an email address that may be used to contact the speaker."
+msgstr ""
+
+#: includes/admin.php:1968
+msgid "Phone"
+msgstr ""
+
+#: includes/admin.php:1971
+msgid "Please provide a phone number that may be used to contact the speaker."
+msgstr ""
+
+#: includes/admin.php:2000
+msgid "The speaker's profile information will be displayed on the front-end of the website."
+msgstr ""
+
+#: includes/admin.php:2004
 msgid "Personal Website"
 msgstr ""
 
-#: includes/admin.php:2005
+#: includes/admin.php:2007
 msgid "Please provide the URL for the speaker's personal website."
 msgstr ""
 
-#: includes/admin.php:2009
+#: includes/admin.php:2011
 msgid "Company"
 msgstr ""
 
-#: includes/admin.php:2012
+#: includes/admin.php:2014
 msgid "Where does the speaker work?"
 msgstr ""
 
-#: includes/admin.php:2016
+#: includes/admin.php:2018
 msgid "Company Website"
 msgstr ""
 
-#: includes/admin.php:2019
+#: includes/admin.php:2021
 msgid "Please provide the URL for the speaker's company website."
 msgstr ""
 
-#: includes/admin.php:2023
+#: includes/admin.php:2025
 msgid "Position"
 msgstr ""
 
-#: includes/admin.php:2026
+#: includes/admin.php:2028
 msgid "Please provide the speaker's job title."
 msgstr ""
 
-#: includes/admin.php:2055
+#: includes/admin.php:2057
 msgid "The speaker's social media information will be displayed on the front-end of the website."
 msgstr ""
 
-#: includes/admin.php:2062, includes/admin.php:2083
+#: includes/admin.php:2064, includes/admin.php:2085
 msgid "Please provide the full %s URL."
 msgstr ""
 
-#: includes/admin.php:2069
+#: includes/admin.php:2071
 msgid "Please provide the %s handle or username."
 msgstr ""
 
-#: includes/admin.php:2076
+#: includes/admin.php:2078
 msgid "Please provide the %s handle, without the \"@\"."
 msgstr ""
 
-#: includes/admin.php:2113
+#: includes/admin.php:2115
 msgid "Address"
 msgstr ""
 
-#: includes/admin.php:2116
+#: includes/admin.php:2118
 msgid "Please provide the location's address."
 msgstr ""
 
-#: includes/admin.php:2120
+#: includes/admin.php:2122
 msgid "%s URL"
 msgstr ""
 
-#: includes/admin.php:2123
+#: includes/admin.php:2125
 msgid "Please provide the %s URL for this location."
 msgstr ""
 

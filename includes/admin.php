@@ -1344,7 +1344,7 @@ class Conference_Schedule_Admin {
 						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_contact_nonce'], 'conf_schedule_save_speaker_contact' ) ) {
 
 							// Process each field.
-							foreach ( array( 'email', 'phone' ) as $field_name ) {
+							foreach ( array( 'user_id', 'email', 'phone' ) as $field_name ) {
 								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
 
 									// Sanitize the value.
@@ -1368,7 +1368,7 @@ class Conference_Schedule_Admin {
 						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_details_nonce'], 'conf_schedule_save_speaker_details' ) ) {
 
 							// Process each field.
-							foreach ( array( 'user_id', 'position', 'url', 'company', 'company_url' ) as $field_name ) {
+							foreach ( array( 'position', 'url', 'company', 'company_url' ) as $field_name ) {
 								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
 
 									// Sanitize the value.
@@ -1522,7 +1522,9 @@ class Conference_Schedule_Admin {
 						/*
 						 * Does this event have children or siblings?
 						 *
-						 * @TODO make sure they display in order and show time.
+						 * @TODO
+						 * - update to use same function as AJAX
+						 * - make sure they display in order and show time.
 						 */
 						$event_children = get_children( array(
 							'post_parent' => $event_parent > 0 ? $event_parent : $post_id,
@@ -1937,6 +1939,25 @@ class Conference_Schedule_Admin {
 		<table class="form-table conf-schedule-post">
 			<tbody>
 				<tr>
+					<th scope="row"><label for="conf-sch-users"><?php _e( 'WordPress User', 'conf-schedule' ); ?></label></th>
+					<td>
+						<?php
+
+						// The default/blank option label.
+						$select_default = __( 'Do not assign to a user', 'conf-schedule' );
+
+						?>
+						<select name="conf_schedule[speaker][user_id]" id="conf-sch-users" data-default="<?php echo $select_default; ?>" disabled="disabled">
+							<option value=""><?php echo $select_default; ?></option>
+						</select>
+						<p class="description">
+							<a class="conf-sch-refresh-users" href="#"><?php _e( 'Refresh users', 'conf-schedule' ); ?></a> |
+							<a href="<?php echo admin_url( 'users.php' ); ?>" target="_blank"><?php _e( 'Manage users', 'conf-schedule' ); ?></a>
+						</p>
+						<p class="description"><?php printf( __( 'Assign this speaker to a %s user.', 'conf-schedule' ), 'WordPress' ); ?></p>
+					</td>
+				</tr>
+				<tr>
 					<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
 					<td>
 						<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
@@ -1970,34 +1991,15 @@ class Conference_Schedule_Admin {
 		wp_nonce_field( 'conf_schedule_save_speaker_details', 'conf_schedule_save_speaker_details_nonce' );
 
 		// Get saved speaker details.
-		$speaker_position = get_post_meta( $post_id, 'conf_sch_speaker_position', true );
 		$speaker_url = get_post_meta( $post_id, 'conf_sch_speaker_url', true );
 		$speaker_company = get_post_meta( $post_id, 'conf_sch_speaker_company', true );
 		$speaker_company_url = get_post_meta( $post_id, 'conf_sch_speaker_company_url', true );
+		$speaker_position = get_post_meta( $post_id, 'conf_sch_speaker_position', true );
 
 		?>
 		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's profile information will be displayed on the front-end of the website.", 'conf-schedule' ); ?></p>
 		<table class="form-table conf-schedule-post">
 			<tbody>
-				<tr>
-					<th scope="row"><label for="conf-sch-users"><?php _e( 'WordPress User', 'conf-schedule' ); ?></label></th>
-					<td>
-						<?php
-
-						// The default/blank option label.
-						$select_default = __( 'Do not assign to a user', 'conf-schedule' );
-
-						?>
-						<select name="conf_schedule[speaker][user_id]" id="conf-sch-users" data-default="<?php echo $select_default; ?>" disabled="disabled">
-							<option value=""><?php echo $select_default; ?></option>
-						</select>
-						<p class="description">
-							<a class="conf-sch-refresh-users" href="#"><?php _e( 'Refresh users', 'conf-schedule' ); ?></a> |
-							<a href="<?php echo admin_url( 'users.php' ); ?>" target="_blank"><?php _e( 'Manage users', 'conf-schedule' ); ?></a>
-						</p>
-						<p class="description"><?php printf( __( 'Assign this speaker to a %s user.', 'conf-schedule' ), 'WordPress' ); ?></p>
-					</td>
-				</tr>
 				<tr>
 					<th scope="row"><label for="conf-sch-url"><?php _e( 'Personal Website', 'conf-schedule' ); ?></label></th>
 					<td>
