@@ -569,6 +569,10 @@ msgstr ""
 msgid "Please provide the hashtag you wish attendees to use for this event. If no hashtag is provided, the schedule will display the speaker(s) %s account."
 msgstr ""
 
+#: includes/admin.php:1895
+msgid "This speaker is not assigned to any events."
+msgstr ""
+
 #: includes/admin.php:1936
 msgid "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes."
 msgstr ""

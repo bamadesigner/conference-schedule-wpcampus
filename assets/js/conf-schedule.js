@@ -178,7 +178,7 @@
 							var row_start_dt_month = parseInt( row_date_pieces[1] ) - 1;
 							var row_start_dt_day = parseInt( row_date_pieces[2] );
 
-							// Set the hour and minute. Convert the hour to local time.
+							// Set the start hour and minute. Convert the hour to local time.
 							var row_start_hour = parseInt( row_start_time_pieces[0] ) + local_hour_diff;
 							var row_start_minute = parseInt( row_start_time_pieces[1] );
 
@@ -187,7 +187,7 @@
 
 							// Set the end date/time.
 							var row_end_dt = null;
-							if ( row_end_time_pieces.length > 0 ) {
+							if ( row_end_time_pieces.length > 1 ) {
 
 								// Set the end hour and minute. Convert the hour to local time.
 								var row_end_hour = parseInt( row_end_time_pieces[0] ) + local_hour_diff;
