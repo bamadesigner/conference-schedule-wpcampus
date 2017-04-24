@@ -817,15 +817,15 @@ class Conference_Schedule {
 
 		// Define the arguments for the event types taxonomy.
 		$types_args = apply_filters( 'conf_schedule_event_types_args', array(
-			'labels'					=> $types_labels,
-			'hierarchical'				=> false,
-			'public'					=> true,
-			'show_ui'					=> true,
-			'show_admin_column'			=> true,
-			'show_in_nav_menus'			=> true,
-			'show_tagcloud'				=> false,
-			'meta_box_cb'				=> 'post_categories_meta_box',
-			'show_in_rest'				=> true,
+			'labels'            => $types_labels,
+			'hierarchical'      => false,
+			'public'            => true,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'show_in_nav_menus' => true,
+			'show_tagcloud'     => false,
+			//'meta_box_cb'     => 'post_categories_meta_box',
+			'show_in_rest'      => true,
 		));
 
 		// Register the event types taxonomy.
@@ -853,15 +853,15 @@ class Conference_Schedule {
 
 		// Define the arguments for the session categories taxonomy.
 		$session_categories_args = apply_filters( 'conf_schedule_session_categories_args', array(
-			'labels'					=> $session_categories_labels,
-			'hierarchical'				=> false,
-			'public'					=> true,
-			'show_ui'					=> true,
-			'show_admin_column'			=> true,
-			'show_in_nav_menus'			=> true,
-			'show_tagcloud'				=> false,
-			'meta_box_cb'				=> 'post_categories_meta_box',
-			'show_in_rest'				=> true,
+			'labels'            => $session_categories_labels,
+			'hierarchical'      => false,
+			'public'            => true,
+			'show_ui'           => true,
+			'show_admin_column'	=> true,
+			'show_in_nav_menus'	=> true,
+			'show_tagcloud'     => false,
+			//'meta_box_cb'     => 'post_categories_meta_box',
+			'show_in_rest'      => true,
 		));
 
 		// Register the session categories taxonomy.
