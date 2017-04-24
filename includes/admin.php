@@ -889,10 +889,10 @@ class Conference_Schedule_Admin {
 					);
 				}
 
-				// Social Media.
+				// Event Social Media.
 				add_meta_box(
 					'conf-schedule-social-media',
-					__( 'Social Media', 'conf-schedule' ),
+					__( 'Event Social Media', 'conf-schedule' ),
 					array( $this, 'print_meta_boxes' ),
 					$post_type,
 					'normal',
@@ -923,7 +923,7 @@ class Conference_Schedule_Admin {
 					'high'
 				);
 
-				// Contact Information.
+				// Speaker Contact Information.
 				add_meta_box(
 					'conf-schedule-speaker-contact',
 					__( 'Speaker Contact Information', 'conf-schedule' ),
@@ -933,20 +933,20 @@ class Conference_Schedule_Admin {
 					'high'
 				);
 
-				// Speaker Details.
+				// Speaker Profile.
 				add_meta_box(
-					'conf-schedule-speaker-details',
-					__( 'Speaker Details', 'conf-schedule' ),
+					'conf-schedule-speaker-profile',
+					__( 'Speaker Profile', 'conf-schedule' ),
 					array( $this, 'print_meta_boxes' ),
 					$post_type,
 					'normal',
 					'high'
 				);
 
-				// Social Media.
+				// Speaker Social Media.
 				add_meta_box(
 					'conf-schedule-speaker-social-media',
-					__( 'Social Media', 'conf-schedule' ),
+					__( 'Speaker Social Media', 'conf-schedule' ),
 					array( $this, 'print_meta_boxes' ),
 					$post_type,
 					'normal',
@@ -1027,8 +1027,8 @@ class Conference_Schedule_Admin {
 				$this->print_speaker_contact_form( $post->ID );
 				break;
 
-			case 'conf-schedule-speaker-details':
-				$this->print_speaker_details_form( $post->ID );
+			case 'conf-schedule-speaker-profile':
+				$this->print_speaker_profile_form( $post->ID );
 				break;
 
 			case 'conf-schedule-speaker-social-media':
@@ -1314,7 +1314,7 @@ class Conference_Schedule_Admin {
 					}
 
 					/*
-					 * Check if our social media nonce is set because
+					 * Check if our event social media nonce is set because
 					 * the 'save_post' action can be triggered at other times.
 					 */
 					if ( isset( $_POST['conf_schedule_save_event_social_media_nonce'] ) ) {
@@ -1397,13 +1397,13 @@ class Conference_Schedule_Admin {
 					}
 
 					/*
-					 * Check if our speaker details nonce is set because the
+					 * Check if our speaker profile nonce is set because the
 					 * 'save_post' action can be triggered at other times.
 					 */
-					if ( isset( $_POST['conf_schedule_save_speaker_details_nonce'] ) ) {
+					if ( isset( $_POST['conf_schedule_save_speaker_profile_nonce'] ) ) {
 
 						// Verify the nonce.
-						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_details_nonce'], 'conf_schedule_save_speaker_details' ) ) {
+						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_profile_nonce'], 'conf_schedule_save_speaker_profile' ) ) {
 
 							// Process each field.
 							foreach ( array( 'position', 'url', 'company', 'company_url' ) as $field_name ) {
@@ -1421,8 +1421,8 @@ class Conference_Schedule_Admin {
 					}
 
 					/*
-					 * Check if our social media nonce is set because the
-					 * 'save_post' action can be triggered at other times.
+					 * Check if our speaker social media nonce is set because
+					 * the 'save_post' action can be triggered at other times.
 					 */
 					if ( isset( $_POST['conf_schedule_save_speaker_social_media_nonce'] ) ) {
 
@@ -1895,7 +1895,7 @@ class Conference_Schedule_Admin {
 		// Add a nonce field so we can check for it when saving the data.
 		wp_nonce_field( 'conf_schedule_save_event_social_media', 'conf_schedule_save_event_social_media_nonce' );
 
-		// Get saved social media.
+		// Get saved event hashtag.
 		$event_hashtag = get_post_meta( $post_id, 'conf_sch_event_hashtag', true );
 
 		?>
@@ -2039,19 +2039,19 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Print the speaker details form for a particular speaker.
+	 * Print the speaker profile form for a particular speaker.
 	 *
 	 * @access  public
 	 * @since   1.0.0
 	 * @param   int - $post_id - the ID of the speaker.
 	 * @return  void
 	 */
-	public function print_speaker_details_form( $post_id ) {
+	public function print_speaker_profile_form( $post_id ) {
 
 		// Add a nonce field so we can check for it when saving the data.
-		wp_nonce_field( 'conf_schedule_save_speaker_details', 'conf_schedule_save_speaker_details_nonce' );
+		wp_nonce_field( 'conf_schedule_save_speaker_profile', 'conf_schedule_save_speaker_profile_nonce' );
 
-		// Get saved speaker details.
+		// Get saved speaker profile information.
 		$speaker_url = get_post_meta( $post_id, 'conf_sch_speaker_url', true );
 		$speaker_company = get_post_meta( $post_id, 'conf_sch_speaker_company', true );
 		$speaker_company_url = get_post_meta( $post_id, 'conf_sch_speaker_company_url', true );
@@ -2108,7 +2108,7 @@ class Conference_Schedule_Admin {
 		// Add a nonce field so we can check for it when saving the data.
 		wp_nonce_field( 'conf_schedule_save_speaker_social_media', 'conf_schedule_save_speaker_social_media_nonce' );
 
-		// Get saved speaker social media.
+		// Get saved speaker social media information.
 		$speaker_facebook = get_post_meta( $post_id, 'conf_sch_speaker_facebook', true );
 		$speaker_instagram = get_post_meta( $post_id, 'conf_sch_speaker_instagram', true );
 		$speaker_twitter = get_post_meta( $post_id, 'conf_sch_speaker_twitter', true );

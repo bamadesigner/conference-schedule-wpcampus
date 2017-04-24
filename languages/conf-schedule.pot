@@ -377,8 +377,8 @@ msgstr ""
 msgid "Session Details"
 msgstr ""
 
-#: includes/admin.php:895, includes/admin.php:949
-msgid "Social Media"
+#: includes/admin.php:895
+msgid "Event Social Media"
 msgstr ""
 
 #: includes/admin.php:909
@@ -394,7 +394,11 @@ msgid "Speaker Contact Information"
 msgstr ""
 
 #: includes/admin.php:939
-msgid "Speaker Details"
+msgid "Speaker Profile"
+msgstr ""
+
+#: includes/admin.php:949
+msgid "Speaker Social Media"
 msgstr ""
 
 #: includes/admin.php:963
