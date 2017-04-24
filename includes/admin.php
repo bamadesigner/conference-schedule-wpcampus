@@ -133,7 +133,7 @@ class Conference_Schedule_Admin {
 
 		if ( empty( $speakers ) ) {
 			echo json_encode( array() );
-		} {
+		} else {
 
 			// Will hold selected speaker IDs.
 			$selected = array();
@@ -903,7 +903,7 @@ class Conference_Schedule_Admin {
 
 			case 'speakers':
 
-				// Speaker Events
+				// Speaker Events.
 				add_meta_box(
 					'conf-schedule-speaker-events',
 					__( 'Speaker Events', 'conf-schedule' ),
@@ -1187,31 +1187,32 @@ class Conference_Schedule_Admin {
 								// Make sure it has only IDs.
 								$new_event_speakers = array_filter( $new_event_speakers, 'is_numeric' );
 
+								// Convert to integers.
+								$new_event_speakers = array_map( 'intval', $new_event_speakers );
+
 								// Get existing speakers.
 								$existing_event_speakers = get_post_meta( $post_id, 'conf_sch_event_speaker', false );
 
 								// Go through existing speakers and update.
-								if ( ! empty( $existing_event_speakers ) ) {
-									foreach ( $existing_event_speakers as $speaker_id ) {
+								foreach ( $existing_event_speakers as $speaker_id ) {
 
-										/*
-										 * If the existing speaker is not in
-										 * the new speaker set, then delete.
-										 *
-										 * Otherwise, remove from new set.
-										 */
-										if ( ! in_array( $speaker_id, $new_event_speakers ) ) {
-											delete_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id );
-										} else {
-											unset( $new_event_speakers[ array_search( $speaker_id, $new_event_speakers ) ] );
-										}
+									/*
+									 * If the existing speaker is not in
+									 * the new speaker set, then delete.
+									 *
+									 * Otherwise, remove from new set.
+									 */
+									if ( ! in_array( $speaker_id, $new_event_speakers ) ) {
+										delete_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id );
+									} else {
+										unset( $new_event_speakers[ array_search( $speaker_id, $new_event_speakers ) ] );
 									}
 								}
 
 								// Go through and add new speakers.
 								if ( ! empty( $new_event_speakers ) ) {
 									foreach ( $new_event_speakers as $speaker_id ) {
-										add_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id, FALSE );
+										add_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id, false );
 									}
 								}
 							} else {
@@ -1874,6 +1875,88 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
+	 * Print a list of the speaker's events.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 * @return  void
+	 */
+	public function print_speaker_events( $post_id ) {
+
+		// Get the speaker and its events.
+		$speaker = new Conference_Schedule_Speaker( $post_id );
+		$events = $speaker->get_events();
+
+		// Print events.
+		if ( empty( $events ) ) :
+
+			?>
+			<p class="description"><?php _e( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p>
+			<?php
+
+		else :
+
+			?>
+			<ul>
+				<?php
+
+				foreach ( $events as $event ) :
+
+					?>
+					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
+					<?php
+
+				endforeach;
+
+				?>
+			</ul>
+			<?php
+
+		endif;
+	}
+
+	/**
+	 * Print the speaker contact form for a particular speaker.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 */
+	public function print_speaker_contact_form( $post_id ) {
+
+		// Add a nonce field so we can check for it when saving the data.
+		wp_nonce_field( 'conf_schedule_save_speaker_contact', 'conf_schedule_save_speaker_contact_nonce' );
+
+		// Get saved speaker contact information.
+		$speaker_email = get_post_meta( $post_id, 'conf_sch_speaker_email', true );
+		$speaker_phone = get_post_meta( $post_id, 'conf_sch_speaker_phone', true );
+
+		?>
+		<p class="description conf-schedule-post-desc"><?php printf( __( "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ), 'Conference Schedule' ); ?></p>
+		<table class="form-table conf-schedule-post">
+			<tbody>
+			<tr>
+				<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
+				<td>
+					<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
+					<p class="description"><?php _e( 'Please provide an email address that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="conf-sch-phone"><?php _e( 'Phone', 'conf-schedule' ); ?></label></th>
+				<td>
+					<input type="tel" id="conf-sch-phone" name="conf_schedule[speaker][phone]" value="<?php echo esc_attr( $speaker_phone ); ?>" class="regular-text" />
+					<p class="description"><?php _e( 'Please provide a phone number that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<?php
+
+	}
+
+	/**
 	 * Print the speaker details form for a particular speaker.
 	 *
 	 * @access  public
@@ -1949,6 +2032,62 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
+	 * Print the social media form for a particular speaker.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 * @return  void
+	 */
+	public function print_speaker_social_media_form( $post_id ) {
+
+		// Add a nonce field so we can check for it when saving the data.
+		wp_nonce_field( 'conf_schedule_save_speaker_social_media', 'conf_schedule_save_speaker_social_media_nonce' );
+
+		// Get saved speaker social media.
+		$speaker_facebook = get_post_meta( $post_id, 'conf_sch_speaker_facebook', true );
+		$speaker_instagram = get_post_meta( $post_id, 'conf_sch_speaker_instagram', true );
+		$speaker_twitter = get_post_meta( $post_id, 'conf_sch_speaker_twitter', true );
+		$speaker_linkedin = get_post_meta( $post_id, 'conf_sch_speaker_linkedin', true );
+
+		?>
+		<table class="form-table conf-schedule-post">
+			<tbody>
+			<tr>
+				<th scope="row"><label for="conf-sch-facebook">Facebook</label></th>
+				<td>
+					<input type="text" id="conf-sch-facebook" name="conf_schedule[speaker][facebook]" value="<?php echo esc_attr( $speaker_facebook ); ?>" class="regular-text" />
+					<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'Facebook' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="conf-sch-instagram">Instagram</label></th>
+				<td>
+					<input type="text" id="conf-sch-instagram" name="conf_schedule[speaker][instagram]" value="<?php echo esc_attr( $speaker_instagram ); ?>" class="regular-text" />
+					<p class="description"><?php printf( __( 'Please provide the %s handle or username.', 'conf-schedule' ), 'Instagram' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="conf-sch-twitter">Twitter</label></th>
+				<td>
+					<input type="text" id="conf-sch-twitter" name="conf_schedule[speaker][twitter]" value="<?php echo esc_attr( $speaker_twitter ); ?>" class="regular-text" />
+					<p class="description"><?php printf( __( 'Please provide the %s handle, without the "@".', 'conf-schedule' ), 'Twitter' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="conf-sch-linkedin">LinkedIn</label></th>
+				<td>
+					<input type="text" id="conf-sch-linkedin" name="conf_schedule[speaker][linkedin]" value="<?php echo esc_attr( $speaker_linkedin ); ?>" class="regular-text" />
+					<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'LinkedIn' ); ?></p>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<?php
+
+	}
+
+	/**
 	 * Print the location details form for a particular location.
 	 *
 	 * @access  public
@@ -1980,62 +2119,6 @@ class Conference_Schedule_Admin {
 					<td>
 						<input type="url" id="conf-sch-google-maps-url" name="conf_schedule[location][google_maps_url]" value="<?php echo esc_attr( $location_google_maps_url ); ?>" class="regular-text" />
 						<p class="description"><?php printf( __( 'Please provide the %s URL for this location.', 'conf-schedule' ), 'Google Maps' ); ?></p>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<?php
-
-	}
-
-	/**
-	 * Print the social media form for a particular speaker.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @param   int - $post_id - the ID of the speaker.
-	 * @return  void
-	 */
-	public function print_speaker_social_media_form( $post_id ) {
-
-		// Add a nonce field so we can check for it when saving the data.
-		wp_nonce_field( 'conf_schedule_save_speaker_social_media', 'conf_schedule_save_speaker_social_media_nonce' );
-
-		// Get saved speaker social media.
-		$speaker_facebook = get_post_meta( $post_id, 'conf_sch_speaker_facebook', true );
-		$speaker_instagram = get_post_meta( $post_id, 'conf_sch_speaker_instagram', true );
-		$speaker_twitter = get_post_meta( $post_id, 'conf_sch_speaker_twitter', true );
-		$speaker_linkedin = get_post_meta( $post_id, 'conf_sch_speaker_linkedin', true );
-
-		?>
-		<table class="form-table conf-schedule-post">
-			<tbody>
-				<tr>
-					<th scope="row"><label for="conf-sch-facebook">Facebook</label></th>
-					<td>
-						<input type="text" id="conf-sch-facebook" name="conf_schedule[speaker][facebook]" value="<?php echo esc_attr( $speaker_facebook ); ?>" class="regular-text" />
-						<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'Facebook' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="conf-sch-instagram">Instagram</label></th>
-					<td>
-						<input type="text" id="conf-sch-instagram" name="conf_schedule[speaker][instagram]" value="<?php echo esc_attr( $speaker_instagram ); ?>" class="regular-text" />
-						<p class="description"><?php printf( __( 'Please provide the %s handle or username.', 'conf-schedule' ), 'Instagram' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="conf-sch-twitter">Twitter</label></th>
-					<td>
-						<input type="text" id="conf-sch-twitter" name="conf_schedule[speaker][twitter]" value="<?php echo esc_attr( $speaker_twitter ); ?>" class="regular-text" />
-						<p class="description"><?php printf( __( 'Please provide the %s handle, without the "@".', 'conf-schedule' ), 'Twitter' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="conf-sch-linkedin">LinkedIn</label></th>
-					<td>
-						<input type="text" id="conf-sch-linkedin" name="conf_schedule[speaker][linkedin]" value="<?php echo esc_attr( $speaker_linkedin ); ?>" class="regular-text" />
-						<p class="description"><?php printf( __( 'Please provide the full %s URL.', 'conf-schedule' ), 'LinkedIn' ); ?></p>
 					</td>
 				</tr>
 			</tbody>
@@ -2125,88 +2208,6 @@ class Conference_Schedule_Admin {
 
 			}
 		}
-	}
-
-	/**
-	 * Print a list of the speaker's events.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @param   int - $post_id - the ID of the speaker.
-	 * @return  void
-	 */
-	public function print_speaker_events( $post_id ) {
-
-		// Get the speaker and its events.
-		$speaker = new Conference_Schedule_Speaker( $post_id );
-		$events = $speaker->get_events();
-
-		// Print events.
-		if ( empty( $events ) ) :
-
-			?>
-			<p class="description"><?php _( 'This speaker is not assigned to any events.', 'conf-schedule' ); ?></p>
-			<?php
-
-		else :
-
-			?>
-			<ul>
-				<?php
-
-				foreach( $events as $event ) :
-
-					?>
-					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
-					<?php
-
-				endforeach;
-
-				?>
-			</ul>
-			<?php
-
-		endif;
-	}
-
-	/**
-	 * Print the speaker contact form for a particular speaker.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @param   int - $post_id - the ID of the speaker.
-	 */
-	public function print_speaker_contact_form( $post_id ) {
-
-		// Add a nonce field so we can check for it when saving the data.
-		wp_nonce_field( 'conf_schedule_save_speaker_contact', 'conf_schedule_save_speaker_contact_nonce' );
-
-		// Get saved speaker contact information.
-		$speaker_email = get_post_meta( $post_id, 'conf_sch_speaker_email', true );
-		$speaker_phone = get_post_meta( $post_id, 'conf_sch_speaker_phone', true );
-
-		?>
-		<p class="description conf-schedule-post-desc"><?php printf( __( "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ), 'Conference Schedule' ); ?></p>
-		<table class="form-table conf-schedule-post">
-			<tbody>
-			<tr>
-				<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
-				<td>
-					<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
-					<p class="description"><?php _e( 'Please provide an email address that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="conf-sch-phone"><?php _e( 'Phone', 'conf-schedule' ); ?></label></th>
-				<td>
-					<input type="tel" id="conf-sch-phone" name="conf_schedule[speaker][phone]" value="<?php echo esc_attr( $speaker_phone ); ?>" class="regular-text" />
-					<p class="description"><?php _e( 'Please provide a phone number that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
-				</td>
-			</tr>
-			</tbody>
-		</table>
-		<?php
-
 	}
 }
 
