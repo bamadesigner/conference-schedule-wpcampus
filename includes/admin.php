@@ -698,6 +698,7 @@ class Conference_Schedule_Admin {
 								<fieldset>
 									<legend><strong><?php _e( 'Display the following fields on the main schedule:', 'conf-schedule' ); ?></strong></legend>
 									<label for="conf-schedule-display-slides"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-slides" value="view_slides"<?php checked( is_array( $display_fields ) && in_array( 'view_slides', $display_fields ) ); ?> /> <?php _e( 'View Slides', 'conf-schedule' ); ?></label><br />
+									<label for="conf-schedule-display-livestream"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-livestream" value="view_livestream"<?php checked( is_array( $display_fields ) && in_array( 'view_livestream', $display_fields ) ); ?> /> <?php _e( 'View Livestream', 'conf-schedule' ); ?></label><br />
 									<label for="conf-schedule-display-feedback"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-feedback" value="give_feedback"<?php checked( is_array( $display_fields ) && in_array( 'give_feedback', $display_fields ) ); ?> /> <?php _e( 'Give Feedback', 'conf-schedule' ); ?></label><br />
 									<label for="conf-schedule-display-video"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-video" value="watch_video"<?php checked( is_array( $display_fields ) && in_array( 'watch_video', $display_fields ) ); ?> /> <?php _e( 'Watch Session', 'conf-schedule' ); ?></label>
 								</fieldset>
