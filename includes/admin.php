@@ -913,6 +913,16 @@ class Conference_Schedule_Admin {
 					'high'
 				);
 
+				// Speaker Administration.
+				add_meta_box(
+					'conf-schedule-speaker-admin',
+					__( 'Speaker Administration', 'conf-schedule' ),
+					array( $this, 'print_meta_boxes' ),
+					$post_type,
+					'normal',
+					'high'
+				);
+
 				// Contact Information.
 				add_meta_box(
 					'conf-schedule-speaker-contact',
@@ -1007,6 +1017,10 @@ class Conference_Schedule_Admin {
 
 			case 'conf-schedule-speaker-events':
 				$this->print_speaker_events( $post->ID );
+				break;
+
+			case 'conf-schedule-speaker-admin':
+				$this->print_speaker_admin_form( $post->ID );
 				break;
 
 			case 'conf-schedule-speaker-contact':
@@ -1335,6 +1349,30 @@ class Conference_Schedule_Admin {
 				if ( isset( $_POST['conf_schedule'] ) && isset( $_POST['conf_schedule']['speaker'] ) ) {
 
 					/*
+					 * Check if our speaker admin nonce is set because the
+					 * 'save_post' action can be triggered at other times.
+					 */
+					if ( isset( $_POST['conf_schedule_save_speaker_admin_nonce'] ) ) {
+
+						// Verify the nonce.
+						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_admin_nonce'], 'conf_schedule_save_speaker_admin' ) ) {
+
+							// Process each field.
+							foreach ( array( 'user_id' ) as $field_name ) {
+								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
+
+									// Sanitize the value.
+									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
+
+									// Update/save value.
+									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
+
+								}
+							}
+						}
+					}
+
+					/*
 					 * Check if our speaker contact nonce is set because the
 					 * 'save_post' action can be triggered at other times.
 					 */
@@ -1344,7 +1382,7 @@ class Conference_Schedule_Admin {
 						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_contact_nonce'], 'conf_schedule_save_speaker_contact' ) ) {
 
 							// Process each field.
-							foreach ( array( 'user_id', 'email', 'phone' ) as $field_name ) {
+							foreach ( array( 'email', 'phone' ) as $field_name ) {
 								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
 
 									// Sanitize the value.
@@ -1919,23 +1957,20 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Print the speaker contact form for a particular speaker.
+	 * Print the speaker administration
+	 * form for a particular speaker.
 	 *
 	 * @access  public
 	 * @since   1.0.0
 	 * @param   int - $post_id - the ID of the speaker.
 	 */
-	public function print_speaker_contact_form( $post_id ) {
+	public function print_speaker_admin_form( $post_id ) {
 
 		// Add a nonce field so we can check for it when saving the data.
-		wp_nonce_field( 'conf_schedule_save_speaker_contact', 'conf_schedule_save_speaker_contact_nonce' );
-
-		// Get saved speaker contact information.
-		$speaker_email = get_post_meta( $post_id, 'conf_sch_speaker_email', true );
-		$speaker_phone = get_post_meta( $post_id, 'conf_sch_speaker_phone', true );
+		wp_nonce_field( 'conf_schedule_save_speaker_admin', 'conf_schedule_save_speaker_admin_nonce' );
 
 		?>
-		<p class="description conf-schedule-post-desc"><?php printf( __( "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ), 'Conference Schedule' ); ?></p>
+		<p class="description conf-schedule-post-desc"><?php _e( 'This information will only be used for administrative purposes.', 'conf-schedule' ); ?></p>
 		<table class="form-table conf-schedule-post">
 			<tbody>
 				<tr>
@@ -1957,6 +1992,32 @@ class Conference_Schedule_Admin {
 						<p class="description"><?php printf( __( 'Assign this speaker to a %s user.', 'conf-schedule' ), 'WordPress' ); ?></p>
 					</td>
 				</tr>
+			</tbody>
+		</table>
+		<?php
+
+	}
+
+	/**
+	 * Print the speaker contact form for a particular speaker.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @param   int - $post_id - the ID of the speaker.
+	 */
+	public function print_speaker_contact_form( $post_id ) {
+
+		// Add a nonce field so we can check for it when saving the data.
+		wp_nonce_field( 'conf_schedule_save_speaker_contact', 'conf_schedule_save_speaker_contact_nonce' );
+
+		// Get saved speaker contact information.
+		$speaker_email = get_post_meta( $post_id, 'conf_sch_speaker_email', true );
+		$speaker_phone = get_post_meta( $post_id, 'conf_sch_speaker_phone', true );
+
+		?>
+		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's contact information will not be displayed on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ); ?></p>
+		<table class="form-table conf-schedule-post">
+			<tbody>
 				<tr>
 					<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
 					<td>
