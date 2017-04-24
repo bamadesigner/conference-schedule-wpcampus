@@ -916,7 +916,7 @@ class Conference_Schedule_Admin {
 				// Contact Information.
 				add_meta_box(
 					'conf-schedule-speaker-contact',
-					__( 'Contact Information', 'conf-schedule' ),
+					__( 'Speaker Contact Information', 'conf-schedule' ),
 					array( $this, 'print_meta_boxes' ),
 					$post_type,
 					'normal',
@@ -1936,20 +1936,20 @@ class Conference_Schedule_Admin {
 		<p class="description conf-schedule-post-desc"><?php printf( __( "The %s plugin will not display the speaker's contact information on the front-end of the website. This information will only be used for administrative purposes.", 'conf-schedule' ), 'Conference Schedule' ); ?></p>
 		<table class="form-table conf-schedule-post">
 			<tbody>
-			<tr>
-				<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
-				<td>
-					<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
-					<p class="description"><?php _e( 'Please provide an email address that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="conf-sch-phone"><?php _e( 'Phone', 'conf-schedule' ); ?></label></th>
-				<td>
-					<input type="tel" id="conf-sch-phone" name="conf_schedule[speaker][phone]" value="<?php echo esc_attr( $speaker_phone ); ?>" class="regular-text" />
-					<p class="description"><?php _e( 'Please provide a phone number that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
-				</td>
-			</tr>
+				<tr>
+					<th scope="row"><label for="conf-sch-email"><?php _e( 'Email Address', 'conf-schedule' ); ?></label></th>
+					<td>
+						<input type="email" id="conf-sch-email" name="conf_schedule[speaker][email]" value="<?php echo esc_attr( $speaker_email ); ?>" class="regular-text" />
+						<p class="description"><?php _e( 'Please provide an email address that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="conf-sch-phone"><?php _e( 'Phone', 'conf-schedule' ); ?></label></th>
+					<td>
+						<input type="tel" id="conf-sch-phone" name="conf_schedule[speaker][phone]" value="<?php echo esc_attr( $speaker_phone ); ?>" class="regular-text" />
+						<p class="description"><?php _e( 'Please provide a phone number that may be used to contact the speaker.', 'conf-schedule' ); ?></p>
+					</td>
+				</tr>
 			</tbody>
 		</table>
 		<?php
@@ -1976,6 +1976,7 @@ class Conference_Schedule_Admin {
 		$speaker_company_url = get_post_meta( $post_id, 'conf_sch_speaker_company_url', true );
 
 		?>
+		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's profile information will be displayed on the front-end of the website.", 'conf-schedule' ); ?></p>
 		<table class="form-table conf-schedule-post">
 			<tbody>
 				<tr>
@@ -1998,17 +1999,10 @@ class Conference_Schedule_Admin {
 					</td>
 				</tr>
 				<tr>
-					<th scope="row"><label for="conf-sch-position"><?php _e( 'Position', 'conf-schedule' ); ?></label></th>
-					<td>
-						<input type="text" id="conf-sch-position" name="conf_schedule[speaker][position]" value="<?php echo esc_attr( $speaker_position ); ?>" class="regular-text" />
-						<p class="description"><?php _e( "Please provide the speaker's job title.", 'conf-schedule' ); ?></p>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row"><label for="conf-sch-url"><?php _e( 'Website', 'conf-schedule' ); ?></label></th>
+					<th scope="row"><label for="conf-sch-url"><?php _e( 'Personal Website', 'conf-schedule' ); ?></label></th>
 					<td>
 						<input type="text" id="conf-sch-url" name="conf_schedule[speaker][url]" value="<?php echo esc_attr( $speaker_url ); ?>" class="regular-text" />
-						<p class="description"><?php _e( "Please provide the URL for the speaker's website.", 'conf-schedule' ); ?></p>
+						<p class="description"><?php _e( "Please provide the URL for the speaker's personal website.", 'conf-schedule' ); ?></p>
 					</td>
 				</tr>
 				<tr>
@@ -2023,6 +2017,13 @@ class Conference_Schedule_Admin {
 					<td>
 						<input type="text" id="conf-sch-company-url" name="conf_schedule[speaker][company_url]" value="<?php echo esc_attr( $speaker_company_url ); ?>" class="regular-text" />
 						<p class="description"><?php _e( "Please provide the URL for the speaker's company website.", 'conf-schedule' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="conf-sch-position"><?php _e( 'Position', 'conf-schedule' ); ?></label></th>
+					<td>
+						<input type="text" id="conf-sch-position" name="conf_schedule[speaker][position]" value="<?php echo esc_attr( $speaker_position ); ?>" class="regular-text" />
+						<p class="description"><?php _e( "Please provide the speaker's job title.", 'conf-schedule' ); ?></p>
 					</td>
 				</tr>
 			</tbody>
@@ -2051,6 +2052,7 @@ class Conference_Schedule_Admin {
 		$speaker_linkedin = get_post_meta( $post_id, 'conf_sch_speaker_linkedin', true );
 
 		?>
+		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's social media information will be displayed on the front-end of the website.", 'conf-schedule' ); ?></p>
 		<table class="form-table conf-schedule-post">
 			<tbody>
 			<tr>

@@ -386,7 +386,7 @@ msgid "Speaker Events"
 msgstr ""
 
 #: includes/admin.php:919
-msgid "Contact Information"
+msgid "Speaker Contact Information"
 msgstr ""
 
 #: includes/admin.php:929
@@ -469,7 +469,7 @@ msgstr ""
 msgid "No speakers"
 msgstr ""
 
-#: includes/admin.php:1653, includes/admin.php:2172, includes/speakers.php:168, includes/speakers.php:169, includes/speakers.php:170, includes/speakers.php:184
+#: includes/admin.php:1653, includes/admin.php:2174, includes/speakers.php:168, includes/speakers.php:169, includes/speakers.php:170, includes/speakers.php:184
 msgid "Speakers"
 msgstr ""
 
@@ -593,83 +593,91 @@ msgstr ""
 msgid "Please provide a phone number that may be used to contact the speaker."
 msgstr ""
 
-#: includes/admin.php:1982
+#: includes/admin.php:1979
+msgid "The speaker's profile information will be displayed on the front-end of the website."
+msgstr ""
+
+#: includes/admin.php:1983
 msgid "WordPress User"
 msgstr ""
 
-#: includes/admin.php:1987
+#: includes/admin.php:1988
 msgid "Do not assign to a user"
 msgstr ""
 
-#: includes/admin.php:1994
+#: includes/admin.php:1995
 msgid "Refresh users"
 msgstr ""
 
-#: includes/admin.php:1995
+#: includes/admin.php:1996
 msgid "Manage users"
 msgstr ""
 
-#: includes/admin.php:1997
+#: includes/admin.php:1998
 msgid "Assign this speaker to a %s user."
 msgstr ""
 
-#: includes/admin.php:2001
-msgid "Position"
+#: includes/admin.php:2002
+msgid "Personal Website"
 msgstr ""
 
-#: includes/admin.php:2004
-msgid "Please provide the speaker's job title."
+#: includes/admin.php:2005
+msgid "Please provide the URL for the speaker's personal website."
 msgstr ""
 
-#: includes/admin.php:2008
-msgid "Website"
-msgstr ""
-
-#: includes/admin.php:2011
-msgid "Please provide the URL for the speaker's website."
-msgstr ""
-
-#: includes/admin.php:2015
+#: includes/admin.php:2009
 msgid "Company"
 msgstr ""
 
-#: includes/admin.php:2018
+#: includes/admin.php:2012
 msgid "Where does the speaker work?"
 msgstr ""
 
-#: includes/admin.php:2022
+#: includes/admin.php:2016
 msgid "Company Website"
 msgstr ""
 
-#: includes/admin.php:2025
+#: includes/admin.php:2019
 msgid "Please provide the URL for the speaker's company website."
 msgstr ""
 
-#: includes/admin.php:2060, includes/admin.php:2081
+#: includes/admin.php:2023
+msgid "Position"
+msgstr ""
+
+#: includes/admin.php:2026
+msgid "Please provide the speaker's job title."
+msgstr ""
+
+#: includes/admin.php:2055
+msgid "The speaker's social media information will be displayed on the front-end of the website."
+msgstr ""
+
+#: includes/admin.php:2062, includes/admin.php:2083
 msgid "Please provide the full %s URL."
 msgstr ""
 
-#: includes/admin.php:2067
+#: includes/admin.php:2069
 msgid "Please provide the %s handle or username."
 msgstr ""
 
-#: includes/admin.php:2074
+#: includes/admin.php:2076
 msgid "Please provide the %s handle, without the \"@\"."
 msgstr ""
 
-#: includes/admin.php:2111
+#: includes/admin.php:2113
 msgid "Address"
 msgstr ""
 
-#: includes/admin.php:2114
+#: includes/admin.php:2116
 msgid "Please provide the location's address."
 msgstr ""
 
-#: includes/admin.php:2118
+#: includes/admin.php:2120
 msgid "%s URL"
 msgstr ""
 
-#: includes/admin.php:2121
+#: includes/admin.php:2123
 msgid "Please provide the %s URL for this location."
 msgstr ""
 
