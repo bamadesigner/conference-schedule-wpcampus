@@ -1481,6 +1481,15 @@ class Conference_Schedule_Admin {
 									update_post_meta( $post_id, "conf_sch_location_{$field_name}", null );
 								}
 							}
+
+							/*
+							 * Make sure 'sch_link_to_post' is set.
+							 */
+							if ( isset( $_POST['conf_schedule']['location']['sch_link_to_post'] ) ) {
+								update_post_meta( $post_id, 'conf_sch_link_to_post', '1' );
+							} else {
+								update_post_meta( $post_id, 'conf_sch_link_to_post', '0' );
+							}
 						}
 					}
 				}
@@ -2161,6 +2170,7 @@ class Conference_Schedule_Admin {
 	 * @return  void
 	 */
 	public function print_location_details_form( $post_id ) {
+		global $wpdb;
 
 		// Add a nonce field so we can check for it when saving the data.
 		wp_nonce_field( 'conf_schedule_save_location_details', 'conf_schedule_save_location_details_nonce' );
@@ -2168,6 +2178,24 @@ class Conference_Schedule_Admin {
 		// Get saved location details.
 		$location_address = get_post_meta( $post_id, 'conf_sch_location_address', true );
 		$location_google_maps_url = get_post_meta( $post_id, 'conf_sch_location_google_maps_url', true );
+
+		/*
+		 * See if we need to link to the location post in the schedule.
+		 *
+		 * The default is true.
+		 *
+		 * If database row doesn't exist, then set as default.
+		 * Otherwise, check value.
+		 */
+		$sch_link_to_post = true;
+
+		// Check the database.
+		$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $post_id ) );
+
+		// If row exists, then check the value.
+		if ( $sch_link_to_post_db ) {
+			$sch_link_to_post = get_post_meta( $post_id, 'conf_sch_link_to_post', true );
+		}
 
 		?>
 		<table class="form-table conf-schedule-post">
@@ -2184,6 +2212,12 @@ class Conference_Schedule_Admin {
 					<td>
 						<input type="url" id="conf-sch-google-maps-url" name="conf_schedule[location][google_maps_url]" value="<?php echo esc_attr( $location_google_maps_url ); ?>" class="regular-text" />
 						<p class="description"><?php printf( __( 'Please provide the %s URL for this location.', 'conf-schedule' ), 'Google Maps' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Include Link to Location in Schedule', 'conf-schedule' ); ?></th>
+					<td>
+						<label for="conf-sch-link-post"><input name="conf_schedule[location][sch_link_to_post]" type="checkbox" id="conf-sch-link-post" value="1"<?php checked( isset( $sch_link_to_post ) && $sch_link_to_post ); ?> /> <?php _e( "If checked, will include a link to the location's post in the schedule.", 'conf-schedule' ); ?></label>
 					</td>
 				</tr>
 			</tbody>

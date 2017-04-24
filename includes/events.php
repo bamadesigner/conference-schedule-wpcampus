@@ -502,6 +502,7 @@ class Conference_Schedule_Event {
 	 * Get the event location.
 	 */
 	public function get_location() {
+		global $wpdb;
 
 		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
@@ -521,8 +522,22 @@ class Conference_Schedule_Event {
 			$event_post = get_post( $location_id );
 			if ( ! empty( $event_post ) ) {
 
-				// Add the permalink.
-				$event_post->permalink = get_permalink( $location_id );
+				/*
+				 * @TODO:
+				 * Modify to only work with the API?
+				 *
+				 * See if we want to add/display the permalink.
+				 *
+				 * First, check the database.
+				 * If row exists, then check the value.
+				 */
+				$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $location_id ) );
+				if ( $sch_link_to_post_db ) {
+					$sch_link_to_post = get_post_meta( $location_id, 'conf_sch_link_to_post', true );
+					if ( $sch_link_to_post ) {
+						$event_post->permalink = get_permalink( $location_id );
+					}
+				}
 
 				return $this->location = $event_post;
 			}
