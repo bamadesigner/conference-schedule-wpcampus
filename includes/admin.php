@@ -89,6 +89,7 @@ class Conference_Schedule_Admin {
 
 		// Populate our custom admin columns.
 		add_action( 'manage_schedule_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
+		add_action( 'manage_speakers_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
 
 	}
 
@@ -2254,21 +2255,38 @@ class Conference_Schedule_Admin {
 	public function add_posts_columns( $columns, $post_type ) {
 
 		// Only for these post types.
-		if ( ! in_array( $post_type, array( 'schedule' ) ) ) {
+		if ( ! in_array( $post_type, array( 'schedule', 'speakers' ) ) ) {
 			return $columns;
 		}
+
+		// Columns to add after title.
+		$add_columns_after_title = array(
+			'schedule' => array(
+				'speakers' => __( 'Speakers', 'conf-schedule' ),
+			),
+			'speakers' => array(
+				'events' => __( 'Events', 'conf-schedule' ),
+			),
+		);
 
 		// Store new columns.
 		$new_columns = array();
 
 		foreach ( $columns as $key => $value ) {
 
+			// If speaker, change column value for title.
+			if ( 'title' == $key && 'speakers' == $post_type ) {
+				$value = __( 'Name', 'conf-schedule' );
+			}
+
 			// Add to new columns.
 			$new_columns[ $key ] = $value;
 
 			// Add custom columns after title.
 			if ( 'title' == $key ) {
-				$new_columns['conf-sch-speakers'] = __( 'Speakers', 'conf-schedule' );
+				foreach ( $add_columns_after_title[ $post_type ] as $column_key => $column_value ) {
+					$new_columns[ "conf-sch-{$column_key}" ] = $column_value;
+				}
 			}
 		}
 
@@ -2304,6 +2322,25 @@ class Conference_Schedule_Admin {
 
 				// Print speakers list.
 				echo implode( '<br>', $speakers_list );
+
+			}
+		} elseif ( 'conf-sch-events' == $column ) {
+
+			// Get speaker.
+			$speaker = new Conference_Schedule_Speaker( $post_id );
+
+			// Get speaker's events.
+			$events = $speaker->get_events();
+			if ( $events ) {
+
+				// Build string of events.
+				$events_lists = array();
+				foreach ( $events as $event ) {
+					$events_lists[] = '<a href="' . get_edit_post_link( $event->ID ) . '">' . $event->post_title . '</a>';
+				}
+
+				// Print events list.
+				echo implode( '<br>', $events_lists );
 
 			}
 		}
