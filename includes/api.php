@@ -198,8 +198,29 @@ class Conference_Schedule_API {
 
 			// Get the event location.
 			case 'event_location':
+
+				// Get the location.
 				$event_location = $event->get_location();
-				return ! empty( $event_location ) ? $event_location : null;
+				if ( ! empty( $event_location->ID ) ) {
+
+					/*
+					 * See if we want to add/display the permalink.
+					 *
+					 * First, check the database.
+					 * If row exists, then check the value.
+					 */
+					$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $event_location->ID ) );
+					if ( $sch_link_to_post_db ) {
+						$sch_link_to_post = get_post_meta( $event_location->ID, 'conf_sch_link_to_post', TRUE );
+						if ( $sch_link_to_post ) {
+							$event_location->permalink = get_permalink( $event_location->ID );
+						}
+					}
+
+					return $event_location;
+				}
+
+				return null;
 
 			case 'event_address':
 				$event_location_address = $event->get_location_address();

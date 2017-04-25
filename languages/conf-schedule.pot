@@ -43,7 +43,7 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: conference-schedule.php:720, includes/admin.php:1685
+#: conference-schedule.php:720, includes/admin.php:1685, includes/admin.php:2266
 msgid "Location"
 msgstr ""
 
@@ -701,65 +701,65 @@ msgstr ""
 msgid "If checked, will include a link to the location's post in the schedule."
 msgstr ""
 
-#: includes/admin.php:2268
+#: includes/admin.php:2269
 msgid "Events"
 msgstr ""
 
-#: includes/admin.php:2279
+#: includes/admin.php:2280
 msgid "Name"
 msgstr ""
 
-#: includes/events.php:993
+#: includes/events.php:974
 msgctxt "Post Type General Name"
 msgid "Schedule"
 msgstr ""
 
-#: includes/events.php:994
+#: includes/events.php:975
 msgctxt "Post Type Singular Name"
 msgid "Event"
 msgstr ""
 
-#: includes/events.php:995, includes/events.php:996, includes/events.php:997, includes/events.php:1011
+#: includes/events.php:976, includes/events.php:977, includes/events.php:978, includes/events.php:992
 msgid "Schedule"
 msgstr ""
 
-#: includes/events.php:998
+#: includes/events.php:979
 msgid "All Events"
 msgstr ""
 
-#: includes/events.php:999
+#: includes/events.php:980
 msgid "Add New Event"
 msgstr ""
 
-#: includes/events.php:1000
+#: includes/events.php:981
 msgid "New Event"
 msgstr ""
 
-#: includes/events.php:1001
+#: includes/events.php:982
 msgid "Edit Event"
 msgstr ""
 
-#: includes/events.php:1002
+#: includes/events.php:983
 msgid "Update Event"
 msgstr ""
 
-#: includes/events.php:1003
+#: includes/events.php:984
 msgid "View Event"
 msgstr ""
 
-#: includes/events.php:1004
+#: includes/events.php:985
 msgid "Search Events"
 msgstr ""
 
-#: includes/events.php:1005
+#: includes/events.php:986
 msgid "No events found."
 msgstr ""
 
-#: includes/events.php:1006
+#: includes/events.php:987
 msgid "No events found in the trash."
 msgstr ""
 
-#: includes/events.php:1012
+#: includes/events.php:993
 msgid "The schedule content for your conference."
 msgstr ""
 

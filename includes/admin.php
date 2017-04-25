@@ -2263,6 +2263,7 @@ class Conference_Schedule_Admin {
 		$add_columns_after_title = array(
 			'schedule' => array(
 				'speakers' => __( 'Speakers', 'conf-schedule' ),
+				'location' => __( 'Location', 'conf-schedule' ),
 			),
 			'speakers' => array(
 				'events' => __( 'Events', 'conf-schedule' ),
@@ -2305,24 +2306,35 @@ class Conference_Schedule_Admin {
 	public function populate_posts_columns( $column, $post_id ) {
 
 		// Add data for our custom date column.
-		if ( 'conf-sch-speakers' == $column ) {
+		if ( in_array( $column, array( 'conf-sch-location', 'conf-sch-speakers' ) ) ) {
 
 			// Get event.
 			$event = new Conference_Schedule_Event( $post_id );
 
-			// Get event speakers.
-			$speakers = $event->get_speakers();
-			if ( $speakers ) {
+			// Get event column information.
+			if ( 'conf-sch-location' == $column ) {
 
-				// Build string of speakers.
-				$speakers_list = array();
-				foreach ( $speakers as $speaker ) {
-					$speakers_list[] = '<a href="' . get_edit_post_link( $speaker->ID ) . '">' . $speaker->post_title . '</a>';
+				// Get event location.
+				$event_location = $event->get_location();
+				if ( ! empty( $event_location->ID ) ) :
+					?><a href="<?php echo get_edit_post_link( $event_location->ID ); ?>"><?php echo $event_location->post_title; ?></a><?php
+				endif;
+			} elseif ( 'conf-sch-speakers' == $column ) {
+
+				// Get event speakers.
+				$speakers = $event->get_speakers();
+				if ( $speakers ) {
+
+					// Build string of speakers.
+					$speakers_list = array();
+					foreach ( $speakers as $speaker ) {
+						$speakers_list[] = '<a href="' . get_edit_post_link( $speaker->ID ) . '">' . $speaker->post_title . '</a>';
+					}
+
+					// Print speakers list.
+					echo implode( '<br>', $speakers_list );
+
 				}
-
-				// Print speakers list.
-				echo implode( '<br>', $speakers_list );
-
 			}
 		} elseif ( 'conf-sch-events' == $column ) {
 
