@@ -113,7 +113,7 @@ class Conference_Schedule_Admin {
 	 */
 	public function ajax_get_speakers() {
 
-		// Get post statues.
+		// Get post statuses.
 		$post_statuses = get_post_stati();
 
 		// Remove the ones we don't want.
@@ -1947,14 +1947,23 @@ class Conference_Schedule_Admin {
 
 		else :
 
+			// Will hold post status object(s) to reduce duplicate queries.
+			$post_status_objects = array();
+
 			?>
-			<ul>
+			<ul class="conf-schedule-speaker-events">
 				<?php
 
 				foreach ( $events as $event ) :
 
+					// Get event post status object.
+					$event_status_object = isset( $post_status_objects[ $event->post_status ] ) ?: get_post_status_object( $event->post_status );
+					if ( ! isset( $post_status_objects[ $event->post_status ] ) ) {
+						$post_status_objects[ $event->post_status ] = $event_status_object;
+					}
+
 					?>
-					<li><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a></li>
+					<li class="<?php echo $event->post_status; ?>"><a href="<?php echo get_edit_post_link( $event->ID ); ?>"><?php echo $event->post_title; ?></a> <span class="post-status">(<?php echo $event_status_object->label; ?>)</span></li>
 					<?php
 
 				endforeach;
