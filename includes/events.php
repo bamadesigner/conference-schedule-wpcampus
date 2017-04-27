@@ -1000,6 +1000,11 @@ class Conference_Schedule_Events {
 			'can_export'        => true,
 			'capability_type'   => 'post',
 			'show_in_rest'      => true,
+			'rewrite'           => array(
+				'slug'          => 'schedule',
+				'with_front'    => false,
+				'pages'         => false,
+			),
 		) );
 
 		// Register the schedule custom post type.
