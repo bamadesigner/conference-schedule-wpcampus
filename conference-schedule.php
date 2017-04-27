@@ -780,6 +780,11 @@ class Conference_Schedule {
 			'capability_type'       => 'post',
 			'show_in_menu'			=> 'edit.php?post_type=schedule',
 			'show_in_rest'			=> true,
+			'rewrite'           => array(
+				'slug'          => 'locations',
+				'with_front'    => false,
+				'pages'         => false,
+			),
 		));
 
 		// Register the locations custom post type.
