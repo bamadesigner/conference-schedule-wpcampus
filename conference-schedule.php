@@ -382,8 +382,13 @@ class Conference_Schedule {
 		if ( 'schedule' == $post_type
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
-			// Always get all schedule items.
-			$query->set( 'posts_per_page' , '-1' );
+			/*
+			 * Always get all schedule items.
+			 *
+			 * @TODO: Need to come up with
+			 * solution for if more than 100 posts.
+			 */
+			$query->set( 'posts_per_page' , '100' );
 
 			// Default order is by title ASC.
 			$query->set( 'orderby', 'title' );
