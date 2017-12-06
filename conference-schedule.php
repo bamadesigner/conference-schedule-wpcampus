@@ -5,7 +5,7 @@
  * Plugin URI:      https://github.com/bamadesigner/conference-schedule
  * Description:     Helps you build a simple schedule for your conference website.
  * Version:         0.5
- * Author:          Rachel Carden
+ * Author:          Rachel Cherry
  * Author URI:      https://bamadesigner.com
  * License:         GPL-2.0+
  * License URI:		http://www.gnu.org/licenses/gpl-2.0.txt
