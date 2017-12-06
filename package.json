@@ -4,20 +4,22 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "git+https://rmcarden@bitbucket.org/rmcarden/conference-schedule.git"
+    "url": "https://github.com/bamadesigner/conference-schedule.git"
   },
-  "author": "Rachel Carden",
-  "license": "GPL-2.0",
-  "homepage": "https://bitbucket.org/rmcarden/conference-schedule#readme",
+  "author": "Rachel Cherry",
+  "license": "GPL-2.0+",
+  "homepage": "https://github.com/bamadesigner/conference-schedule#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-phpcs": "^1.3.0",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-clean-css": "^3.9.0",
+    "gulp-merge-media-queries": "^0.2.1",
+    "gulp-notify": "^3.0.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.3.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-shell": "^0.6.3",
     "gulp-sort": "^2.0.0",
-    "gulp-uglify": "^2.0.0",
-    "gulp-watch": "^4.3.8",
-    "gulp-wp-pot": "^2.0.1"
+    "gulp-uglify": "^3.0.0",
+    "gulp-wp-pot": "^2.0.6"
   }
 }

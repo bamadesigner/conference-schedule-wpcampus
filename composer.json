@@ -1,22 +1,19 @@
 {
-    "name": "bamadesigner/conference-schedule",
-    "description": "Helps you build a simple schedule for your conference website.",
-    "type": "wordpress-plugin",
-    "license": "GPL2.0+",
-    "authors": [
-        {
-            "name": "Rachel Carden",
-            "email": "bamadesigner@gmail.com"
-        }
-    ],
-    "require-dev": {
-        "squizlabs/php_codesniffer": "*",
-        "wp-coding-standards/wpcs": "*"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "./vendor/bin/phpcs --config-set bin vendor/bin/phpcs",
-            "./vendor/bin/phpcs --config-set installed_paths ../../wp-coding-standards/wpcs"
-        ]
+  "name": "bamadesigner/conference-schedule",
+  "description": "WordPress plugin that helps you build a simple schedule for your conference website.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Rachel Cherry",
+      "email": "bamadesigner@gmail.com"
     }
+  ],
+  "require-dev": {
+    "squizlabs/php_codesniffer": "*",
+    "wp-coding-standards/wpcs": "*"
+  },
+  "scripts": {
+    "sniff": "vendor/bin/phpcs --runtime-set installed_paths vendor/wp-coding-standards/wpcs -p ./ --standard=WordPress-Core --report=full --extensions=php --ignore=*/vendor/*,*/node_modules/*"
+  }
 }
