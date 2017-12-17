@@ -646,6 +646,13 @@ class Conference_Schedule_Event {
 
 	/**
 	 * Get the event's livestream URL.
+	 *
+	 * @return string|false|null
+	 *  If event is active (and within livestream range):
+	 *      - Will return URL if exists
+	 *      - Otherwise will return null.
+	 *  If event isn't active:
+	 *      - Will return false.
 	 */
 	public function get_livestream_url() {
 
@@ -659,6 +666,12 @@ class Conference_Schedule_Event {
 			return $this->livestream_url;
 		}
 
+		// See if the livestream is disabled for this event.
+		$livestream_disabled = get_post_meta( $this->ID, 'conf_sch_event_livestream_disable', true );
+		if ( isset( $livestream_disabled ) && $livestream_disabled ) {
+			return false;
+		}
+
 		// Get our enabled session fields.
 		$session_fields = conference_schedule()->get_session_fields();
 
@@ -667,52 +680,56 @@ class Conference_Schedule_Event {
 			return $this->livestream_url = false;
 		}
 
-		// Get the livestream URL.
-		$livestream_url = get_post_meta( $this->ID, 'conf_sch_event_livestream_url', true );
+		// What time is it in UTC?
+		$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
 
-		// Filter the livestream URL.
-		$livestream_url = apply_filters( 'conf_sch_livestream_url', $livestream_url, $this->post );
-		if ( ! empty( $livestream_url ) ) {
-
-			// What time is it in UTC?
-			$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
-
-			// Get date/time in UTC.
-			$session_date_time_gmt = $this->get_date_time_gmt();
-			if ( ! empty( $session_date_time_gmt ) ) {
-
-				/*
-				 * Will show up 10 minutes before start.
-				 * @TODO add setting to control.
-				 */
-				$session_livestream_reveal_delay_seconds = 600;
-
-				// Send URL if time is valid.
-				if ( strtotime( $session_date_time_gmt ) !== false ) {
-
-					// Build session start date time.
-					$event_start_dt = new DateTime( $session_date_time_gmt, new DateTimeZone( 'UTC' ) );
-
-					// When will the livestream URL show up?
-					if ( ( $event_start_dt->getTimestamp() - $current_time->getTimestamp() ) <= $session_livestream_reveal_delay_seconds ) {
-
-						// Get the duration.
-						$event_duration = $this->get_duration();
-
-						// Remove when the event ends.
-						if ( $current_time->getTimestamp() > ( $event_start_dt->getTimestamp() + $event_duration ) ) {
-							return $this->livestream_url = false;
-						}
-
-						// Return the URL.
-						return $this->livestream_url = $livestream_url;
-					}
-
-					return $this->livestream_url = false;
-				}
-			}
+		// Get date/time in UTC. Get out of here if time isn't valid.
+		$session_date_time_gmt = $this->get_date_time_gmt();
+		if ( empty( $session_date_time_gmt ) || strtotime( $session_date_time_gmt ) === false ) {
+			return false;
 		}
 
+		/*
+		 * Will show up 15 minutes before start.
+		 * @TODO add setting to control.
+		 */
+		$session_livestream_reveal_delay_seconds = 900;
+
+		// Build session start date time.
+		$event_start_dt = new DateTime( $session_date_time_gmt, new DateTimeZone( 'UTC' ) );
+
+		// This means the event is active and after the beginning of the livestream range.
+		if ( ( $event_start_dt->getTimestamp() - $current_time->getTimestamp() ) <= $session_livestream_reveal_delay_seconds ) {
+
+			// Get the duration.
+			$event_duration = $this->get_duration();
+
+			// Remove when the event ends.
+			if ( $current_time->getTimestamp() > ( $event_start_dt->getTimestamp() + $event_duration ) ) {
+				return $this->livestream_url = false;
+			}
+
+			// Get the livestream URL.
+			$livestream_url = get_post_meta( $this->ID, 'conf_sch_event_livestream_url', true );
+
+			// Filter the livestream URL.
+			$livestream_url = apply_filters( 'conf_sch_livestream_url', $livestream_url, $this->post );
+
+			// Return the URL.
+			if ( ! empty( $livestream_url ) ) {
+				return $this->livestream_url = $livestream_url;
+			}
+
+			/*
+			 * Set as null if event is active but no URL.
+			 *
+			 * @TODO this could be a problem for schedule
+			 * items that aren't sessions, like "Lunch".
+			 */
+			return $this->livestream_url = null;
+		}
+
+		// This means the event is not active and not within the range.
 		return $this->livestream_url = false;
 	}
 
@@ -847,8 +864,12 @@ class Conference_Schedule_Event {
 			return $this->feedback_url = false;
 		}
 
-		// Feedback URL will only show up 30 minutes after the session has started
-		// If no valid session time, well show URL
+		/*
+		 * Feedback URL will only show up
+		 * 30 minutes after the session has started.
+		 *
+		 * If no valid session time, well show URL.
+		 */
 		$feedback_url = get_post_meta( $this->ID, 'conf_sch_event_feedback_url', true );
 
 		// Filter the feedback URL

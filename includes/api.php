@@ -265,8 +265,7 @@ class Conference_Schedule_API {
 			 * and stay until it ends.
 			 */
 			case 'session_livestream_url':
-				$event_livestream_url = $event->get_livestream_url();
-				return ! empty( $event_livestream_url ) ? $event_livestream_url : null;
+				return $event->get_livestream_url();
 
 			case 'session_slides_url':
 				$event_slides_url = $event->get_slides_url();
