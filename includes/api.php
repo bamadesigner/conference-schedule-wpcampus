@@ -211,7 +211,7 @@ class Conference_Schedule_API {
 					 */
 					$sch_link_to_post_db = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = 'conf_sch_link_to_post'", $event_location->ID ) );
 					if ( $sch_link_to_post_db ) {
-						$sch_link_to_post = get_post_meta( $event_location->ID, 'conf_sch_link_to_post', TRUE );
+						$sch_link_to_post = get_post_meta( $event_location->ID, 'conf_sch_link_to_post', true );
 						if ( $sch_link_to_post ) {
 							$event_location->permalink = get_permalink( $event_location->ID );
 						}
