@@ -3,9 +3,6 @@
 // we display the conference schedule.
 //
 
-// Make sure the charset is set appropriately
-@charset "UTF-8";
-
 // Define our colors
 $keynote-bg: rgba( #7a181f, 0.08 );
 $food-bg: rgba( #409b40, 0.06 );
@@ -20,104 +17,96 @@ $linkedin-blue: #0077b5;
 
 // Will set transition values
 @mixin set-transition( $transform... ) {
-    -webkit-transition: $transform;
-    -moz-transition: $transform;
-    -ms-transition: $transform;
-    -o-transition: $transform;
-    transition: $transform;
+	transition: $transform;
 }
 
 .clear {
-    clear: both;
+	clear: both;
 }
 
 .conf-sch-event-links {
-    display: inline-block;
-    list-style: none;
-    border: 0;
-    margin: 5px 0 0 0 !important;
-    padding: 0;
-    text-align: left;
+	display: inline-block;
+	list-style: none;
+	border: 0;
+	margin: 5px 0 0 0 !important;
+	padding: 0;
+	text-align: left;
 
-    li {
-        display: block;
-        list-style: none;
-        margin: 5px 0 0 0;
-        border: 0;
-        padding: 0;
+	li {
+		display: block;
+		list-style: none;
+		margin: 5px 0 0 0;
+		border: 0;
+		padding: 0;
 
-        a {
-            display: block;
-            background-color: rgba( #000, 0.05 );
-            padding: 5px 20px;
-            color: inherit;
-            text-align: center;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
-            border-radius: 5px;
-            text-decoration: none;
-            @include set-transition( background-color 1s ease );
+		a {
+			display: block;
+			background-color: rgba( #000, 0.05 );
+			padding: 5px 20px;
+			color: inherit;
+			text-align: center;
+			border-radius: 5px;
+			text-decoration: none;
+			@include set-transition( background-color 1s ease );
 
-            &:hover {
-                background-color: rgba( #000, 0.2 );
-            }
-        }
+			&:hover {
+				background-color: rgba( #000, 0.2 );
+			}
+		}
 
-	    &.event-link {
-		    font-weight: bold;
-	    }
+		&.event-link {
+			font-weight: bold;
+		}
 
-        &.event-twitter {
+		&.event-twitter {
 
-            a {
-                background-color: $twitter-blue;
-                color: #fff;
+			a {
+				background-color: $twitter-blue;
+				color: #fff;
 
-                &:hover {
-                    background-color: darken( $twitter-blue, 20% );
-                }
+				&:hover {
+					background-color: darken( $twitter-blue, 20% );
+				}
+			}
+		}
 
-            }
+		&.event-slides {
 
-        }
+			a {
+				background-color: #02528d;
+				color: #fff;
 
-        &.event-slides {
+				&:hover {
+					background-color: darken( #02528d, 20% );
+				}
+			}
+		}
 
-            a {
-                background-color: #02528d;
-                color: #fff;
+		&.event-feedback {
 
-                &:hover {
-                    background-color: darken( #02528d, 20% );
-                }
-            }
-        }
+			a {
+				background-color: #46852b;
+				color: #fff;
 
-        &.event-feedback {
+				&:hover {
+					background-color: darken( #46852b, 10% );
+				}
+			}
+		}
 
-            a {
-                background-color: #46852b;
-                color: #fff;
+		&.event-livestream,
+		&.event-video {
 
-                &:hover {
-                    background-color: darken( #46852b, 10% );
-                }
-            }
-        }
+			a {
+				background-color: #662d91;
+				color: #fff;
 
-	    &.event-livestream,
-	    &.event-video {
-
-		    a {
-			    background-color: #662d91;
-			    color: #fff;
-
-			    &:hover {
-				    background-color: darken( #662d91, 10% );
-			    }
-		    }
-	    }
-    }
+				&:hover {
+					background-color: darken( #662d91, 10% );
+				}
+			}
+		}
+	}
 }
 
 #conf-sch-single-livestream {
@@ -126,11 +115,9 @@ $linkedin-blue: #0077b5;
 	a {
 		display: block;
 		background-color: #662d91;
-		color: #fff;
+		color: #fff !important;
 		padding: 15px 20px;
 		text-align: center;
-		-webkit-border-radius: 5px;
-		-moz-border-radius: 5px;
 		border-radius: 5px;
 		text-decoration: none;
 		@include set-transition( background-color 1s ease );
@@ -143,45 +130,46 @@ $linkedin-blue: #0077b5;
 
 // Customize the single schedule pages
 #conf-sch-single-meta {
-    display: none;
-    border: 1px solid #e8e8e8;
-    border-radius: 5px;
-    margin: 15px 0 30px 0;
-    padding: 20px;
-    font-size: 1em;
-    line-height: 1.6em;
+	display: none;
+	background: #fff;
+	border: 1px solid #e8e8e8;
+	border-radius: 5px;
+	margin: 15px 0 30px 0;
+	padding: 20px;
+	font-size: 1em;
+	line-height: 1.6em;
 
-    .event-meta {
-        display: block;
-        margin: 0 0 5px 0;
-    }
+	.event-meta {
+		display: block;
+		margin: 0 0 5px 0;
+	}
 
-    .event-meta-label {
-        font-weight: bold;
-    }
+	.event-meta-label {
+		font-weight: bold;
+	}
 
-    .conf-sch-event-links {
-        display: block;
-        margin: 12px 0 0 0 !important;
+	.conf-sch-event-links {
+		display: block;
+		margin: 12px 0 0 0 !important;
 
-        li {
+		li {
 
-            a {
-                display: block;
-            }
-        }
-    }
+			a {
+				display: block;
+			}
+		}
+	}
 }
 
 // Move meta to the right when screen gets larger
 @media not all and (min-width: 0) and (max-width: 620px) {
 
-    #conf-sch-single-meta {
-        float: right;
-        margin-left: 30px;
-        min-width: 300px;
-        max-width: 350px;
-    }
+	#conf-sch-single-meta {
+		float: right;
+		margin-left: 30px;
+		min-width: 300px;
+		max-width: 350px;
+	}
 }
 
 // Customize the video on the single schedule pages
@@ -201,314 +189,310 @@ $speaker-thumb-width: 200px;
 $speaker-thumb-height: 200px;
 $speaker-thumb-top: 5px;
 #conf-sch-single-speakers {
-    display: none;
-    border-top: 1px solid rgba( #000, 0.1 );
-    margin-top: 35px;
-    padding-top: 30px;
+	display: none;
+	border-top: 1px solid rgba( #000, 0.1 );
+	margin-top: 35px;
+	padding-top: 30px;
 
-    .conf-sch-single-speakers-title {
-        margin-bottom: 12px;
-    }
+	.conf-sch-single-speakers-title {
+		margin-bottom: 12px;
+	}
 
-    .event-speaker {
-        clear: left;
-        margin: 0 0 20px 0;
+	.event-speaker {
+		clear: left;
+		margin: 0 0 20px 0;
 
-        .speaker-name {
-            margin: 0;
-        }
+		.speaker-name {
+			margin: 0;
+		}
 
-        .speaker-meta {
-            display: block;
-            font-style: italic;
-            margin: 10px 0 0 0;
+		.speaker-meta {
+			display: block;
+			font-style: italic;
+			margin: 10px 0 0 0;
 
-            .speaker-url {
-                display: block;
-            }
-        }
+			.speaker-url {
+				display: block;
+			}
+		}
 
-        .speaker-social-media {
-            display: block;
-            list-style: none;
-            border: 0;
-            margin: 10px 0 0 0 !important;
-            padding: 0;
-            text-align: left;
+		.speaker-social-media {
+			display: block;
+			list-style: none;
+			border: 0;
+			margin: 10px 0 0 0 !important;
+			padding: 0;
+			text-align: left;
 
-            li {
-                display: inline-block;
-                list-style: none;
-                margin: 0 10px 15px 0;
-                border: 0;
-                padding: 0;
-                font-size: 0.9em;
-                line-height: 1.8;
+			li {
+				display: inline-block;
+				list-style: none;
+				margin: 0 10px 15px 0;
+				border: 0;
+				padding: 0;
+				font-size: 0.9em;
+				line-height: 1.8;
 
-                a {
-                    display: block;
-                    background-color: rgba(#000, 0.05);
-                    padding: 5px 15px;
-                    color: inherit;
-                    text-align: center;
-                    -webkit-border-radius: 5px;
-                    -moz-border-radius: 5px;
-                    border-radius: 5px;
-                    text-decoration: none;
-                    @include set-transition(background-color 1s ease);
+				a {
+					display: block;
+					background-color: rgba(#000, 0.05);
+					padding: 5px 15px;
+					color: inherit;
+					text-align: center;
+					border-radius: 5px;
+					text-decoration: none;
+					@include set-transition(background-color 1s ease);
 
-                    &:hover {
-                        background-color: rgba(#000, 0.2);
-                    }
-                }
+					&:hover {
+						background-color: rgba(#000, 0.2);
+					}
+				}
 
-                &.twitter {
-                    font-weight: bold;
+				&.twitter {
+					font-weight: bold;
 
-                    a {
-                        background-color: $twitter-blue;
-                        color: #fff;
+					a {
+						background-color: $twitter-blue;
+						color: #fff;
 
-                        &:hover {
-                            background-color: darken($twitter-blue, 20%);
-                        }
-                    }
-                }
+						&:hover {
+							background-color: darken($twitter-blue, 20%);
+						}
+					}
+				}
 
-                &.facebook {
-                    font-weight: bold;
+				&.facebook {
+					font-weight: bold;
 
-                    a {
-                        background-color: $facebook-blue;
-                        color: #fff;
+					a {
+						background-color: $facebook-blue;
+						color: #fff;
 
-                        &:hover {
-                            background-color: darken($facebook-blue, 20%);
-                        }
-                    }
-                }
+						&:hover {
+							background-color: darken($facebook-blue, 20%);
+						}
+					}
+				}
 
-                &.instagram {
-                    font-weight: bold;
+				&.instagram {
+					font-weight: bold;
 
-                    a {
-                        background-color: $instagram-blue;
-                        color: #fff;
+					a {
+						background-color: $instagram-blue;
+						color: #fff;
 
-                        &:hover {
-                            background-color: darken($instagram-blue, 20%);
-                        }
-                    }
-                }
+						&:hover {
+							background-color: darken($instagram-blue, 20%);
+						}
+					}
+				}
 
-                &.linkedin {
-                    font-weight: bold;
+				&.linkedin {
+					font-weight: bold;
 
-                    a {
-                        background-color: $linkedin-blue;
-                        color: #fff;
+					a {
+						background-color: $linkedin-blue;
+						color: #fff;
 
-                        &:hover {
-                            background-color: darken($linkedin-blue, 20%);
-                        }
-                    }
-                }
-            }
-         }
+						&:hover {
+							background-color: darken($linkedin-blue, 20%);
+						}
+					}
+				}
+			}
+		}
 
-        .speaker-bio {
-            clear: both;
-            margin: 10px 0 0 0;
+		.speaker-bio {
+			clear: both;
+			margin: 10px 0 0 0;
 
-            &.has-photo {
+			&.has-photo {
 
-                .speaker-thumb {
-                    width: auto !important;
-                    max-width: 100%;
-                    height: auto;
-                    margin: 10px 0 10px 0;
-                    border: 0;
-                }
-            }
-        }
+				.speaker-thumb {
+					width: auto !important;
+					max-width: 100%;
+					height: auto;
+					margin: 10px 0 10px 0;
+					border: 0;
+				}
+			}
+		}
 
-        // There's already enough space with the social media
-        .speaker-social-media + .speaker-bio {
-            margin-top: 0;
-        }
-    }
+		// There's already enough space with the social media
+		.speaker-social-media + .speaker-bio {
+			margin-top: 0;
+		}
+	}
 }
 
 // Set schedule variables
 $conf-sch-time-width: 15%;
 $conf-sch-events-width: 85%;
 #conference-schedule-container {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
+	box-sizing: border-box;
 
-    * {
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        box-sizing: border-box;
-    }
+	* {
+		box-sizing: border-box;
+	}
 
 	// Is displayed when done loading
 	& > * {
 		display: none;
 	}
-    
-    .schedule-header {
-	    margin-top: 30px;
-    }
 
-    .schedule-table {
-        margin: 20px 0 30px 0;
+	.schedule-header {
+		margin-top: 30px;
+	}
 
-        .schedule-header-row {
-            display: none;
-        }
+	.schedule-table {
+		margin: 20px 0 30px 0;
 
-        .schedule-row {
-            clear: both;
-            overflow: auto;
-            padding: 0 0 25px 0;
+		.schedule-header-row {
+			display: none;
+		}
 
-            &:last-child {
-                border-bottom: 1px solid $schedule-border-color;
-            }
+		.schedule-row {
+			clear: both;
+			overflow: auto;
+			padding: 0 0 25px 0;
 
-            .schedule-event {
-                overflow: auto;
-                margin: 0 0 25px 0;
+			&:last-child {
+				border-bottom: 1px solid $schedule-border-color;
+			}
 
-                .event-time {
-                    display: block;
-                }
+			.schedule-event {
+				overflow: auto;
+				margin: 0 0 25px 0;
 
-                .event-title {
-                    font-weight: bold;
-                    margin: 0;
-                    font-size: 1.2em;
-                    line-height: 1.4;
-                }
+				.event-time {
+					display: block;
+				}
 
-                .event-location,
-                .event-address {
-                    display: block;
-                    margin: 5px 0 0 0;
-                    font-size: 0.95em;
-                    line-height: 1.3;
-                    opacity: 0.8;
+				.event-title {
+					font-weight: bold;
+					margin: 0;
+					font-size: 1.2em;
+					line-height: 1.4;
+				}
 
-	                a {
-		                color: inherit;
-	                }
-                }
+				.event-location,
+				.event-address {
+					display: block;
+					margin: 5px 0 0 0;
+					font-size: 0.95em;
+					line-height: 1.3;
+					opacity: 0.8;
 
-                .event-categories {
-                    font-style: italic;
-                    margin: 2px 0 0 0;
-                }
+					a {
+						color: inherit;
+					}
+				}
 
-                .event-speakers {
-                    font-size: 1.1em;
-                    line-height: 1.3;
-                    color: #222;
-                    font-weight: bold;
-                    margin: 5px 0 0 0;
-                }
+				.event-categories {
+					font-style: italic;
+					margin: 2px 0 0 0;
+				}
 
-                .event-desc {
+				.event-speakers {
+					font-size: 1.1em;
+					line-height: 1.4;
+					color: #222;
+					font-weight: bold;
+					margin: 3px 0 0 0;
+				}
 
-                    /*.twitter-to-left {
-                        background-size: auto 20px;
-                        padding: 0 0 0 30px;
-                    }*/
+				.event-desc {
 
-                    & > *:last-child {
-                        margin-bottom: 0;
-                    }
-                }
+					/*.twitter-to-left {
+						background-size: auto 20px;
+						padding: 0 0 0 30px;
+					}*/
 
-                & > *:last-child {
-                    margin-bottom: 0;
-                }
+					& > *:last-child {
+						margin-bottom: 0;
+					}
+				}
 
-                // If it's a parent
-                &.event-parent {
+				& > *:last-child {
+					margin-bottom: 0;
+				}
 
-                    .event-children {
-	                    border-top: 1px solid $schedule-border-color;
-	                    margin: 25px 0 0 0;
+				// If it's a parent
+				&.event-parent {
 
-                        .schedule-event {
-                            float: none !important;
-	                        width: 100% !important;
-	                        padding: 0 !important;
-	                        margin: 25px 0 0 0 !important;
+					.event-children {
+						border-top: 1px solid $schedule-border-color;
+						margin: 25px 0 0 0;
 
-	                        .event-time {
-		                        display: block !important;
-		                        font-size: 0.9em;
-		                        line-height: 1.7;
-	                        }
-                        }
-                    }
-                }
-            }
+						.schedule-event {
+							float: none !important;
+							width: 100% !important;
+							padding: 0 !important;
+							margin: 25px 0 0 0 !important;
 
-            .schedule-row-item {
-                display: block;
-                clear: both;
-                background: none;
-                position: relative;
-                border-top: 1px solid $schedule-border-color;
-                padding: 25px 0 0 0;
+							.event-time {
+								display: block !important;
+								font-size: 0.9em;
+								line-height: 1.7;
+							}
+						}
+					}
+				}
+			}
 
-                &.time {
-                    display: none;
-                }
+			.schedule-row-item {
+				display: block;
+				clear: both;
+				background: none;
+				position: relative;
+				border-top: 1px solid $schedule-border-color;
+				padding: 0;
 
-                &.events {
+				.schedule-event {
+					padding: 25px 0 0 0;
+				}
 
-                    .schedule-event:last-child {
-                        margin-bottom: 0;
-                    }
-                }
-            }
+				&.time {
+					display: none;
+				}
 
-            /* @TODO Get this working for events that have passed. */
-	        /*&.status-past {
-		        opacity: 0.5;
-	        }
+				&.events {
 
-	        &.status-in-progress {
-		        background: rgba( 0, 128, 0, 0.075 );
-	        }
+					.schedule-event:last-child {
+						margin-bottom: 0;
+					}
+				}
+			}
 
-	        &.status-future {}*/
-        }
+			/* @TODO Get this working for events that have passed. */
+			/*&.status-past {
+				opacity: 0.5;
+			}*/
 
-        .schedule-row.current + .schedule-row {
+			&.status-in-progress {
+				background: rgba( 0, 128, 0, 0.075 );
+			}
 
-            .schedule-row-item {
-                border-top: 0;
-            }
-        }
-    }
+			//&.status-future {}
+		}
 
-    &.loading {
-        min-height: 200px;
-        background: url( '../images/loading.gif' ) center center no-repeat;
-    }
+		.schedule-row.current + .schedule-row {
+
+			.schedule-row-item {
+				border-top: 0;
+			}
+		}
+	}
+
+	&.loading {
+		min-height: 200px;
+		background: url( '../images/loading.gif' ) center center no-repeat;
+	}
 }
 
 /*.collapsible-schedule-block {
     display : block;
     clear: both;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
     border-radius: 5px;
     padding: 0;
     margin: 0 -10px 30px -10px;
@@ -604,197 +588,197 @@ $conf-sch-events-width: 85%;
 // Screens larger than 600px
 @media not all and (min-width: 0) and (max-width: 600px) {
 
-    #conf-sch-single-speakers {
+	#conf-sch-single-speakers {
 
-        .event-speaker {
+		.event-speaker {
 
-            .speaker-bio {
+			.speaker-bio {
 
-                &.has-photo {
-                    position: relative;
-                    padding-left: $speaker-thumb-width + 25px;
-                    min-height: $speaker-thumb-height + $speaker-thumb-top;
+				&.has-photo {
+					position: relative;
+					padding-left: $speaker-thumb-width + 25px;
+					min-height: $speaker-thumb-height + $speaker-thumb-top;
 
-                    .speaker-thumb {
-                        position: absolute;
-                        left: 0;
-                        top: $speaker-thumb-top;
-                        width: $speaker-thumb-width !important;
-                        height: auto;
-                        margin: 0 0 20px 0;
-                    }
-                }
-            }
-        }
-    }
+					.speaker-thumb {
+						position: absolute;
+						left: 0;
+						top: $speaker-thumb-top;
+						width: $speaker-thumb-width !important;
+						height: auto;
+						margin: 0 0 20px 0;
+					}
+				}
+			}
+		}
+	}
 
-    /*// Tweak the schedule page
-    body.page-template-schedule {
+	/*// Tweak the schedule page
+	body.page-template-schedule {
 
-        .schedule-main-buttons-wrapper {
-            margin: -10px 0 15px 0;
-            font-size: 16px;
-            line-height: 1.7;
-            overflow: auto;
+		.schedule-main-buttons-wrapper {
+			margin: -10px 0 15px 0;
+			font-size: 16px;
+			line-height: 1.7;
+			overflow: auto;
 
-            .btn {
-                margin: 0 !important;
+			.btn {
+				margin: 0 !important;
 
-                &.go-to-current-event {
-                    width: auto;
-                    float: right;
-                    margin-left: 20px !important;
-                }
-            }
+				&.go-to-current-event {
+					width: auto;
+					float: right;
+					margin-left: 20px !important;
+				}
+			}
 
-            &.has-go-to-event {
+			&.has-go-to-event {
 
-                .btn.conference-eval {
-                    width: auto;
-                    float: left;
-                }
-            }
-        }
-    }*/
+				.btn.conference-eval {
+					width: auto;
+					float: left;
+				}
+			}
+		}
+	}*/
 }
 
 // Screens larger than 1000px
 @media not all and (min-width: 0) and (max-width: 1000px) {
 
-    #conference-schedule-container {
+	#conference-schedule-container {
 
-        .schedule-table {
+		.schedule-table {
 
-            .schedule-header-row {
-                display: block;
-                clear: both;
-                overflow: auto;
-                background: #f6f6f6;
-                padding: 10px 0;
-                text-transform: uppercase;
-                opacity: 0.8;
-                font-size: 0.9em;
-                line-height: 1.1;
+			.schedule-header-row {
+				display: block;
+				clear: both;
+				overflow: auto;
+				background: #f6f6f6;
+				padding: 10px 0;
+				text-transform: uppercase;
+				opacity: 0.8;
+				font-size: 0.9em;
+				line-height: 1.1;
 
-                .schedule-header-item {
-                    display: block;
-                    clear: none;
-                    float: left;
+				.schedule-header-item {
+					display: block;
+					clear: none;
+					float: left;
 
-                    &.time {
-                        display: block;
-                        width: $conf-sch-time-width;
-                        padding: 0 10px;
-                    }
+					&.time {
+						display: block;
+						width: $conf-sch-time-width;
+						padding: 0 10px;
+					}
 
-                    &.events {
-                        width: $conf-sch-events-width;
+					&.events {
+						width: $conf-sch-events-width;
 
-                        .schedule-header-event {
-                            padding: 0 10px;
+						.schedule-header-event {
+							padding: 0 10px;
 
-                            // Two and four items
-                            &:first-child:nth-last-child(2),
-                            &:first-child:nth-last-child(2) ~ .schedule-header-event,
-                            &:first-child:nth-last-child(4),
-                            &:first-child:nth-last-child(4) ~ .schedule-header-event {
-                                float: left;
-                                width: 50%;
-                            }
+							// Two and four items
+							&:first-child:nth-last-child(2),
+							&:first-child:nth-last-child(2) ~ .schedule-header-event,
+							&:first-child:nth-last-child(4),
+							&:first-child:nth-last-child(4) ~ .schedule-header-event {
+								float: left;
+								width: 50%;
+							}
 
-                            // Three items
-                            &:first-child:nth-last-child(3),
-                            &:first-child:nth-last-child(3) ~ .schedule-header-event {
-                                float: left;
-                                width: 33.3333%;
-                            }
+							// Three items
+							&:first-child:nth-last-child(3),
+							&:first-child:nth-last-child(3) ~ .schedule-header-event {
+								float: left;
+								width: 33.3333%;
+							}
 
-                            &:first-child {
-                                padding-left: 0;
-                            }
+							&:first-child {
+								padding-left: 0;
+							}
 
-                            &:last-child {
-                                padding-right: 0;
-                            }
-                        }
-                    }
-                }
-            }
+							&:last-child {
+								padding-right: 0;
+							}
+						}
+					}
+				}
+			}
 
-            .schedule-row {
+			.schedule-row {
 
-                &:last-child {
-                    border-bottom: 1px solid $schedule-border-color !important;
-                }
+				&:last-child {
+					border-bottom: 1px solid $schedule-border-color !important;
+				}
 
-                /*&.current {
-                    background: rgba( #f9ff00, 0.2 );
+				/*&.current {
+					background: rgba( #f9ff00, 0.2 );
 
-                    &:before {
-                        display: none;
-                    }
+					&:before {
+						display: none;
+					}
 
-                }*/
+				}*/
 
-                .schedule-event {
-                    margin-bottom: 0;
+				.schedule-event {
+					margin-bottom: 0;
 
-                    .event-time {
-                        display: none;
-                    }
-                }
+					.event-time {
+						display: none;
+					}
+				}
 
-                .schedule-row-item {
-                    display: block;
-                    clear: none;
-                    float: left;
-                    border-top: 1px solid $schedule-border-color !important;
+				.schedule-row-item {
+					display: block;
+					clear: none;
+					float: left;
+					border-top: 1px solid $schedule-border-color !important;
 
-                    &.time {
-                        display: block;
-                        width: $conf-sch-time-width;
-                        padding-right: 10px;
-                        padding-left: 10px;
-                        font-size: 0.8em;
-                        line-height: 1.7;
-                        margin: 0 0 8px 0;
-                        opacity: 0.9;
-                    }
+					&.time {
+						display: block;
+						width: $conf-sch-time-width;
+						font-size: 0.8em;
+						line-height: 1.7;
+						padding: 25px 10px 10px 10px;
+						margin: 0;
+						opacity: 0.9;
+					}
 
-                    &.events {
-                        width: $conf-sch-events-width;
+					&.events {
+						width: $conf-sch-events-width;
 
-                        .schedule-event {
-                            padding: 0 10px;
-                            min-height: 1px;
+						.schedule-event {
+							padding-right: 10px;
+							padding-left: 10px;
+							min-height: 1px;
 
-                            // Two and four items
-                            &:first-child:nth-last-child(2),
-                            &:first-child:nth-last-child(2) ~ .schedule-event,
-                            &:first-child:nth-last-child(4),
-                            &:first-child:nth-last-child(4) ~ .schedule-event {
-                                float: left;
-                                width: 50%;
-                            }
+							// Two and four items
+							&:first-child:nth-last-child(2),
+							&:first-child:nth-last-child(2) ~ .schedule-event,
+							&:first-child:nth-last-child(4),
+							&:first-child:nth-last-child(4) ~ .schedule-event {
+								float: left;
+								width: 50%;
+							}
 
-                            // Three items
-                            &:first-child:nth-last-child(3),
-                            &:first-child:nth-last-child(3) ~ .schedule-event {
-                                float: left;
-                                width: 33.3333%;
-                            }
+							// Three items
+							&:first-child:nth-last-child(3),
+							&:first-child:nth-last-child(3) ~ .schedule-event {
+								float: left;
+								width: 33.3333%;
+							}
 
-                            &:first-child {
-                                padding-left: 0;
-                            }
+							&:first-child {
+								padding-left: 0;
+							}
 
-                            &:last-child {
-                                padding-right: 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+							&:last-child {
+								padding-right: 0;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

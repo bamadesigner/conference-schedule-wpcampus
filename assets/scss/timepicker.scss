@@ -4,8 +4,6 @@
     width: 6.5em;
     background: #fff;
     border: 1px solid #ddd;
-    -webkit-box-shadow:0 5px 10px rgba(0,0,0,0.2);
-    -moz-box-shadow:0 5px 10px rgba(0,0,0,0.2);
     box-shadow:0 5px 10px rgba(0,0,0,0.2);
     outline: none;
     z-index: 10001;
@@ -18,9 +16,7 @@
         &.ui-timepicker-step-60 {
             width: 11em;
         }
-
     }
-
 }
 
 .ui-timepicker-duration {
@@ -51,7 +47,6 @@
         &.ui-timepicker-selected.ui-timepicker-disabled {
             background: #f2f2f2;
         }
-
     }
 
     &:hover {
@@ -63,9 +58,7 @@
         .ui-timepicker-selected {
             background: #fff; color: #000;
         }
-
     }
-
 }
 
 li.ui-timepicker-selected,
