@@ -6,6 +6,10 @@
     "type": "git",
     "url": "https://github.com/bamadesigner/conference-schedule.git"
   },
+  "scripts": {
+    "install": "composer install",
+    "test": "composer sniff"
+  },
   "author": "Rachel Cherry",
   "license": "GPL-2.0+",
   "homepage": "https://github.com/bamadesigner/conference-schedule#readme",
