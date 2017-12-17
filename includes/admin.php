@@ -1235,7 +1235,7 @@ class Conference_Schedule_Admin {
 						if ( wp_verify_nonce( $_POST['conf_schedule_save_session_details_nonce'], 'conf_schedule_save_session_details' ) ) {
 
 							// Process each field.
-							foreach ( array( 'livestream_url', 'slides_url', 'feedback_url', 'feedback_reveal_delay_seconds', 'follow_up_url', 'video_url' ) as $field_name ) {
+							foreach ( array( 'livestream_disable', 'livestream_url', 'slides_url', 'feedback_url', 'feedback_reveal_delay_seconds', 'follow_up_url', 'video_url' ) as $field_name ) {
 								if ( isset( $_POST['conf_schedule']['event'][ $field_name ] ) ) {
 
 									// Sanitize the value.
@@ -1728,9 +1728,17 @@ class Conference_Schedule_Admin {
 				if ( in_array( 'livestream', $session_fields ) ) :
 
 					// Get field information.
+					$livestream_disable = get_post_meta( $post_id, 'conf_sch_event_livestream_disable', true );
 					$livestream_url = get_post_meta( $post_id, 'conf_sch_event_livestream_url', true );
 
 					?>
+					<tr>
+						<th scope="row"><?php _e( 'Disable Livestream', 'conf-schedule' ); ?></th>
+						<td>
+							<label for="conf-sch-livestream-disable"><input name="conf_schedule[event][livestream_disable]" type="checkbox" id="conf-sch-livestream-disable" value="1"<?php checked( isset( $livestream_disable ) && $livestream_disable ); ?> /> <?php _e( 'If checked, will disable this event from showing a livestream URL.', 'conf-schedule' ); ?></label>
+							<p class="description"><?php _e( 'Use for non-session events that do not have a livestream, e.g. social and dining events.', 'conf-schedule' ); ?></p>
+						</td>
+					</tr>
 					<tr>
 						<th scope="row"><label for="conf-sch-livestream-url"><?php _e( 'Livestream URL', 'conf-schedule' ); ?></label></th>
 						<td>
