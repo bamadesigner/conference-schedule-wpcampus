@@ -546,16 +546,6 @@ class Conference_Schedule_Admin {
 			array( 'id' => 'about', 'settings' => $settings )
 		);
 
-		// Spread the Love.
-		add_meta_box( 'conf-schedule-promote-mb',
-			__( 'Spread the Love', 'conf-schedule' ),
-			array( $this, 'print_settings_meta_boxes' ),
-			$this->settings_page_id,
-			'side',
-			'core',
-			array( 'id' => 'promote', 'settings' => $settings )
-		);
-
 		// Session Fields.
 		add_meta_box( 'conf-schedule-fields-mb',
 			__( 'Session Fields', 'conf-schedule' ),
@@ -604,16 +594,6 @@ class Conference_Schedule_Admin {
 					<strong><a href="<?php echo CONFERENCE_SCHEDULE_PLUGIN_URL; ?>" target="_blank"><?php _e( 'Conference Schedule', 'conf-schedule' ); ?></a></strong><br />
 					<strong><?php _e( 'Version', 'conf-schedule' ); ?>:</strong> <?php echo CONFERENCE_SCHEDULE_VERSION; ?><br /><strong><?php _e( 'Author', 'conf-schedule' ); ?>:</strong> <a href="https://wpcampus.org/" target="_blank">WPCampus</a>
 				</p>
-				<?php
-
-				break;
-
-			// Promote meta box.
-			case 'promote':
-
-				?>
-				<p class="twitter"><a href="https://twitter.com/bamadesigner" title="<?php printf( __( 'Follow %1$s on %2$s', 'conf-schedule' ), 'bamadesigner', 'Twitter' ); ?>" target="_blank"><span class="dashicons dashicons-twitter"></span> <span class="promote-text"><?php printf( __( 'Follow %1$s on %2$s', 'conf-schedule' ), 'Rachel', 'Twitter' ); ?></span></a></p>
-				<p class="donate"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ZCAN2UX7QHZPL&lc=US&item_name=Rachel%20Carden%20%28Conference%20Schedule%29&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" title="<?php esc_attr_e( 'Donate a few bucks to the plugin', 'conf-schedule' ); ?>" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" alt="<?php esc_attr_e( 'Donate', 'conf-schedule' ); ?>" /> <span class="promote-text"><?php printf( __( 'Buy %s a coffee', 'conf-schedule' ), 'Rachel' ); ?></span></a></p>
 				<?php
 
 				break;
