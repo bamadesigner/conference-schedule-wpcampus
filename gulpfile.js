@@ -55,6 +55,7 @@ gulp.task('js', function() {
 			suffix: '.min'
 		}))
 		.pipe(gulp.dest(dest.js))
+		.pipe(notify('Conference Schedule JS compiled'));
 });
 
 // "Sniff" our PHP.
