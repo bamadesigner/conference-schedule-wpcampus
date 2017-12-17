@@ -1,12 +1,12 @@
 {
-  "name": "bamadesigner/conference-schedule",
+  "name": "wpcampus/conference-schedule",
   "description": "WordPress plugin that helps you build a simple schedule for your conference website.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0+",
   "authors": [
     {
-      "name": "Rachel Cherry",
-      "email": "bamadesigner@gmail.com"
+      "name": "WPCampus",
+      "email": "code@wpcampus.org"
     }
   ],
   "require-dev": {

@@ -6,9 +6,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language-Team: Rachel Cherry <bamadesigner@gmail.com>\n"
-"Last-Translator: Rachel Cherry <bamadesigner@gmail.com>\n"
-"Report-Msgid-Bugs-To: https://github.com/bamadesigner/conference-schedule/issues\n"
+"Language-Team: WPCampus <code@wpcampus.org>\n"
+"Last-Translator: WPCampus <code@wpcampus.org>\n"
+"Report-Msgid-Bugs-To: https://github.com/wpcampus/conference-schedule/issues\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: conference-schedule.php:502, conference-schedule.php:554, includes/admin.php:701

@@ -79,9 +79,9 @@ gulp.task('translate', function () {
 			domain: 'conf-schedule',
 			destFile: 'conf-schedule.pot',
 			package: 'Conference_Schedule',
-			bugReport: 'https://github.com/bamadesigner/conference-schedule/issues',
-			lastTranslator: 'Rachel Cherry <bamadesigner@gmail.com>',
-			team: 'Rachel Cherry <bamadesigner@gmail.com>',
+			bugReport: 'https://github.com/wpcampus/conference-schedule/issues',
+			lastTranslator: 'WPCampus <code@wpcampus.org>',
+			team: 'WPCampus <code@wpcampus.org>',
 			headers: false
 		}))
 		.pipe(gulp.dest(dest.translate));
@@ -101,4 +101,4 @@ gulp.task('watch',function() {
 });
 
 // Let's get this party started.
-gulp.task('default',['compile','test','translate']);
+gulp.task('default',['compile','test','translate','watch']);

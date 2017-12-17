@@ -4,15 +4,18 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bamadesigner/conference-schedule.git"
+    "url": "https://github.com/wpcampus/conference-schedule.git"
   },
   "scripts": {
     "install": "composer install",
     "test": "composer sniff"
   },
-  "author": "Rachel Cherry",
+  "author": "WPCampus <code@wpcampus.org>",
+  "contributors": [
+    "Rachel Cherry <rachel@wpcampus.org>"
+  ],
   "license": "GPL-2.0+",
-  "homepage": "https://github.com/bamadesigner/conference-schedule#readme",
+  "homepage": "https://github.com/wpcampus/conference-schedule#readme",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^4.0.0",
