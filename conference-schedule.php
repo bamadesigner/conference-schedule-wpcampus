@@ -355,11 +355,6 @@ class Conference_Schedule {
 	public function filter_posts_clauses( $pieces, $query ) {
 		global $wpdb;
 
-		// Not in admin.
-		if ( is_admin() ) {
-			return $pieces;
-		}
-
 		// If we pass a filter telling it to ignore our filter.
 		if ( '1' == $query->get( 'conf_sch_ignore_clause_filter' ) ) {
 			return $pieces;
@@ -387,7 +382,9 @@ class Conference_Schedule {
 			$pieces['join'] .= " LEFT JOIN {$wpdb->postmeta} conf_sch_event_location ON conf_sch_event_location.post_id = {$wpdb->posts}.ID AND conf_sch_event_location.meta_key = 'conf_sch_event_location'";
 
 			// Setup the orderby.
-			$pieces['orderby'] = ' CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC';
+			if ( ! is_admin() ) {
+				$pieces['orderby'] = ' CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC';
+			}
 
 			// Are we querying by a specific event date?
 			$event_date = null;
