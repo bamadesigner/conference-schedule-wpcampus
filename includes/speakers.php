@@ -85,7 +85,6 @@ class Conference_Schedule_Speaker {
 			'suppress_filters' => true,
 		));
 	}
-
 }
 
 /**
