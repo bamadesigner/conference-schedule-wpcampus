@@ -136,9 +136,6 @@
 						// Build events HTML.
 						var $row_events = [];
 
-						// Get event types.
-						var $event_types = [];
-
 						// Add the events.
 						$.each( $time_items.events, function( $index, $item ) {
 
@@ -155,14 +152,6 @@
 							// Render the templates.
 							$row_events.push( $conf_sch_templ( $item ) );
 
-							// Store event types.
-							if ( $item.event_types && $.isArray( $item.event_types ) ) {
-								$.each( $item.event_types, function( $index, $type ) {
-									if ( $type != '' && $.inArray( $type, $event_types ) == -1 ) {
-										$event_types.push( $type.replace( /\s/, '-' ) );
-									}
-								});
-							}
 						});
 
 						// If we have events, add a row.
@@ -219,7 +208,7 @@
 							$schedule_row_html += '<div class="schedule-row-item events">' + $row_events.join( '' ) + '</div>';
 
 							// Wrap the row.
-							$schedule_row_html = '<div class="schedule-row ' + $event_types.join( ' ' ) + ' ' + schedule_row_status + '">' + $schedule_row_html + '</div>';
+							$schedule_row_html = '<div class="schedule-row ' + schedule_row_status + '">' + $schedule_row_html + '</div>';
 
 							// Add to the day.
 							$schedule_day_html += $schedule_row_html;

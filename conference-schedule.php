@@ -854,7 +854,7 @@ class Conference_Schedule {
 
 			?>
 			<script id="conference-schedule-template" type="text/x-handlebars-template">
-				<div id="conf-sch-event-{{id}}" class="schedule-event{{#if event_parent}} event-child{{/if}}{{#event_types}} {{.}}{{/event_types}}">
+				<div id="conf-sch-event-{{id}}" class="schedule-event{{#if event_parent}} event-child{{/if}}{{#event_type}} {{.}}{{/event_type}}">
 					{{#event_time_display}}<div class="event-time">{{.}}</div>{{/event_time_display}}
 					{{#title}}{{body}}{{/title}}
 					{{#event_location}}<div class="event-location">{{#if permalink}}<a href="{{permalink}}">{{/if}}{{post_title}}{{#if permalink}}</a>{{/if}}</div>{{/event_location}}
