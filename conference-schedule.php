@@ -29,37 +29,6 @@
  * Disable saving a post until all API fields load
  */
 
-/*
- * !!!!!
- * @TODO:
- * Need to convert 'conf_sch_event_speakers' to conf_sch_event_speaker'.
- * !!!!!
- */
-/*global $wpdb;
-
-// Get the old post meta.
-$event_speakers = $wpdb->get_results( "SELECT * FROM {$wpdb->postmeta} WHERE meta_key = 'conf_sch_event_speakers'" );
-if ( $event_speakers) {
-	foreach ( $event_speakers as $event ) {
-
-		// Get the speaker IDs.
-		$speaker_ids = maybe_unserialize( $event->meta_value );
-		if ( $speaker_ids ) {
-			foreach( $speaker_ids as $speaker_id ) {
-
-				// Add the individual event speaker ID post meta.
-				if ( $speaker_id ) {
-					add_post_meta( $event->post_id, 'conf_sch_event_speaker', $speaker_id, false );
-				}
-			}
-		}
-
-		// Delete the original post meta.
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE meta_id = %s AND meta_key = 'conf_sch_event_speakers'", $event->meta_id ) );
-
-	}
-}*/
-
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
