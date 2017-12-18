@@ -224,8 +224,8 @@ class Conference_Schedule {
 	 */
 	public function install() {
 
-		// Flush the rewrite rules to start fresh
-		flush_rewrite_rules();
+		// Flush the rewrite rules to start fresh.
+		flush_rewrite_rules( true );
 
 	}
 
@@ -237,8 +237,8 @@ class Conference_Schedule {
 	 */
 	public function upgrader_process_complete() {
 
-		// Flush the rewrite rules to start fresh
-		flush_rewrite_rules();
+		// Flush the rewrite rules to start fresh.
+		flush_rewrite_rules( true );
 
 	}
 
