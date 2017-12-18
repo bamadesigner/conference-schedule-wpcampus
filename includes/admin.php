@@ -938,9 +938,6 @@ class Conference_Schedule_Admin {
 	 */
 	public function remove_meta_boxes() {
 
-		// Remove the event types taxonomy meta box.
-		remove_meta_box( 'tagsdiv-event_types', 'schedule', 'side' );
-
 		// Remove the session categories taxonomy meta box.
 		remove_meta_box( 'tagsdiv-session_categories', 'schedule', 'side' );
 
@@ -1078,31 +1075,6 @@ class Conference_Schedule_Admin {
 								} else {
 									update_post_meta( $post_id, "conf_sch_event_{$time_key}", null );
 								}
-							}
-
-							/*
-							 * Set the event type relationships.
-							 */
-							if ( isset( $_POST['conf_schedule']['event']['event_types'] ) ) {
-
-								$event_types = $_POST['conf_schedule']['event']['event_types'];
-
-								// Make sure its an array.
-								if ( ! is_array( $event_types ) ) {
-									$event_types = explode( ',', $event_types );
-								}
-
-								// Make sure it has only IDs.
-								$event_types = array_filter( $event_types, 'is_numeric' );
-
-								// Convert to integer.
-								$event_types = array_map( 'intval', $event_types );
-
-								// Set the terms.
-								wp_set_object_terms( $post_id, $event_types, 'event_types', false );
-
-							} else {
-								wp_delete_object_term_relationships( $post_id, 'event_types' );
 							}
 
 							/*
@@ -1598,24 +1570,6 @@ class Conference_Schedule_Admin {
 					<th scope="row"><label for="conf-sch-end-time"><?php _e( 'End Time', 'conf-schedule' ); ?></label></th>
 					<td>
 						<input name="conf_schedule[event][end_time]" type="text" id="conf-sch-end-time" value="<?php echo esc_attr( $event_end_time ); ?>" class="regular-text conf-sch-time-field" />
-					</td>
-				</tr>
-				<tr>
-					<?php
-
-					// The default/blank option label.
-					$select_default = __( 'No event types', 'conf-schedule' );
-
-					?>
-					<th scope="row"><label for="conf-sch-event-types"><?php _e( 'Event Types', 'conf-schedule' ); ?></label></th>
-					<td>
-						<select id="conf-sch-event-types" name="conf_schedule[event][event_types][]" data-default="<?php echo $select_default; ?>" multiple="multiple" disabled="disabled">
-							<option value=""><?php echo $select_default; ?></option>
-						</select>
-						<p class="description">
-							<a class="conf-sch-refresh-event-types" href="#"><?php _e( 'Refresh event types', 'conf-schedule' ); ?></a> |
-							<a href="<?php echo admin_url( 'edit-tags.php?taxonomy=event_types&post_type=schedule' ); ?>" target="_blank"><?php _e( 'Manage event types', 'conf-schedule' ); ?></a>
-						</p>
 					</td>
 				</tr>
 				<tr>

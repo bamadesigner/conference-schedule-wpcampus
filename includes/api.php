@@ -184,6 +184,7 @@ class Conference_Schedule_API {
 				return ! empty( $event_time_display ) ? $event_time_display : null;
 
 			case 'event_types':
+				// @TODO Update to use new system.
 				$types = wp_get_object_terms( $object['id'], 'event_types', array( 'fields' => 'slugs' ) );
 				return ! empty( $types ) ? $types : null;
 
