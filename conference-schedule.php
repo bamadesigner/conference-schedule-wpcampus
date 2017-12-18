@@ -59,7 +59,6 @@ class Conference_Schedule {
 	/**
 	 * Whether or not this plugin is network active.
 	 *
-	 * @since	1.0.0
 	 * @access	public
 	 * @var		boolean
 	 */
@@ -68,7 +67,6 @@ class Conference_Schedule {
 	/**
 	 * Will hold the plugin's settings.
 	 *
-	 * @since	1.0.0
 	 * @access	private
 	 * @var		array
 	 */
@@ -77,7 +75,6 @@ class Conference_Schedule {
 	/**
 	 * Will hold the enabled session fields.
 	 *
-	 * @since	1.0.0
 	 * @access	private
 	 * @var		array
 	 */
@@ -86,7 +83,6 @@ class Conference_Schedule {
 	/**
 	 * Will hold the enabled schedule display fields.
 	 *
-	 * @since	1.0.0
 	 * @access	private
 	 * @var		array
 	 */
@@ -96,7 +92,6 @@ class Conference_Schedule {
 	 * Will be true if we need to
 	 * load the schedule assets.
 	 *
-	 * @since   1.0.0
 	 * @access  private
 	 * @var     bool
 	 */
@@ -105,7 +100,6 @@ class Conference_Schedule {
 	/**
 	 * Holds the class instance.
 	 *
-	 * @since	1.0.0
 	 * @access	private
 	 * @var		Conference_Schedule
 	 */
@@ -115,7 +109,6 @@ class Conference_Schedule {
 	 * Returns the instance of this class.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return	Conference_Schedule
 	 */
 	public static function instance() {
@@ -130,7 +123,6 @@ class Conference_Schedule {
 	 * Warming things up.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	protected function __construct() {
 
@@ -175,7 +167,6 @@ class Conference_Schedule {
 	 * Method to keep our instance from
 	 * being cloned or unserialized.
 	 *
-	 * @since	1.0.0
 	 * @access	private
 	 * @return	void
 	 */
@@ -186,7 +177,6 @@ class Conference_Schedule {
 	 * Runs when the plugin is installed.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function install() {
 
@@ -199,7 +189,6 @@ class Conference_Schedule {
 	 * Runs when the plugin is upgraded.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function upgrader_process_complete() {
 
@@ -213,7 +202,6 @@ class Conference_Schedule {
 	 * Load our textdomain.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function textdomain() {
 		load_plugin_textdomain( 'conf-schedule', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
@@ -223,7 +211,6 @@ class Conference_Schedule {
 	 * Add theme support.
 	 *
 	 * @access	public
-	 * @since	1.0.0
 	 */
 	public function add_theme_support() {
 
@@ -236,7 +223,6 @@ class Conference_Schedule {
 	 * Returns settings for the front-end.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return  array - the settings
 	 */
 	public function get_settings() {
@@ -267,7 +253,6 @@ class Conference_Schedule {
 	 * Returns array of enabled session fields.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return  array - the enabled session fields
 	 */
 	public function get_session_fields() {
@@ -295,7 +280,6 @@ class Conference_Schedule {
 	 * Returns array of enabled schedule display fields.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return  array - the enabled session fields
 	 */
 	public function get_schedule_display_fields() {
@@ -323,7 +307,6 @@ class Conference_Schedule {
 	 * Add custom query vars.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function add_query_vars( $vars ) {
 		$vars[] = 'conf_sch_ignore_clause_filter';
@@ -335,7 +318,6 @@ class Conference_Schedule {
 	 * Adjust the schedule query.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function filter_pre_get_posts( $query ) {
 
@@ -369,7 +351,6 @@ class Conference_Schedule {
 	 * Filter the queries to "join" and order schedule information.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function filter_posts_clauses( $pieces, $query ) {
 		global $wpdb;
@@ -430,7 +411,6 @@ class Conference_Schedule {
 	 * load the schedule assets.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function load_schedule() {
 		$this->load_schedule = true;
@@ -440,7 +420,6 @@ class Conference_Schedule {
 	 * Add styles and scripts for our shortcodes.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @param	string - $hook_suffix - the ID of the current page
 	 */
 	public function enqueue_styles_scripts() {
@@ -581,7 +560,6 @@ class Conference_Schedule {
 	 * Filter the content.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @param	string - $the_content - the content
 	 * @return	string - the filtered content
 	 */
@@ -688,7 +666,6 @@ class Conference_Schedule {
 	 * Add handlebar templates to the footer when needed.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function print_handlebar_templates() {
 
@@ -729,7 +706,6 @@ class Conference_Schedule {
 	 * Registers our plugins's custom post types.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 */
 	public function register_custom_post_types() {
 
@@ -782,7 +758,6 @@ class Conference_Schedule {
 	 * we should add the schedule to the current page.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return	string - the schedule
 	 */
 	public function add_schedule_to_page() {
@@ -819,7 +794,6 @@ class Conference_Schedule {
 	 * Get the conference schedule.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @return	string - the schedule
 	 */
 	public function get_conference_schedule( $args = array() ) {
@@ -920,7 +894,6 @@ class Conference_Schedule {
 	 * Returns the [print_conference_schedule] shortcode content.
 	 *
 	 * @access  public
-	 * @since   1.0.0
 	 * @param   array - $args - arguments passed to the shortcode
 	 * @return  string - the content for the shortcode
 	 */
@@ -940,7 +913,6 @@ class Conference_Schedule {
  * Will come in handy when we need to access the
  * class to retrieve data throughout the plugin.
  *
- * @since	1.0.0
  * @access	public
  * @return	Conference_Schedule
  */
