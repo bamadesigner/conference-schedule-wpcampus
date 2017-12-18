@@ -604,6 +604,8 @@ class Conference_Schedule_Event {
 
 	/**
 	 * Get the event's speakers.
+	 *
+	 * @TODO: Update to work with new system.
 	 */
 	public function get_speakers() {
 
@@ -620,7 +622,7 @@ class Conference_Schedule_Event {
 		// Will hold speakers
 		$speakers = array();
 
-		// Get speaker IDs.
+		/*// Get speaker IDs.
 		$event_speaker_ids = get_post_meta( $this->ID, 'conf_sch_event_speaker', false );
 		if ( ! empty( $event_speaker_ids ) ) {
 
@@ -628,18 +630,18 @@ class Conference_Schedule_Event {
 			foreach ( $event_speaker_ids as $speaker_id ) {
 				if ( $speaker_post = get_post( $speaker_id ) ) {
 
-					/*
+					*//*
 					 * Add twitter.
 					 *
 					 * @TODO:
 					 * Should this be a setting or added elsewhere?
-					 */
+					 *//*
 					$speaker_post->twitter = get_post_meta( $speaker_id, 'conf_sch_speaker_twitter', true );
 
 					$speakers[] = $speaker_post;
 				}
 			}
-		}
+		}*/
 
 		return $this->speakers = ! empty( $speakers ) ? $speakers : false;
 	}

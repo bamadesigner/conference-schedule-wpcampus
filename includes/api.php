@@ -70,7 +70,6 @@ class Conference_Schedule_API {
 			'event_address',
 			'event_google_maps_url',
 			'link_to_post',
-			'event_speakers',
 			'event_hashtag',
 			'session_livestream_url',
 			'session_slides_url',
@@ -248,11 +247,6 @@ class Conference_Schedule_API {
 				}
 
 				return true;
-
-			// Get event speakers.
-			case 'event_speakers':
-				$event_speakers = $event->get_speakers();
-				return ! empty( $event_speakers ) ? $event_speakers : null;
 
 			/*
 			 * Livestream URL will only show up

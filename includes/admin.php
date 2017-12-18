@@ -122,7 +122,9 @@ class Conference_Schedule_Admin {
 			}
 		}
 
-		// Get list of speakers.
+		echo json_encode( array() );
+
+		/*// Get list of speakers.
 		$speakers = get_posts( array(
 			'post_type'         => 'speakers',
 			'posts_per_page'    => -1,
@@ -138,10 +140,10 @@ class Conference_Schedule_Admin {
 			// Will hold selected speaker IDs.
 			$selected = array();
 
-			/*
+			*//*
 			 * If we passed a schedule post ID,
 			 * get the selected speakers.
-			 */
+			 *//*
 			$schedule_post_id = isset( $_GET['schedule_post_id'] ) ? $_GET['schedule_post_id'] : 0;
 			if ( $schedule_post_id > 0 ) {
 
@@ -159,7 +161,7 @@ class Conference_Schedule_Admin {
 			// Print the speakers data.
 			echo json_encode( $speakers );
 
-		}
+		}*/
 
 		wp_die();
 	}
@@ -1069,54 +1071,6 @@ class Conference_Schedule_Admin {
 								// Update/save value.
 								update_post_meta( $post_id, 'conf_sch_event_location', $event_location );
 
-							}
-
-							/*
-							 * Make sure speakers are set.
-							 */
-							if ( isset( $_POST['conf_schedule']['event']['speakers'] ) ) {
-
-								// Get new speakers.
-								$new_event_speakers = $_POST['conf_schedule']['event']['speakers'];
-
-								// Make sure its an array.
-								if ( ! is_array( $new_event_speakers ) ) {
-									$new_event_speakers = explode( ',', $new_event_speakers );
-								}
-
-								// Make sure it has only IDs.
-								$new_event_speakers = array_filter( $new_event_speakers, 'is_numeric' );
-
-								// Convert to integers.
-								$new_event_speakers = array_map( 'intval', $new_event_speakers );
-
-								// Get existing speakers.
-								$existing_event_speakers = get_post_meta( $post_id, 'conf_sch_event_speaker', false );
-
-								// Go through existing speakers and update.
-								foreach ( $existing_event_speakers as $speaker_id ) {
-
-									/*
-									 * If the existing speaker is not in
-									 * the new speaker set, then delete.
-									 *
-									 * Otherwise, remove from new set.
-									 */
-									if ( ! in_array( $speaker_id, $new_event_speakers ) ) {
-										delete_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id );
-									} else {
-										unset( $new_event_speakers[ array_search( $speaker_id, $new_event_speakers ) ] );
-									}
-								}
-
-								// Go through and add new speakers.
-								if ( ! empty( $new_event_speakers ) ) {
-									foreach ( $new_event_speakers as $speaker_id ) {
-										add_post_meta( $post_id, 'conf_sch_event_speaker', $speaker_id, false );
-									}
-								}
-							} else {
-								delete_post_meta( $post_id, 'conf_sch_event_speaker' );
 							}
 
 							/*

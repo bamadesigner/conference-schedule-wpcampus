@@ -57,6 +57,8 @@ class Conference_Schedule_Speaker {
 	/**
 	 * Get the speaker's events.
 	 *
+	 * @TODO: update to work with new system.
+	 *
 	 * @access  public
 	 * @since   1.0.0
 	 * @return  array - the events
@@ -73,8 +75,10 @@ class Conference_Schedule_Speaker {
 			return $this->events;
 		}
 
+		return array();
+
 		// Get the events.
-		return $this->events = get_posts( array(
+		/*return $this->events = get_posts( array(
 			'posts_per_page'   => -1,
 			'orderby'          => 'title',
 			'order'            => 'ASC',
@@ -83,7 +87,7 @@ class Conference_Schedule_Speaker {
 			'post_type'        => 'schedule',
 			'post_status'      => 'any',
 			'suppress_filters' => true,
-		));
+		));*/
 	}
 }
 
