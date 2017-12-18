@@ -2376,8 +2376,20 @@ class Conference_Schedule_Admin {
 			return $field;
 		}
 
+		// Build parameters for query.
+		$url_params = array( 'per_page' => 100 );
+
+		// Add event ID to limit query.
+		$event_id = get_option( 'wpc_proposal_event' );
+		if ( ! empty( $event_id ) ) {
+			$url_params['event'] = $event_id;
+		}
+
+		// Build query URL.
+		$url = add_query_arg( $url_params, $api_root . 'proposal' );
+
 		// Get our proposals.
-		$response = wp_remote_get( $api_root . 'proposal', array(
+		$response = wp_remote_get( $url, array(
 			'headers' => array(
 				'WPC-Access' => $http_wpc_access,
 			),
