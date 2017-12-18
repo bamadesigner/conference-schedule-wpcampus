@@ -411,14 +411,6 @@ class Conference_Schedule_Admin {
 					));
 
 					break;
-
-				case 'speakers':
-
-					// Enqueue the post script.
-					wp_enqueue_script( 'conf-schedule-admin-speakers', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-speakers.min.js', array( 'jquery', 'select2' ), null, true );
-
-					break;
-
 			}
 		}
 	}
