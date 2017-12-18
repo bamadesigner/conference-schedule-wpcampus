@@ -66,6 +66,7 @@ class Conference_Schedule_API {
 			'event_duration',
 			'event_parent',
 			'event_type',
+			'proposal',
 			'event_location',
 			'event_address',
 			'event_google_maps_url',
@@ -184,6 +185,10 @@ class Conference_Schedule_API {
 			case 'event_type':
 				$event_type = get_post_meta( $object['id'], 'event_type', true );
 				return ! empty( $event_type ) ? $event_type : null;
+
+			case 'proposal':
+				$proposal = get_post_meta( $object['id'], 'proposal', true );
+				return ! empty( $proposal ) ? intval( $proposal ) : null;
 
 			// Get the hashtag.
 			case 'event_hashtag':
