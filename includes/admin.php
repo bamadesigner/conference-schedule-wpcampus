@@ -107,6 +107,8 @@ class Conference_Schedule_Admin {
 	/**
 	 * Print list of speakers in JSON for AJAX.
 	 *
+	 * @TODO: Update to work with new system.
+	 *
 	 * @since   1.0.0
 	 * @access  public
 	 * @return  void
@@ -1647,24 +1649,6 @@ class Conference_Schedule_Admin {
 					</td>
 				</tr>
 				<tr>
-					<?php
-
-					// The default/blank option label.
-					$select_default = __( 'No speakers', 'conf-schedule' );
-
-					?>
-					<th scope="row"><label for="conf-sch-speakers"><?php _e( 'Speakers', 'conf-schedule' ); ?></label></th>
-					<td>
-						<select id="conf-sch-speakers" name="conf_schedule[event][speakers][]" data-default="<?php echo $select_default; ?>" multiple="multiple" disabled="disabled">
-							<option value=""><?php echo $select_default; ?></option>
-						</select>
-						<p class="description">
-							<a class="conf-sch-refresh-speakers" href="#"><?php _e( 'Refresh speakers', 'conf-schedule' ); ?></a> |
-							<a href="<?php echo admin_url( 'edit.php?post_type=speakers' ); ?>" target="_blank"><?php _e( 'Manage speakers', 'conf-schedule' ); ?></a>
-						</p>
-					</td>
-				</tr>
-				<tr>
 					<th scope="row"><?php _e( 'Include Link to Event Post in Schedule', 'conf-schedule' ); ?></th>
 					<td>
 						<label for="conf-sch-link-post"><input name="conf_schedule[event][sch_link_to_post]" type="checkbox" id="conf-sch-link-post" value="1"<?php checked( isset( $sch_link_to_post ) && $sch_link_to_post ); ?> /> <?php _e( "If checked, will include a link to the event's post in the schedule.", 'conf-schedule' ); ?></label>
@@ -2244,11 +2228,6 @@ class Conference_Schedule_Admin {
 		$new_columns = array();
 
 		foreach ( $columns as $key => $value ) {
-
-			// If speaker, change column value for title.
-			if ( 'title' == $key && 'speakers' == $post_type ) {
-				$value = __( 'Name', 'conf-schedule' );
-			}
 
 			// Add to new columns.
 			$new_columns[ $key ] = $value;
