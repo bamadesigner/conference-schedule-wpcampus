@@ -66,7 +66,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // If you define them, will they be used?
-define( 'CONFERENCE_SCHEDULE_VERSION', '0.5' );
+define( 'CONFERENCE_SCHEDULE_VERSION', '1.0.0' );
 define( 'CONFERENCE_SCHEDULE_PLUGIN_URL', 'https://github.com/wpcampus/conference-schedule' );
 define( 'CONFERENCE_SCHEDULE_PLUGIN_FILE', 'conference-schedule/conference-schedule.php' );
 
