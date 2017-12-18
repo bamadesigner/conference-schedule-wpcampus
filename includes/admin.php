@@ -91,6 +91,9 @@ class Conference_Schedule_Admin {
 		add_action( 'manage_schedule_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
 		add_action( 'manage_speakers_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
 
+		// Populate ACF field choices.
+		add_filter( 'acf/load_field/name=proposal', array( $this, 'load_proposal_field_choices' ) );
+
 	}
 
 	/**
@@ -2353,6 +2356,50 @@ class Conference_Schedule_Admin {
 
 			}
 		}
+	}
+
+	/**
+	 * Load the choices for the proposal field.
+	 */
+	public function load_proposal_field_choices( $field ) {
+
+		// Reset choices.
+		$field['choices'] = array();
+
+		$http_wpc_access = get_option( 'http_wpc_access' );
+		if ( empty( $http_wpc_access ) ) {
+			return $field;
+		}
+
+		$api_root = get_option( 'wpc_api_root' );
+		if ( empty( $api_root ) ) {
+			return $field;
+		}
+
+		// Get our proposals.
+		$response = wp_remote_get( $api_root . 'proposal', array(
+			'headers' => array(
+				'WPC-Access' => $http_wpc_access,
+			),
+		));
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			return $field;
+		}
+
+		$proposals = wp_remote_retrieve_body( $response );
+
+		if ( empty( $proposals ) ) {
+			return $field;
+		}
+
+		$proposals = json_decode( $proposals );
+
+		foreach ( $proposals as $proposal ) {
+			$field['choices'][ $proposal->id ] = $proposal->title->rendered;
+		}
+
+		return $field;
 	}
 }
 
