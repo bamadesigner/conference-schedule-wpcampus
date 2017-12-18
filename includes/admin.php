@@ -72,9 +72,6 @@ class Conference_Schedule_Admin {
 		// Add meta boxes.
 		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ), 1, 2 );
 
-		// Remove meta boxes.
-		add_action( 'admin_menu', array( $this, 'remove_meta_boxes' ), 100 );
-
 		// Save meta box data.
 		add_action( 'save_post', array( $this, 'save_meta_box_data' ), 20, 3 );
 
@@ -930,20 +927,6 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Removes meta boxes we don't need
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @return  void
-	 */
-	public function remove_meta_boxes() {
-
-		// Remove the session categories taxonomy meta box.
-		remove_meta_box( 'tagsdiv-session_categories', 'schedule', 'side' );
-
-	}
-
-	/**
 	 * Prints the content in our admin meta boxes.
 	 *
 	 * @access  public
@@ -1075,31 +1058,6 @@ class Conference_Schedule_Admin {
 								} else {
 									update_post_meta( $post_id, "conf_sch_event_{$time_key}", null );
 								}
-							}
-
-							/*
-							 * Make sure session categories are set.
-							 */
-							if ( isset( $_POST['conf_schedule']['event']['session_categories'] ) ) {
-
-								$session_categories = $_POST['conf_schedule']['event']['session_categories'];
-
-								// Make sure its an array.
-								if ( ! is_array( $session_categories ) ) {
-									$session_categories = explode( ',', $session_categories );
-								}
-
-								// Make sure it has only IDs.
-								$session_categories = array_filter( $session_categories, 'is_numeric' );
-
-								// Convert to integer.
-								$session_categories = array_map( 'intval', $session_categories );
-
-								// Set the terms.
-								wp_set_object_terms( $post_id, $session_categories, 'session_categories', false );
-
-							} else {
-								wp_delete_object_term_relationships( $post_id, 'session_categories' );
 							}
 
 							// Make sure location is set.
@@ -1570,24 +1528,6 @@ class Conference_Schedule_Admin {
 					<th scope="row"><label for="conf-sch-end-time"><?php _e( 'End Time', 'conf-schedule' ); ?></label></th>
 					<td>
 						<input name="conf_schedule[event][end_time]" type="text" id="conf-sch-end-time" value="<?php echo esc_attr( $event_end_time ); ?>" class="regular-text conf-sch-time-field" />
-					</td>
-				</tr>
-				<tr>
-					<?php
-
-					// The default/blank option label.
-					$select_default = __( 'No session categories', 'conf-schedule' );
-
-					?>
-					<th scope="row"><label for="conf-sch-session-categories"><?php _e( 'Session Categories', 'conf-schedule' ); ?></label></th>
-					<td>
-						<select id="conf-sch-session-categories" name="conf_schedule[event][session_categories][]" data-default="<?php echo $select_default; ?>" multiple="multiple" disabled="disabled">
-							<option value=""><?php echo $select_default; ?></option>
-						</select>
-						<p class="description">
-							<a class="conf-sch-refresh-session-categories" href="#"><?php _e( 'Refresh categories', 'conf-schedule' ); ?></a> |
-							<a href="<?php echo admin_url( 'edit-tags.php?taxonomy=session_categories&post_type=schedule' ); ?>" target="_blank"><?php _e( 'Manage categories', 'conf-schedule' ); ?></a>
-						</p>
 					</td>
 				</tr>
 				<tr>

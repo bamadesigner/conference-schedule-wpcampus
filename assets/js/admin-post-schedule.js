@@ -49,13 +49,11 @@
 		}
 
 		// Setup the fields.
-		var $session_categories = $( '#conf-sch-session-categories' );
 		var $speakers = $( '#conf-sch-speakers' );
 		var $locations = $( '#conf-sch-location' );
 		var $event_parent = $( '#conf-sch-event-parent' );
 
 		// Setup the select2 fields.
-		$session_categories.select2();
 		$locations.select2();
 		$speakers.select2();
 
@@ -64,14 +62,6 @@
 		$( '.conf-sch-refresh-events' ).on( 'click', function( $event ) {
 			$event.preventDefault();
 			$event_parent.conf_sch_populate_events();
-			return false;
-		});
-
-		// Populate the session categories and refresh when you click.
-		$session_categories.conf_sch_populate_terms( 'session_categories' );
-		$( '.conf-sch-refresh-session-categories' ).on( 'click', function( $event ) {
-			$event.preventDefault();
-			$session_categories.conf_sch_populate_terms( 'session_categories' );
 			return false;
 		});
 

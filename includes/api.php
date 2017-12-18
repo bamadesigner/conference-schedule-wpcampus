@@ -72,7 +72,6 @@ class Conference_Schedule_API {
 			'link_to_post',
 			'event_speakers',
 			'event_hashtag',
-			'session_categories',
 			'session_livestream_url',
 			'session_slides_url',
 			'session_feedback_url',
@@ -187,10 +186,6 @@ class Conference_Schedule_API {
 				// @TODO Update to use new system.
 				$types = wp_get_object_terms( $object['id'], 'event_types', array( 'fields' => 'slugs' ) );
 				return ! empty( $types ) ? $types : null;
-
-			case 'session_categories':
-				$categories = wp_get_object_terms( $object['id'], 'session_categories', array( 'fields' => 'names' ) );
-				return ! empty( $categories ) ? $categories : null;
 
 			// Get the hashtag.
 			case 'event_hashtag':
