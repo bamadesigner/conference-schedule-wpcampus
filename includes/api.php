@@ -65,7 +65,7 @@ class Conference_Schedule_API {
 			'event_time_display',
 			'event_duration',
 			'event_parent',
-			'event_types',
+			'event_type',
 			'event_location',
 			'event_address',
 			'event_google_maps_url',
@@ -182,10 +182,9 @@ class Conference_Schedule_API {
 				$event_time_display = $event->get_time_display();
 				return ! empty( $event_time_display ) ? $event_time_display : null;
 
-			case 'event_types':
-				// @TODO Update to use new system.
-				$types = wp_get_object_terms( $object['id'], 'event_types', array( 'fields' => 'slugs' ) );
-				return ! empty( $types ) ? $types : null;
+			case 'event_type':
+				$event_type = get_post_meta( $object['id'], 'event_type', true );
+				return ! empty( $event_type ) ? $event_type : null;
 
 			// Get the hashtag.
 			case 'event_hashtag':
