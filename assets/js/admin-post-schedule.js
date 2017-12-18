@@ -49,13 +49,11 @@
 		}
 
 		// Setup the fields.
-		var $speakers = $( '#conf-sch-speakers' );
 		var $locations = $( '#conf-sch-location' );
 		var $event_parent = $( '#conf-sch-event-parent' );
 
 		// Setup the select2 fields.
 		$locations.select2();
-		$speakers.select2();
 
 		// Populate the events and refresh when you click.
 		$event_parent.conf_sch_populate_events();
@@ -70,14 +68,6 @@
 		$( '.conf-sch-refresh-locations' ).on( 'click', function( $event ) {
 			$event.preventDefault();
 			$locations.conf_sch_populate_locations();
-			return false;
-		});
-
-		// Populate the speakers and refresh when you click.
-		$speakers.conf_sch_populate_speakers();
-		$( '.conf-sch-refresh-speakers' ).on( 'click', function( $event ) {
-			$event.preventDefault();
-			$speakers.conf_sch_populate_speakers();
 			return false;
 		});
 
@@ -201,36 +191,6 @@
 				post_id: conf_sch.post_id,
 				post_type: 'locations',
 				meta_key: 'conf_sch_event_location'
-			},
-			success: function( posts ) {
-
-				// Populate the posts.
-				$select_field.conf_sch_populate_posts( posts );
-
-				// Enable the select.
-				$select_field.prop( 'disabled', false ).trigger( 'change' );
-
-			}
-		});
-
-	};
-
-	// Populate the speakers field.
-	$.fn.conf_sch_populate_speakers = function() {
-
-		// Set the <select> and disable.
-        var $select_field = $( this ).prop( 'disabled', 'disabled' );
-
-		// Get the speakers information.
-		$.ajax({
-			url: ajaxurl,
-			type: 'GET',
-			dataType: 'json',
-			async: true,
-			cache: false,
-			data: {
-				action: 'conf_sch_get_speakers',
-				schedule_post_id: conf_sch.post_id
 			},
 			success: function( posts ) {
 
