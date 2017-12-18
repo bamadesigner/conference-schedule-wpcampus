@@ -77,6 +77,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/api.php';
 
 // We only need admin functionality in the admin.
 if ( is_admin() ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/fields.php';
 	require_once plugin_dir_path( __FILE__ ) . 'includes/admin.php';
 }
 
