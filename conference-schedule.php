@@ -327,6 +327,7 @@ class Conference_Schedule {
 	 */
 	public function add_query_vars( $vars ) {
 		$vars[] = 'conf_sch_ignore_clause_filter';
+		$vars[] = 'conf_sch_event_date';
 		return $vars;
 	}
 
@@ -407,6 +408,18 @@ class Conference_Schedule {
 			// Setup the orderby.
 			$pieces['orderby'] = ' CAST( conf_sch_event_date.meta_value AS DATE ) ASC, conf_sch_event_start_time.meta_value ASC, conf_sch_event_location ASC, conf_sch_event_end_time ASC';
 
+			// Are we querying by a specific event date?
+			$event_date = null;
+
+			if ( ! empty( $query->query_vars['conf_sch_event_date'] ) ) {
+				$event_date = $query->get( 'conf_sch_event_date' );
+			} elseif ( ! empty( $_GET['conf_sch_event_date'] ) ) {
+				$event_date = $_GET['conf_sch_event_date'];
+			}
+
+			if ( ! empty( $event_date ) ) {
+				$pieces['where'] .= " AND CAST( conf_sch_event_date.meta_value AS DATE ) = '" . $event_date . "'";
+			}
 		}
 
 		return $pieces;
@@ -809,15 +822,18 @@ class Conference_Schedule {
 	 * @since   1.0.0
 	 * @return	string - the schedule
 	 */
-	public function get_conference_schedule() {
+	public function get_conference_schedule( $args = array() ) {
 
 		ob_start();
 
 		// Get settings.
 		$settings = $this->get_settings();
 
+		// Merge incoming with settings.
+		$settings = wp_parse_args( $args, $settings );
+
 		?>
-		<div id="conference-schedule-container" class="loading">
+		<div id="conference-schedule-container" class="loading"<?php echo ! empty( $settings['date'] ) ? ' data-date="' . $settings['date'] . '"' : null; ?>>
 			<?php
 
 			// If we have pre HTML...
@@ -909,9 +925,13 @@ class Conference_Schedule {
 	 * @return  string - the content for the shortcode
 	 */
 	public function conference_schedule_shortcode( $args = array() ) {
-		return conference_schedule()->get_conference_schedule();
-	}
 
+		$args = shortcode_atts( array(
+			'date' => null,
+		), $args, 'print_conference_schedule' );
+
+		return conference_schedule()->get_conference_schedule( $args );
+	}
 }
 
 /**

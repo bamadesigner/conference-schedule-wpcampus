@@ -53,9 +53,17 @@
 		// Figure out how to convert the event hours to local times.
 		var local_hour_diff = utc_timezone_diff - parseInt( conf_sch.tz_offset );
 
+		// Build the URL.
+		var apiURL = conf_sch.wp_api_route + 'schedule';
+
+		// Add date.
+		if ( $conf_sch_container.data('date') != '' ) {
+			apiURL += '?conf_sch_event_date=' +  $conf_sch_container.data('date');
+		}
+
 		// Get the schedule information.
 		$.ajax({
-			url: conf_sch.wp_api_route + 'schedule',
+			url: apiURL,
 			success: function( schedule_items ) {
 
 				// Build the HTML.
