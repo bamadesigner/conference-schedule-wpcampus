@@ -66,9 +66,6 @@ class Conference_Schedule_Admin {
 		// Add our settings meta boxes.
 		add_action( 'admin_head-schedule_page_conf-schedule-settings', array( $this, 'add_settings_meta_boxes' ) );
 
-		// Add instructions to thumbnail admin meta box.
-		add_filter( 'admin_post_thumbnail_html', array( $this, 'filter_admin_post_thumbnail_html' ), 100, 2 );
-
 		// Add admin notices.
 		add_action( 'admin_notices', array( $this, 'print_admin_notice' ) );
 
@@ -764,25 +761,6 @@ class Conference_Schedule_Admin {
 
 		}
 
-	}
-
-	/**
-	 * Adds instructions to the admin thumbnail meta box.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @param   $content - string - the default HTML
-	 * @param   $post_id - ID - the post ID
-	 * @return  string - the filtered HTML
-	 */
-	public function filter_admin_post_thumbnail_html( $content, $post_id ) {
-
-		// Show instructions for speaker photo.
-		if ( 'speakers' == get_post_type( $post_id ) ) {
-			$content .= '<div class="wp-ui-highlight" style="padding:10px;margin:15px 0 5px 0;">' . __( "Please load the speaker's photo as a featured image. The image needs to be at least 200px wide.", 'conf-schedule' ) . '</div>';
-		}
-
-		return $content;
 	}
 
 	/**
