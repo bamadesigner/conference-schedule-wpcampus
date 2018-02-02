@@ -24,7 +24,7 @@ function conference_schedule_add_fields() {
 					'conditional_logic' => 0,
 					'choices' => array(
 						'' => __( 'Basic', 'conf-schedule' ),
-						'session'   => __( 'Session', 'conf-schedule' ),
+						'session' => __( 'Session', 'conf-schedule' ),
 					),
 					'allow_null' => 1,
 					'other_choice' => 0,

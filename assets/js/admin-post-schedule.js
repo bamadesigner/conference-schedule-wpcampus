@@ -82,7 +82,6 @@
 			$( '#conf-sch-slides-file-input' ).show().val( '' ).after( '<input type="hidden" name="conf_schedule_event_delete_slides_file" value="1" />' );
 
 		});
-
 	});
 
 	// Populate a terms <select>.
@@ -166,7 +165,6 @@
 
 			}
 		});
-
 	};
 
 	/**
@@ -202,7 +200,6 @@
 
 			}
 		});
-
 	};
 
 	/**
@@ -258,7 +255,5 @@
 			$select_field.append( $post );
 
 		});
-
 	};
-
 })( jQuery );

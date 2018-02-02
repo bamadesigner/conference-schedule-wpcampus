@@ -2064,8 +2064,9 @@ class Conference_Schedule_Admin {
 		// Columns to add after title.
 		$add_columns_after_title = array(
 			'schedule' => array(
-				'speakers' => __( 'Speakers', 'conf-schedule' ),
-				'location' => __( 'Location', 'conf-schedule' ),
+				'speakers'  => __( 'Speakers', 'conf-schedule' ),
+				'date'      => __( 'Date', 'conf-schedule' ),
+				'location'  => __( 'Location', 'conf-schedule' ),
 			),
 			'speakers' => array(
 				'events' => __( 'Events', 'conf-schedule' ),
@@ -2103,13 +2104,27 @@ class Conference_Schedule_Admin {
 	public function populate_posts_columns( $column, $post_id ) {
 
 		// Add data for our custom date column.
-		if ( in_array( $column, array( 'conf-sch-location', 'conf-sch-speakers' ) ) ) {
+		if ( in_array( $column, array( 'conf-sch-date', 'conf-sch-location', 'conf-sch-speakers' ) ) ) {
 
 			// Get event.
 			$event = new Conference_Schedule_Event( $post_id );
 
 			// Get event column information.
-			if ( 'conf-sch-location' == $column ) {
+			if ( 'conf-sch-date' == $column ) {
+
+				$date = $event->get_date();
+				$date_display = $event->get_date_display();
+				if ( ! empty( $date ) && ! empty( $date_display ) ) :
+
+					// Setup the filter URL.
+					$filters = $_GET;
+					$filters['conf_sch_event_date'] = $date;
+					$filter_url = add_query_arg( $filters, 'edit.php' );
+
+					?><a href="<?php echo $filter_url; ?>"><?php echo $date_display; ?></a><?php
+
+				endif;
+			} elseif ( 'conf-sch-location' == $column ) {
 
 				// Get event location.
 				$event_location = $event->get_location();
@@ -2163,49 +2178,33 @@ class Conference_Schedule_Admin {
 		// Reset choices.
 		$field['choices'] = array();
 
-		$http_wpc_access = get_option( 'http_wpc_access' );
-		if ( empty( $http_wpc_access ) ) {
-			return $field;
-		}
-
-		$api_root = get_option( 'wpc_api_root' );
-		if ( empty( $api_root ) ) {
-			return $field;
-		}
-
-		// Build parameters for query.
-		$url_params = array( 'per_page' => 100 );
+		// Let's get selected as well as confirmed proposals.
+		$proposal_args = array(
+			'proposal_status' => array( 'confirmed', 'selected' ),
+		);
 
 		// Add event ID to limit query.
 		$event_id = get_option( 'wpc_proposal_event' );
 		if ( ! empty( $event_id ) ) {
-			$url_params['event'] = $event_id;
+			$proposal_args['event'] = $event_id;
 		}
 
-		// Build query URL.
-		$url = add_query_arg( $url_params, $api_root . 'proposal' );
-
-		// Get our proposals.
-		$response = wp_remote_get( $url, array(
-			'headers' => array(
-				'WPC-Access' => $http_wpc_access,
-			),
-		));
-
-		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
-			return $field;
-		}
-
-		$proposals = wp_remote_retrieve_body( $response );
+		// Get the proposals.
+		$proposals = conference_schedule()->get_proposals( $proposal_args );
 
 		if ( empty( $proposals ) ) {
 			return $field;
 		}
 
-		$proposals = json_decode( $proposals );
-
 		foreach ( $proposals as $proposal ) {
-			$field['choices'][ $proposal->id ] = $proposal->title->rendered;
+
+			$proposal_title = $proposal->title->rendered;
+
+			if ( 'confirmed' != $proposal->proposal_status ) {
+				$proposal_title .= ' <span style="text-transform:uppercase;font-style:italic;font-weight:bold;color:#900;">(' . __( 'Not Confirmed', 'conf-schedule' ) . ')</span>';
+			}
+
+			$field['choices'][ $proposal->id ] = $proposal_title;
 		}
 
 		return $field;

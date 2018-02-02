@@ -12,7 +12,7 @@ const wp_pot = require('gulp-wp-pot');
 
 // Define the source paths for each file type.
 const src = {
-	js: ['assets/js/admin-post-schedule.js','assets/js/admin-post-speakers.js','assets/js/conf-schedule.js','assets/js/conf-schedule-single.js'],
+	js: ['assets/js/admin-post-schedule.js','assets/js/admin-post-speakers.js','assets/js/conf-schedule.js','assets/js/conf-schedule-list.js','assets/js/conf-schedule-speakers.js','assets/js/conf-schedule-single.js'],
 	php: ['**/*.php','!vendor/**','!node_modules/**'],
 	sass: ['assets/scss/**/*.scss']
 };

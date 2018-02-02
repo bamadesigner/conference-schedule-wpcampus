@@ -309,11 +309,8 @@ class Conference_Schedule_Event {
 		// If we have a date...
 		if ( ! empty( $event_date_time ) ) {
 
-			// Get this site's timezone
-			$timezone = get_option( 'timezone_string' );
-			if ( empty( $timezone ) ) {
-				$timezone = 'UTC';
-			}
+			// Get this site's timezone.
+			$timezone = conference_schedule()->get_site_timezone();
 
 			// Store in date object
 			$date_time = new DateTime( $event_date_time, new DateTimeZone( $timezone ) );

@@ -15,6 +15,14 @@
  * Package:			Conference_Schedule
  */
 
+/**
+ * @TODO:
+ * - Be able to overwrite schedule permalink with slug from proposal.
+ * - Delete all of the speaker meta boxes and fields.
+ * - Make sure session type gets added as class in schedule markup.
+ * - Look for all uses of "event_type" in plugins.
+ */
+
 /*
  * @TODO:
  * Add language files
@@ -73,6 +81,14 @@ class Conference_Schedule {
 	private $settings;
 
 	/**
+	 * Will hold the site's timezone.
+	 *
+	 * @access	private
+	 * @var		string
+	 */
+	private $site_timezone;
+
+	/**
 	 * Will hold the enabled session fields.
 	 *
 	 * @access	private
@@ -96,6 +112,16 @@ class Conference_Schedule {
 	 * @var     bool
 	 */
 	private $load_schedule = false;
+
+	/**
+	 * Will be true if we want
+	 * to print a specific list.
+	 *
+	 * @access  private
+	 * @var     bool
+	 */
+	private $print_events_list = false;
+	private $print_speakers_list = false;
 
 	/**
 	 * Holds the class instance.
@@ -141,6 +167,16 @@ class Conference_Schedule {
 		// Add theme support.
 		add_action( 'after_setup_theme', array( $this, 'add_theme_support' ) );
 
+		// Return data to AJAX.
+		add_action( 'wp_ajax_conf_sch_get_proposals', array( $this, 'ajax_get_proposals' ) );
+		add_action( 'wp_ajax_nopriv_conf_sch_get_proposals', array( $this, 'ajax_get_proposals' ) );
+
+		add_action( 'wp_ajax_conf_sch_get_proposal', array( $this, 'ajax_get_proposal' ) );
+		add_action( 'wp_ajax_nopriv_conf_sch_get_proposal', array( $this, 'ajax_get_proposal' ) );
+
+		add_action( 'wp_ajax_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
+		add_action( 'wp_ajax_nopriv_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
+
 		// Adjust the schedule query.
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_pre_get_posts' ), 20 );
@@ -160,6 +196,11 @@ class Conference_Schedule {
 
 		// Add our [print_conference_schedule] shortcode.
 		add_shortcode( 'print_conference_schedule', array( $this, 'conference_schedule_shortcode' ) );
+		add_shortcode( 'print_conference_schedule_events', array( $this, 'conference_schedule_events_shortcode' ) );
+		add_shortcode( 'print_conference_schedule_speakers', array( $this, 'conference_schedule_speakers_shortcode' ) );
+
+		// Process the schedule post type when it's saved.
+		add_action( 'save_post_schedule', array( $this, 'process_schedule_save' ), 10, 3 );
 
 	}
 
@@ -248,6 +289,28 @@ class Conference_Schedule {
 		// Get/store the settings.
 		return $this->settings = get_option( 'conf_schedule', $default_settings );
 	}
+	
+	/**
+	 * Get the site's timezone abbreviation.
+	 */
+	public function get_site_timezone() {
+
+		// If already set, return.
+		if ( isset( $this->site_timezone ) ) {
+			return $this->site_timezone;
+		}
+		
+		// Get from settings.
+		$timezone = get_option( 'timezone_string' );
+		if ( empty( $timezone ) ) {
+			$timezone = 'UTC';
+		}
+		
+		$timezone = new DateTime( 'now', new DateTimeZone( $timezone ) );
+		
+		// Get abbreviation.
+		return $this->site_timezone = $timezone->format( 'T' );
+	}
 
 	/**
 	 * Returns array of enabled session fields.
@@ -311,6 +374,7 @@ class Conference_Schedule {
 	public function add_query_vars( $vars ) {
 		$vars[] = 'conf_sch_ignore_clause_filter';
 		$vars[] = 'conf_sch_event_date';
+		$vars[] = 'conf_sch_event_type';
 		return $vars;
 	}
 
@@ -367,7 +431,7 @@ class Conference_Schedule {
 			|| ( is_array( $post_type ) && in_array( 'schedule', $post_type ) && count( $post_type ) == 1 ) ) {
 
 			// Join to get name info.
-			foreach ( array( 'conf_sch_event_date', 'conf_sch_event_start_time', 'conf_sch_event_end_time' ) as $name_part ) {
+			foreach ( array( 'conf_sch_event_date', 'event_type', 'conf_sch_event_start_time', 'conf_sch_event_end_time' ) as $name_part ) {
 
 				// Might as well store the join info as fields.
 				$pieces['fields'] .= ", {$name_part}.meta_value AS {$name_part}";
@@ -389,14 +453,25 @@ class Conference_Schedule {
 			// Are we querying by a specific event date?
 			$event_date = null;
 
-			if ( ! empty( $query->query_vars['conf_sch_event_date'] ) ) {
-				$event_date = $query->get( 'conf_sch_event_date' );
-			} elseif ( ! empty( $_GET['conf_sch_event_date'] ) ) {
-				$event_date = $_GET['conf_sch_event_date'];
+			$event_date = $query->get( 'conf_sch_event_date' );
+			if ( ! $event_date && ! empty( $_GET['conf_sch_event_date'] ) ) {
+				$event_date = sanitize_text_field( $_GET['conf_sch_event_date'] );
 			}
 
 			if ( ! empty( $event_date ) ) {
 				$pieces['where'] .= " AND CAST( conf_sch_event_date.meta_value AS DATE ) = '" . $event_date . "'";
+			}
+
+			// Are we querying by a specific event type??
+			$event_type = null;
+
+			$event_type = $query->get( 'conf_sch_event_type' );
+			if ( ! $event_type && ! empty( $_GET['conf_sch_event_type'] ) ) {
+				$event_type = sanitize_text_field( $_GET['conf_sch_event_type'] );
+			}
+
+			if ( ! empty( $event_type ) ) {
+				$pieces['where'] .= $wpdb->prepare( ' AND event_type.meta_value = %s', $event_type );
 			}
 		}
 
@@ -438,7 +513,25 @@ class Conference_Schedule {
 		}
 
 		// Enqueue the schedule script when needed.
-		if ( is_singular( 'schedule' ) ) {
+		if ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_events' ) ) {
+
+			wp_enqueue_script( 'conf-schedule-list', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-list.min.js', array( 'jquery', 'handlebars' ), null, true );
+			wp_localize_script( 'conf-schedule-list', 'conf_sch', array(
+				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
+				'wp_api_route'  => $wp_rest_api_route,
+			));
+
+		} elseif ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_speakers' ) ) {
+
+			wp_enqueue_style( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule-speakers.min.css', array( 'conf-schedule-icons' ), null );
+			wp_enqueue_script( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-speakers.min.js', array( 'jquery', 'handlebars' ), null, true );
+
+			wp_localize_script( 'conf-schedule-speakers', 'conf_sch', array(
+				'ajaxurl'		=> admin_url( 'admin-ajax.php' ),
+				'speaker_error' => sprintf( __( 'There seems to have been an issue collecting all of our wonderful speakers. Please refresh the page and try again. If the issue persists, please %1$slet us know%2$s.', 'conf-schedule' ), '<a href="/contact/">', '</a>' ),
+			));
+
+		} elseif ( is_singular( 'schedule' ) ) {
 
 			// Enqueue our schedule styles.
 			wp_enqueue_style( 'conf-schedule' );
@@ -449,7 +542,10 @@ class Conference_Schedule {
 			// Build data.
 			$conf_sch_data = array(
 				'post_id'       => $post->ID,
+				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
 				'wp_api_route'  => $wp_rest_api_route,
+				'schedule_url'  => '/schedule/',
+				'view_schedule' => __( 'View schedule', 'conf-schedule' ),
 			);
 
 			// Get display field settings.
@@ -485,7 +581,7 @@ class Conference_Schedule {
 		} else {
 
 			// Does this post have our shortcode?
-			$has_schedule_shortcode = isset( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule' );
+			$has_schedule_shortcode = ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule' );
 
 			// If not the shortcode, do we want to add the schedule to the page?
 			$add_schedule_to_page = ! $has_schedule_shortcode ? $this->add_schedule_to_page() : false;
@@ -498,10 +594,24 @@ class Conference_Schedule {
 
 				// Enqueue the schedule script.
 				wp_enqueue_script( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule.min.js', array( 'jquery', 'handlebars' ), null, true );
+				
+				/*
+				 * Will show up 15 minutes before start.
+				 * @TODO add setting to control.
+		 		 */
+		 		$session_livestream_reveal_delay_seconds = 900;
 
 				// Build data.
 				$conf_sch_data = array(
-					'wp_api_route'  => $wp_rest_api_route,
+					'ajaxurl'          => admin_url( 'admin-ajax.php' ),
+					'wp_api_route'     => $wp_rest_api_route,
+					'jump_message'     => __( 'Go to current sessions', 'conf-schedule' ),
+					'top_message'      => __( 'Go to top of schedule', 'conf-schedule' ),
+					'watch_url'        => '/watch/',
+					'watch_message'    => __( 'Watch sessions', 'conf-schedule' ),
+					'speakers_url'     => '/speakers/',
+					'speakers_message' => __( 'View speakers', 'conf-schedule' ),
+					'reveal_delay'     => $session_livestream_reveal_delay_seconds,
 				);
 
 				// Get display field settings.
@@ -532,10 +642,10 @@ class Conference_Schedule {
 				}
 
 				// Get this site's timezone.
-				$timezone = new DateTimeZone( get_option( 'timezone_string' ) ?: 'UTC' );
+				$timezone = $this->get_site_timezone();
 
 				// Get the current time.
-				$current_time = new DateTime( 'now', $timezone );
+				$current_time = new DateTime( 'now', new DateTimeZone( $timezone ) );
 
 				// Get the timezone offset.
 				$current_time_offset = $current_time->getOffset();
@@ -569,12 +679,6 @@ class Conference_Schedule {
 			// Get the settings.
 			$settings = $this->get_settings();
 
-			// Get post type object.
-			$speakers_post_type_obj = get_post_type_object( 'speakers' );
-
-			// Get post type's archive title.
-			$speakers_archive_title = apply_filters( 'post_type_archive_title', $speakers_post_type_obj->labels->name, 'speakers' );
-
 			ob_start();
 
 			// If we have pre HTML...
@@ -599,6 +703,12 @@ class Conference_Schedule {
 
 			// Print the content.
 			echo $the_content;
+
+			?>
+			<div id="conf-sch-single-content">
+				<p class="conf-schedule-single-loading"><?php _e( 'Loading the event...', 'conf-schedule' ); ?></p>
+			</div>
+			<?php
 
 			// Embed the video.
 			$video_url = get_post_meta( $post->ID, 'conf_sch_event_video_url', true );
@@ -625,9 +735,8 @@ class Conference_Schedule {
 			endif;
 
 			?>
-			<div id="conf-sch-single-speakers">
-				<h2 class="conf-sch-single-speakers-title"><?php echo $speakers_archive_title; ?></h2>
-			</div>
+			<h2 id="conf-sch-single-speakers-title"><?php _e( 'Speakers', 'conf-schedule' ); ?></h2>
+			<div id="conf-sch-single-speakers" class="conf-schedule-speakers"></div>
 			<?php
 
 			// If we have post HTML...
@@ -671,25 +780,31 @@ class Conference_Schedule {
 
 			?>
 			<script id="conf-sch-single-ls-template" type="text/x-handlebars-template">
-				{{#if session_livestream_url}}<div class="callout"><a href="{{session_livestream_url}}"><?php printf( __( 'This session is in progress. %1$sView the livestream%2$s', 'conf-schedule' ), '<strong>', '</strong>' ); ?></a></div>{{/if}}
+				{{#if session_livestream_url}}<a href="{{session_livestream_url}}"><?php printf( __( 'This session is in progress. %1$sView the livestream%2$s', 'conf-schedule' ), '<strong><span class="underline">', '</span></strong>' ); ?></a>{{/if}}
+			</script>
+			<script id="conf-sch-single-content-template" type="text/x-handlebars-template">
+				{{#if content.rendered}}{{{content.rendered}}}{{/if}}
 			</script>
 			<script id="conf-sch-single-meta-template" type="text/x-handlebars-template">
-				{{#event_date_display}}<span class="event-meta event-date"><span class="event-meta-label"><?php _e( 'Date', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_date_display}}
-				{{#event_time_display}}<span class="event-meta event-time"><span class="event-meta-label"><?php _e( 'Time', 'conf-schedule' ); ?>:</span> {{.}}</span>{{/event_time_display}}
-				{{#event_location}}<span class="event-meta event-location"><span class="event-meta-label"><?php _e( 'Location', 'conf-schedule' ); ?>:</span> {{#if permalink}}<a href="{{permalink}}">{{/if}}{{post_title}}{{#if permalink}}</a>{{/if}}</span>{{/event_location}}
-				{{#if session_categories}}<span class="event-meta event-categories"><span class="event-meta-label"><?php _e( 'Categories', 'conf-schedule' ); ?>:</span> {{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</span>{{/if}}
+				{{#event_date_display}}<span class="event-meta event-date"><span class="event-meta-label"><?php _e( 'Date:', 'conf-schedule' ); ?></span> <span class="event-meta-value">{{.}}</span></span>{{/event_date_display}}
+				{{#event_time_display_tz}}<span class="event-meta event-time"><span class="event-meta-label"><?php _e( 'Time:', 'conf-schedule' ); ?></span> <span class="event-meta-value">{{.}}</span></span>{{/event_time_display_tz}}
+				{{#event_location}}<span class="event-meta event-location"><span class="event-meta-label"><?php _e( 'Location:', 'conf-schedule' ); ?></span> <span class="event-meta-value">{{#if permalink}}<a href="{{permalink}}">{{/if}}{{post_title}}{{#if permalink}}</a>{{/if}}</span></span>{{/event_location}}
+				{{#if subjects}}<span class="event-meta event-subjects"><span class="event-meta-label"><?php _e( 'Subjects:', 'conf-schedule' ); ?></span> <span class="event-meta-value">{{#each subjects}}{{#unless @first}}, {{/unless}}{{name}}{{/each}}</span></span>{{/if}}
 				{{#event_links}}{{body}}{{/event_links}}
 			</script>
 			<script id="conf-sch-single-speakers-template" type="text/x-handlebars-template">
-				<div class="event-speaker">
-					{{#if title.rendered}}<h3 class="speaker-name">{{{title.rendered}}}</h3>{{/if}}
+				<div class="conf-schedule-speaker">
+					<h3 class="speaker-name">{{{title.rendered}}}</h3>
+					{{#if headshot}}<img class="speaker-headshot" src="{{headshot}}" alt="{{display_name}}" />{{/if}}
 					{{{speaker_meta}}}
-					{{{speaker_social_media}}}
-					{{#if content}}
-					<div class="speaker-bio{{#if speaker_thumbnail}} has-photo{{/if}}">
-						{{#if speaker_thumbnail}}<img class="speaker-thumb" src="{{speaker_thumbnail}}" />{{/if}}
-						{{{content.rendered}}}
-					</div>
+					{{#if website}}
+						<div class="speaker-website"><a href="{{website}}">{{website}}</a></div>
+					{{/if}}
+					{{{speaker_social}}}
+					{{#if content.rendered}}
+						<div class="speaker-bio">
+							{{{content.rendered}}}
+						</div>
 					{{/if}}
 				</div>
 			</script>
@@ -697,6 +812,37 @@ class Conference_Schedule {
 
 		endif;
 
+		if ( $this->print_events_list ) :
+			?>
+			<script id="conf-schedule-events-list-template" type="text/x-handlebars-template">
+				<li>{{#if link}}<a href="{{link}}">{{/if}}{{#if title.rendered}}{{{title.rendered}}}{{/if}}{{#if link}}</a>{{/if}}</li>
+			</script>
+			<?php
+		endif;
+
+		if ( $this->print_speakers_list ) :
+			?>
+			<script id="conf-schedule-speakers-list-template" type="text/x-handlebars-template">
+				{{#each .}}
+					<div id="speaker{{id}}" class="conf-schedule-speaker">
+						<h2 class="speaker-name">{{{title.rendered}}}</h2>
+						{{#if headshot}}<img class="speaker-headshot" src="{{headshot}}" alt="Headshot of {{title.rendered}}">{{/if}}
+						{{speaker_meta}}
+						{{#if website}}
+							<div class="speaker-website"><a href="{{website}}">{{website}}</a></div>
+						{{/if}}
+						{{speaker_social}}
+						{{#if content.rendered}}
+							<div class="speaker-bio">
+								{{{content.rendered}}}
+							</div>
+						{{/if}}
+						{{speaker_sessions}}
+					</div>
+				{{/each}}
+			</script>
+			<?php
+		endif;
 	}
 
 	/**
@@ -846,9 +992,12 @@ class Conference_Schedule {
 					{{#title}}{{body}}{{/title}}
 					{{#event_location}}<div class="event-location">{{#if permalink}}<a href="{{permalink}}">{{/if}}{{post_title}}{{#if permalink}}</a>{{/if}}</div>{{/event_location}}
 					{{#if event_address}}<div class="event-address">{{#if event_google_maps_url}}<a href="{{event_google_maps_url}}">{{/if}}{{event_address}}{{#if event_google_maps_url}}</a>{{/if}}</div>{{/if}}
-					{{#if event_speakers}}<div class="event-speakers">{{#each event_speakers}}<div class="event-speaker">{{post_title}}</div>{{/each}}</div>{{/if}}
-					{{#if session_categories}}<div class="event-categories">{{#each session_categories}}{{#unless @first}}, {{/unless}}{{.}}{{/each}}</div>{{/if}}
-					{{#event_links}}{{body}}{{/event_links}}
+					{{#if speakers}}<div class="event-speakers">{{#each speakers}}<div class="event-speaker">{{display_name}}</div>{{/each}}</div>{{/if}}
+					{{#if subjects}}<div class="event-subjects">{{#each subjects}}{{#unless @first}}, {{/unless}}{{name}}{{/each}}</div>{{/if}}
+					<div class="event-links">
+						{{#event_links}}{{body}}{{/event_links}}
+						{{#social_media}}{{body}}{{/social_media}}
+					</div>
 				</div>
 			</script>
 		</div>
@@ -884,6 +1033,101 @@ class Conference_Schedule {
 		?></div><?php */
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Get the conference schedule events.
+	 *
+	 * @access  public
+	 * @return  string - the schedule
+	 */
+	public function get_conference_schedule_events( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'date'  => null,
+			'event' => null,
+		));
+
+		$data_attributes_str = '';
+		$data_attributes = array();
+
+		//  Make sure arguments are valid.
+		if ( ! empty( $args['date'] ) ) {
+			$data_attributes['date'] = sanitize_text_field( $args['date'] );
+		}
+
+		if ( ! empty( $args['event'] ) ) {
+			$args['event'] = sanitize_text_field( $args['event'] );
+			if ( ! empty( $args['event'] ) && is_numeric( $args['event'] ) ) {
+				$data_attributes['event'] = $args['event'];
+			}
+		}
+
+		if ( ! empty( $data_attributes ) ) {
+			foreach ( $data_attributes as $key => $value ) {
+				$data_attributes_str .= ' data-' . $key . '="' . $value . '"';
+			}
+		}
+
+		$this->print_events_list = true;
+
+		ob_start();
+
+		?>
+		<ul class="conf-schedule-events"<?php echo $data_attributes_str; ?>></ul>
+		<?php
+
+		return ob_get_clean();
+	}
+
+
+
+	/**
+	 * Get the conference schedule speakers.
+	 *
+	 * @access  public
+	 * @return  string - the schedule
+	 */
+	public function get_conference_schedule_speakers( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'date'  => null,
+			'event' => null,
+		));
+
+		$data_attributes_str = '';
+		$data_attributes = array();
+
+		//  Make sure arguments are valid.
+		if ( ! empty( $args['date'] ) ) {
+			$data_attributes['date'] = sanitize_text_field( $args['date'] );
+		}
+		if ( ! empty( $args['event'] ) ) {
+			$args['event'] = sanitize_text_field( $args['event'] );
+			if ( ! empty( $args['event'] ) && is_numeric( $args['event'] ) ) {
+				$data_attributes['event'] = $args['event'];
+			}
+		}
+
+		if ( ! empty( $data_attributes ) ) {
+			foreach ( $data_attributes as $key => $value ) {
+				$data_attributes_str .= ' data-' . $key . '="' . $value . '"';
+			}
+		}
+
+		$this->print_speakers_list = true;
+
+		ob_start();
+
+		?>
+		<div id="conf-schedule-speakers" class="conf-schedule-speakers"<?php echo $data_attributes_str; ?>>
+			<p class="conf-schedule-speakers-loading"><?php _e( 'Loading speakers...', 'conf-schedule' ); ?></p>
+		</div>
+		<?php
+
+		return ob_get_clean();
 
 	}
 
@@ -901,6 +1145,636 @@ class Conference_Schedule {
 		), $args, 'print_conference_schedule' );
 
 		return conference_schedule()->get_conference_schedule( $args );
+	}
+
+	/**
+	 * Returns the [print_conference_schedule_events] shortcode content.
+	 *
+	 * @access  public
+	 * @param   array - $args - arguments passed to the shortcode
+	 * @return  string - the content for the shortcode
+	 */
+	public function conference_schedule_events_shortcode( $args = array() ) {
+
+		$args = shortcode_atts( array(
+			'date'  => null,
+			'event' => null,
+		), $args, 'print_conference_schedule_events' );
+
+		return conference_schedule()->get_conference_schedule_events( $args );
+	}
+
+	/**
+	 * Returns the [print_conference_schedule_speakers] shortcode content.
+	 *
+	 * @access  public
+	 * @param   array - $args - arguments passed to the shortcode
+	 * @return  string - the content for the shortcode
+	 */
+	public function conference_schedule_speakers_shortcode( $args = array() ) {
+
+		$args = shortcode_atts( array(
+			'date'  => null,
+			'event' => null,
+		), $args, 'print_conference_schedule_speakers' );
+
+		return conference_schedule()->get_conference_schedule_speakers( $args );
+	}
+
+	/**
+	 * Get the speakers via an AJAX request.
+	 */
+	public function ajax_get_speakers() {
+
+		$speakers_args = array();
+
+		// Add date query.
+		$date = isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) : '';
+		if ( ! empty( $date ) ) {
+			$speakers_args['date'] = $date;
+		}
+
+		// Add event query.
+		$event = isset( $_GET['event'] ) ? sanitize_text_field( $_GET['event'] ) : '';
+		if ( ! empty( $event ) && is_numeric( $event ) ) {
+			$speakers_args['event'] = $event;
+		}
+
+		$speakers = $this->get_speakers( $speakers_args );
+
+		echo json_encode( $speakers );
+
+		wp_die();
+	}
+
+	/**
+	 * Get the schedule items.
+	 */
+	public function get_schedule( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'date'          => null,
+			'per_page'      => 100,
+			'bust_cache'    => false,
+		));
+
+		if ( ! empty( $args['date'] ) ) {
+			$args['date'] = sanitize_text_field( $args['date'] );
+		}
+
+		$transient_name = 'wpc_schedule';
+		if ( ! empty( $args['date'] ) ) {
+			$transient_name .= '_' . $args['date'];
+		}
+
+		// Check the transient.
+		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+			$stored_schedule = get_transient( $transient_name );
+			if ( false !== $stored_schedule && is_array( $stored_schedule ) ) {
+				return $stored_schedule;
+			}
+		}
+
+		$api_root = get_bloginfo( 'url' );
+		if ( empty( $api_root ) ) {
+			return false;
+		}
+
+		// Build parameters for query.
+		$url_params = array(
+			'per_page' => ! empty( $args['per_page'] ) && is_numeric( $args['per_page'] ) ? $args['per_page'] : 100,
+			'conf_sch_event_type' => 'session',
+		);
+
+		// Add date to limit query.
+		if ( ! empty( $args['date'] ) ) {
+			$url_params['conf_sch_event_date'] = $args['date'];
+		}
+
+		// Build query URL.
+		$url = add_query_arg( $url_params, $api_root . '/wp-json/wp/v2/schedule' );
+
+		// Get the schedule.
+		$response = wp_remote_get( $url );
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$schedule = wp_remote_retrieve_body( $response );
+		if ( empty( $schedule ) ) {
+			return array();
+		}
+
+		$schedule = json_decode( $schedule );
+
+		// Store for a day.
+		set_transient( $transient_name, $schedule, DAY_IN_SECONDS );
+
+		return $schedule;
+	}
+
+	/**
+	 * Is used to get speakers for speakers page.
+	 */
+	public function get_speakers( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'date'              => null,
+			'event'             => null,
+			'per_page'          => 100,
+			'bust_cache'        => false,
+		));
+
+		if ( ! empty( $args['date'] ) ) {
+			$args['date'] = sanitize_text_field( $args['date'] );
+		}
+
+		$transient_name = 'wpc_speakers';
+		if ( ! empty( $args['date'] ) ) {
+			$transient_name .= '_' . $args['date'];
+		}
+
+		// Check the transient.
+		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+			$stored_speakers = get_transient( $transient_name );
+			if ( false !== $stored_speakers && is_array( $stored_speakers ) ) {
+				return $stored_speakers;
+			}
+		}
+
+		// Build parameters for schedule.
+		$schedule_args = array();
+
+		if ( ! empty( $args['date'] ) ) {
+			$schedule_args['date'] = $args['date'];
+		}
+
+		$schedule = $this->get_schedule( $schedule_args );
+
+		if ( empty( $schedule ) ) {
+			return array();
+		}
+
+		// Process the schedule to organize by proposal.
+		$proposal_ids = array();
+
+		// Get schedule proposal IDs.
+		foreach ( $schedule as $item ) {
+			if ( ! empty( $item->proposal ) ) {
+				$proposal_ids[] = $item->proposal;
+			}
+		}
+
+		// Build proposal args.
+		$proposal_args = array();
+
+		if ( ! empty( $proposal_ids ) ) {
+			$proposal_args['post__in'] = $proposal_ids;
+		}
+
+		// Make sure events are IDs.
+		if ( ! empty( $args['event'] ) ) {
+
+			// Make sure its an array.
+			if ( ! is_array( $args['event'] ) ) {
+				$args['event'] = explode( ',', $args['event'] );
+			}
+
+			// Sanitize the array.
+			$args['event'] = array_filter( $args['event'], 'is_numeric' );
+
+			// Add to args.
+			$proposal_args['event'] = implode( ',', $args['event'] );
+
+		}
+
+		// Get the proposals.
+		$proposals = $this->get_proposals( $proposal_args );
+
+		if ( empty( $proposals ) ) {
+			return array();
+		}
+
+		// Group proposal by ID.
+		$proposals_by_id = array();
+		foreach ( $proposals as $proposal ) {
+			if ( ! empty( $proposal->id ) ) {
+				$proposals_by_id[ "proposal{$proposal->id}" ] = $proposal;
+			}
+		}
+
+		// Go through schedule and round up our speakers.
+		$speakers = array();
+
+		foreach ( $schedule as $item ) {
+			if ( ! empty( $item->proposal ) ) {
+
+				if ( empty( $proposals_by_id[ "proposal{$item->proposal}" ] ) ) {
+					continue;
+				}
+
+				$proposal = $proposals_by_id[ "proposal{$item->proposal}" ];
+
+				if ( empty( $proposal->speakers ) ) {
+					continue;
+				}
+
+				// Prepare session info.
+				$session = array(
+					'link'  => $item->link,
+					'title' => $proposal->title->rendered,
+				);
+
+				// Add each speaker and add its session info.
+				foreach ( $proposal->speakers as $speaker ) {
+					if ( empty( $speaker->id ) ) {
+						continue;
+					}
+
+					$speaker_key = "speaker{$speaker->id}";
+
+					if ( ! isset( $speakers[ $speaker_key ] ) ) {
+
+						// Store session.
+						$speaker->sessions = array( $session );
+
+						$speakers[ $speaker_key ] = $speaker;
+
+					} else {
+						$speakers[ $speaker_key ]->sessions[] = $session;
+					}
+				}
+			}
+		}
+
+		// Sort by last name alphabetically.
+		usort( $speakers, function( $a, $b ) {
+			if ( $a->last_name == $b->last_name ) {
+				return 0;
+			}
+			return ( $a->last_name < $b->last_name ) ? -1 : 1;
+		});
+
+		return $speakers;
+	}
+
+	/**
+	 * Request profile information.
+	 */
+	public function get_profiles( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'event'             => null,
+			'per_page'          => 100,
+			'by_proposal_id'    => array(),
+			'proposal_status'   => null,
+			'bust_cache'        => false,
+		));
+
+		// Make sure events are IDs.
+		if ( ! empty( $args['event'] ) ) {
+
+			// Make sure its an array.
+			if ( ! is_array( $args['event'] ) ) {
+				$args['event'] = explode( ',', $args['event'] );
+			}
+
+			// Sanitize the array.
+			$args['event'] = array_filter( $args['event'], 'is_numeric' );
+			$args['event'] = implode( ',', $args['event'] );
+
+		}
+
+		$transient_name = 'wpc_profiles';
+		if ( ! empty( $args['event'] ) ) {
+			$transient_name .= '_' . $args['event'];
+		}
+
+		// Check the transient.
+		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+			$stored_profiles = get_transient( $transient_name );
+			if ( false !== $stored_profiles && is_array( $stored_profiles ) ) {
+				return $stored_profiles;
+			}
+		}
+
+		$http_wpc_access = get_option( 'http_wpc_access' );
+		if ( empty( $http_wpc_access ) ) {
+			return array();
+		}
+
+		$api_root = get_option( 'wpc_api_root' );
+		if ( empty( $api_root ) ) {
+			return array();
+		}
+
+		// Build parameters for query.
+		$url_params = array(
+			'per_page' => ! empty( $args['per_page'] ) && is_numeric( $args['per_page'] ) ? $args['per_page'] : 100,
+		);
+
+		// Add event ID to limit query.
+		if ( ! empty( $args['event'] ) ) {
+			$url_params['proposal_event'] = $args['event'];
+		}
+
+		// Add proposal IDs query.
+		if ( ! empty( $args['by_proposal_id'] ) ) {
+
+			// Make sure it's an array.
+			if ( ! is_array( $args['by_proposal_id'] ) ) {
+				$args['by_proposal_id'] = explode( ',', str_replace( ' ', '', $args['by_proposal_id'] ) );
+			}
+
+			$args['by_proposal_id'] = array_filter( $args['by_proposal_id'], 'is_numeric' );
+
+			if ( ! empty( $args['by_proposal_id'] ) ) {
+				$url_params['by_proposal_id'] = implode( ',', str_replace( ' ', '', $args['by_proposal_id'] ) );
+			}
+		}
+
+		// Add proposal status.
+		if ( ! empty( $args['proposal_status'] ) ) {
+			$url_params['proposal_status'] = strtolower( implode( ',', str_replace( ' ', '', $args['proposal_status'] ) ) );
+		}
+
+		// Build query URL.
+		$url = add_query_arg( $url_params, $api_root . 'profile' );
+
+		// Get our profiles.
+		$response = wp_remote_get( $url, array(
+			'headers' => array(
+				'WPC-Access' => $http_wpc_access,
+			),
+		));
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$profiles = wp_remote_retrieve_body( $response );
+		if ( empty( $profiles ) ) {
+			return array();
+		}
+
+		$profiles = json_decode( $profiles );
+
+		// Store for a day.
+		set_transient( $transient_name, $profiles, DAY_IN_SECONDS );
+
+		return $profiles;
+	}
+
+	/**
+	 * Get the proposals via an AJAX request.
+	 */
+	public function ajax_get_proposals() {
+
+		$proposal_args = array();
+
+		// Add event query.
+		$event = isset( $_GET['event'] ) ? sanitize_text_field( $_GET['event'] ) : '';
+		if ( ! empty( $event ) ) {
+			$proposal_args['event'] = $event;
+		}
+
+		$proposals = $this->get_proposals( $proposal_args );
+
+		echo json_encode( $proposals );
+
+		wp_die();
+	}
+
+	/**
+	 * Get a specfic proposal via an AJAX request.
+	 */
+	public function ajax_get_proposal() {
+
+		// Make sure we have an ID.
+		$proposal_id = ! empty( $_GET['proposal_id'] ) ? sanitize_text_field( $_GET['proposal_id'] ) : 0;
+
+		$proposal = $proposal_id > 0 ? $this->get_proposal( $proposal_id ) : 0;
+
+		echo json_encode( $proposal );
+
+		wp_die();
+	}
+
+	/**
+	 * Request proposal information.
+	 */
+	public function get_proposals( $args = array() ) {
+
+		// Merge incoming with defaults.
+		$args = wp_parse_args( $args, array(
+			'event'             => '',
+			'post__in'          => array(),
+			'per_page'          => 100,
+			'proposal_status'   => null,
+			'bust_cache'        => false,
+		));
+
+		// Make sure events are IDs.
+		if ( ! empty( $args['event'] ) ) {
+
+			// Make sure its an array.
+			if ( ! is_array( $args['event'] ) ) {
+				$args['event'] = explode( ',', $args['event'] );
+			}
+
+			// Sanitize the array.
+			$args['event'] = array_filter( $args['event'], 'is_numeric' );
+			$args['event'] = implode( ',', $args['event'] );
+
+		}
+
+		$transient_name = 'wpc_proposals';
+		if ( ! empty( $args['event'] ) ) {
+			$transient_name .= '_' . $args['event'];
+		}
+
+		// Check the transient.
+		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+			$stored_proposals = get_transient( $transient_name );
+			if ( false !== $stored_proposals && is_array( $stored_proposals ) ) {
+				return $stored_proposals;
+			}
+		}
+
+		$http_wpc_access = get_option( 'http_wpc_access' );
+		if ( empty( $http_wpc_access ) ) {
+			return array();
+		}
+
+		$api_root = get_option( 'wpc_api_root' );
+		if ( empty( $api_root ) ) {
+			return array();
+		}
+
+		// Build parameters for query.
+		$url_params = array(
+			'per_page' => ! empty( $args['per_page'] ) && is_numeric( $args['per_page'] ) ? $args['per_page'] : 100,
+		);
+
+		// Add event ID to limit query.
+		if ( ! empty( $args['event'] ) ) {
+			$url_params['event'] = $args['event'];
+		}
+
+		// Add proposal status.
+		if ( ! empty( $args['proposal_status'] ) ) {
+			$url_params['proposal_status'] = strtolower( implode( ',', str_replace( ' ', '', $args['proposal_status'] ) ) );
+		}
+
+		// Make sure events are IDs.
+		if ( ! empty( $args['post__in'] ) ) {
+
+			// Make sure its an array.
+			if ( ! is_array( $args['post__in'] ) ) {
+				$args['post__in'] = explode( ',', $args['post__in'] );
+			}
+
+			// Sanitize the array.
+			$args['post__in'] = array_filter( $args['post__in'], 'is_numeric' );
+			$url_params['post__in'] = implode( ',', $args['post__in'] );
+
+		}
+
+		// Build query URL.
+		$url = add_query_arg( $url_params, $api_root . 'proposal' );
+
+		// Get our proposals.
+		$response = wp_remote_get( $url, array(
+			'headers' => array(
+				'WPC-Access' => $http_wpc_access,
+			),
+		));
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$proposals = wp_remote_retrieve_body( $response );
+		if ( empty( $proposals ) ) {
+			return array();
+		}
+
+		$proposals = json_decode( $proposals );
+
+		// Store for a day.
+		set_transient( $transient_name, $proposals, DAY_IN_SECONDS );
+
+		return $proposals;
+	}
+
+	/**
+	 * Request information for a specific proposal.
+	 */
+	public function get_proposal( $proposal_id, $bust_cache = false ) {
+
+		$transient_name = "wpc_proposal_{$proposal_id}";
+
+		// Check the transient.
+		if ( ! $bust_cache || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+			$stored_proposal = get_transient( $transient_name );
+			if ( false !== $stored_proposal ) {
+				return $stored_proposal;
+			}
+		}
+
+		$http_wpc_access = get_option( 'http_wpc_access' );
+		if ( empty( $http_wpc_access ) ) {
+			return array();
+		}
+
+		$api_root = get_option( 'wpc_api_root' );
+		if ( empty( $api_root ) ) {
+			return array();
+		}
+
+		$url = $api_root . 'proposal/' . $proposal_id;
+
+		// Get our proposal.
+		$response = wp_remote_get( $url, array(
+			'headers' => array(
+				'WPC-Access' => $http_wpc_access,
+			),
+		));
+
+		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+			return array();
+		}
+
+		$proposal = wp_remote_retrieve_body( $response );
+		if ( empty( $proposal ) ) {
+			return array();
+		}
+
+		$proposal = json_decode( $proposal );
+
+		// Store for a day.
+		set_transient( $transient_name, $proposal, DAY_IN_SECONDS );
+
+		return $proposal;
+	}
+
+	/**
+	 * Process the schedule post type when it's saved.
+	 *
+	 * We'll use this hook to make sure the title and
+	 * slug are updated when proposals are selected.
+	 *
+	 * @TODO: Update the content and excerpt?
+	 */
+	public function process_schedule_save( $post_id, $post, $update ) {
+
+		// Only need to process sessions.
+		$event_type = get_post_meta( $post_id, 'event_type', true );
+		if ( 'session' != $event_type ) {
+			return;
+		}
+
+		// Only need to process if it has a proposal ID.
+		$proposal_id = get_post_meta( $post_id, 'proposal', true );
+		if ( ! $proposal_id || ! is_numeric( $proposal_id ) ) {
+			return;
+		}
+
+		// Get the proposal information.
+		$proposal = $this->get_proposal( $proposal_id, true );
+
+		// Build post info to edit.
+		$post_update = array();
+
+		// Set with proposal title.
+		if ( ! empty( $proposal->title->rendered ) ) {
+			$post_update['post_title'] = $proposal->title->rendered;
+		}
+
+		// Set with proposal slug.
+		if ( ! empty( $proposal->slug ) ) {
+			$post_update['post_name'] = $proposal->slug;
+		}
+
+		if ( ! empty( $post_update ) ) {
+
+			// Add post ID.
+			$post_update['ID'] = $post_id;
+
+			// Unhook this function so it doesn't infinite loop.
+			remove_action( 'save_post_schedule', array( $this, 'process_schedule_save' ) );
+
+			// Update the post, which calls save_post again.
+			wp_update_post( $post_update );
+
+			// Re-hook this function.
+			add_action( 'save_post_schedule', array( $this, 'process_schedule_save' ) );
+
+		}
 	}
 }
 

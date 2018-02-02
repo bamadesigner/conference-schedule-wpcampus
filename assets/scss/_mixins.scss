@@ -1,0 +1,174 @@
+// Will set transition values
+@mixin set-transition( $transform... ) {
+	transition: $transform;
+}
+
+@mixin is-button() {
+	display: block;
+	width: 100%;
+	background-color: rgba( #000, 0.05 );
+	height: 40px;
+	line-height: 40px;
+	padding: 0 20px;
+	margin: 1.5rem 0;
+	color: #222;
+	text-align: center;
+	border: 0;
+	border-radius: 5px;
+	text-decoration: none;
+	cursor: pointer;
+	@include set-transition( background-color 1s ease );
+	
+	&.inline {
+		display: inline-block;
+		width: auto;
+	}
+	
+	&:focus,
+	&:hover {
+		background-color: rgba( #000, 0.2 );
+	}
+}
+
+@mixin include-schedule-links() {
+    .conf-sch-event-buttons {
+    	display: block;
+		clear: both;
+    	list-style: none;
+    	border: 0;
+    	padding: 0;
+    	margin: 10px 0;
+    	text-align: left;
+
+    	li {
+    		display: block;
+    		list-style: none;
+    		margin: 5px 0 0 0;
+    		border: 0;
+    		padding: 0;
+    		font-weight: bold;
+
+    		a {
+	    		@include is-button();
+	    		margin: 0;
+	    		color: inherit;
+    		}
+    		
+    		&.event-slides a {
+    			background-color: #02528d;
+    			color: #fff;
+
+				&:focus,
+    			&:hover {
+    				background-color: darken( #02528d, 20% );
+    			}
+    		}
+
+    		&.event-feedback a {
+    			background-color: #46852b;
+    			color: #fff;
+
+				&:focus,
+    			&:hover {
+    				background-color: darken( #46852b, 10% );
+    			}
+    		}
+
+    		&.event-livestream,
+    		&.event-video {
+
+    			a {
+    				background-color: #662d91;
+    				color: #fff;
+
+					&:focus,
+    				&:hover {
+    					background-color: darken( #662d91, 10% );
+    				}
+    			}
+    		}
+    	}
+    	
+    	&.conf-sch-social-buttons {
+
+	    	li {
+	    		display: inline-block;
+	    		margin: 0 10px 10px 0;
+	
+	    		a {
+	    			background-color: $social-color;
+	    			color: #fff;
+	
+					&:focus,
+	    			&:hover {
+	    				background-color: darken( $social-color, 20% );
+	    			}
+	    		}
+	    	}
+	    }
+    }
+    
+    .conf-sch-event-buttons + .conf-sch-event-buttons {
+	    margin-top: -5px;
+	}
+}
+
+@mixin include-schedule-speaker {
+
+	&.conf-schedule-speakers {
+
+		.conf-schedule-speaker {
+			overflow: auto;
+			clear: left;
+			margin: 30px 0 0 0;
+			border-top: 1px solid #eee;
+			padding: 25px 0 0 0;
+
+			&:first-child {
+				margin-top: 0;
+				border-top: 0;
+				padding-top: 0;
+			}
+
+			.speaker-headshot {
+				float: left;
+				width: 100px;
+				height: auto;
+				margin: 6px 25px 25px 0;
+				border: 0;
+
+				@media screen and (min-width: 55em) {
+					width: 150px;
+					height: 150px;
+				}
+			}
+
+			.speaker-meta {
+				display: block;
+				font-style: italic;
+				margin: 10px 0 0 0;
+
+				.speaker-url {
+					display: block;
+				}
+			}
+
+			.conf-sch-event-buttons {
+				@media screen and (min-width: 600px) {
+					clear: none;
+				}
+			}
+
+			.speaker-bio {
+
+				p {
+					margin: 1rem 0;
+				}
+
+				> *:first-child {
+					margin-top: 0;
+				}
+			}
+		}
+	}
+}

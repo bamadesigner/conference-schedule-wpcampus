@@ -61,8 +61,10 @@ class Conference_Schedule_API {
 			'event_date',
 			'event_start_time',
 			'event_end_time',
+			'event_timezone',
 			'event_date_display',
 			'event_time_display',
+			'event_time_display_tz',
 			'event_duration',
 			'event_parent',
 			'event_type',
@@ -147,6 +149,10 @@ class Conference_Schedule_API {
 			case 'event_end_time':
 				$event_end_time = $event->get_end_time();
 				return ! empty( $event_end_time ) ? $event_end_time : null;
+				
+			case 'event_timezone':
+				$event_timezone = conference_schedule()->get_site_timezone();
+				return ! empty( $event_timezone ) ? $event_timezone : null;
 
 			// Get the event date/time.
 			case 'event_dt':
@@ -181,6 +187,18 @@ class Conference_Schedule_API {
 			case 'event_time_display':
 				$event_time_display = $event->get_time_display();
 				return ! empty( $event_time_display ) ? $event_time_display : null;
+
+			// Build the event time display with timezone.
+			case 'event_time_display_tz':
+
+				$event_time_display = $event->get_time_display();
+				if ( empty( $event_time_display ) ) {
+					return null;
+				}
+				
+				$event_timezone = conference_schedule()->get_site_timezone();
+				
+				return $event_time_display . ' ' . $event_timezone;
 
 			case 'event_type':
 				$event_type = get_post_meta( $object['id'], 'event_type', true );

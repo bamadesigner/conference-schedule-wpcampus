@@ -1,0 +1,21 @@
+// Include our settings.
+@import "settings";
+
+// Include our mixins.
+@import "mixins";
+
+#conf-schedule-speakers {
+
+    @include include-schedule-speaker();
+
+    @include include-schedule-links();
+    
+    .conf-schedule-speakers-loading,
+    .conf-schedule-speakers-error {
+	    font-style: italic;
+    }
+
+	.speaker-sessions .speaker-session-label {
+		font-weight: bold;
+	}
+}
