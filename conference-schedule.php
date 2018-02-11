@@ -541,11 +541,13 @@ class Conference_Schedule {
 
 			// Build data.
 			$conf_sch_data = array(
-				'post_id'       => $post->ID,
-				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
-				'wp_api_route'  => $wp_rest_api_route,
-				'schedule_url'  => '/schedule/',
-				'view_schedule' => __( 'View schedule', 'conf-schedule' ),
+				'post_id'           => $post->ID,
+				'ajaxurl'           => admin_url( 'admin-ajax.php' ),
+				'wp_api_route'      => $wp_rest_api_route,
+				'schedule_url'      => '/schedule/',
+				'view_schedule'     => __( 'View schedule', 'conf-schedule' ),
+				'speakers_single'   => __( 'Speaker', 'conf-schedule' ),
+				'speakers_plural'   => __( 'Speakers', 'conf-schedule' ),
 			);
 
 			// Get display field settings.
@@ -735,7 +737,6 @@ class Conference_Schedule {
 			endif;
 
 			?>
-			<h2 id="conf-sch-single-speakers-title"><?php _e( 'Speakers', 'conf-schedule' ); ?></h2>
 			<div id="conf-sch-single-speakers" class="conf-schedule-speakers"></div>
 			<?php
 
@@ -793,20 +794,22 @@ class Conference_Schedule {
 				{{#event_links}}{{body}}{{/event_links}}
 			</script>
 			<script id="conf-sch-single-speakers-template" type="text/x-handlebars-template">
-				<div class="conf-schedule-speaker">
-					<h3 class="speaker-name">{{{title.rendered}}}</h3>
-					{{#if headshot}}<img class="speaker-headshot" src="{{headshot}}" alt="{{display_name}}" />{{/if}}
-					{{{speaker_meta}}}
-					{{#if website}}
-						<div class="speaker-website"><a href="{{website}}">{{website}}</a></div>
-					{{/if}}
-					{{{speaker_social}}}
-					{{#if content.rendered}}
-						<div class="speaker-bio">
-							{{{content.rendered}}}
-						</div>
-					{{/if}}
-				</div>
+				{{#each speakers}}
+					<div class="conf-schedule-speaker">
+						<h3 class="speaker-name">{{{title.rendered}}}</h3>
+						{{#if headshot}}<img class="speaker-headshot" src="{{headshot}}" alt="{{display_name}}" />{{/if}}
+						{{{speaker_meta}}}
+						{{#if website}}
+							<div class="speaker-website"><a href="{{website}}">{{website}}</a></div>
+						{{/if}}
+						{{{speaker_social}}}
+						{{#if content.rendered}}
+							<div class="speaker-bio">
+								{{{content.rendered}}}
+							</div>
+						{{/if}}
+					</div>
+				{{/each}}
 			</script>
 			<?php
 

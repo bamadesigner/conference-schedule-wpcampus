@@ -18,4 +18,16 @@
 	.speaker-sessions .speaker-session-label {
 		font-weight: bold;
 	}
+
+	&.conf-schedule-speakers {
+
+		.conf-schedule-speaker {
+
+			&:first-child {
+				margin-top: 0;
+				border-top: 0;
+				padding-top: 0;
+			}
+		}
+	}
 }

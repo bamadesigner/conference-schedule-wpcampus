@@ -15,8 +15,7 @@
 
 	// Will hold the speakers template.
 	var $conf_sch_single_speakers = null;
-	var $conf_sch_single_speakers_title = null;
-	var $conf_sch_single_speakers_templ = false;
+	var conf_sch_single_speakers_templ = false;
 
 	// When the document is ready...
 	$(document).ready(function() {
@@ -28,7 +27,6 @@
 
 		// Hide speakers so we can fade in.
 		$conf_sch_single_speakers = $( '#conf-sch-single-speakers').hide();
-		$conf_sch_single_speakers_title = $( '#conf-sch-single-speakers-title').hide();
 
 		// Take care of the livestream.
 		var conf_sch_single_ls_templ_content = $( '#conf-sch-single-ls-template' ).html();
@@ -49,9 +47,9 @@
 		}
 
 		// Take care of the speakers.
-		var $conf_sch_single_speakers_templ_content = $( '#conf-sch-single-speakers-template' ).html();
-		if ( $conf_sch_single_speakers_templ_content ) {
-			$conf_sch_single_speakers_templ = Handlebars.compile( $conf_sch_single_speakers_templ_content );
+		var conf_sch_single_speakers_templ_content = $( '#conf-sch-single-speakers-template' ).html();
+		if ( conf_sch_single_speakers_templ_content ) {
+			conf_sch_single_speakers_templ = Handlebars.compile( conf_sch_single_speakers_templ_content );
 		}
 
 		render_conf_schedule_single();
@@ -173,23 +171,47 @@
 
 				// Get the speakers
 				if ( schedule_item.speakers !== undefined ) {
-					$.each( schedule_item.speakers, function(index, value) {
 
-						// Create speaker.
-						var $speaker_dom = $( $conf_sch_single_speakers_templ( value ) );
+					// Create speakers markup.
+					var $speakers_dom = $( conf_sch_single_speakers_templ( schedule_item ) );
 
-						// Render/add the speaker and fade in.
-						$conf_sch_single_speakers_title.fadeIn( 1000 );
-						$conf_sch_single_speakers.append( $speaker_dom ).fadeIn( 1000 );
+					// Build the speakers header.
+					var $speakers_header = conf_schedule_get_speaker_header( schedule_item );
 
-					});
+					// Add the header.
+					if ( $speakers_header !== null ) {
+						$speakers_header.hide().insertBefore( $conf_sch_single_speakers ).fadeIn( 1000 );
+					}
+
+					// Render/add the speakers and fade in.
+					$conf_sch_single_speakers.append( $speakers_dom ).fadeIn( 1000 );
+
 				}
 			}
 		});
 	}
 
+	// Get/update the content
+	function conf_schedule_get_speaker_header( item ) {
+
+		if ( item.speakers !== undefined && item.speakers.length > 0 ) {
+
+			var speakers_string = '';
+
+			if ( item.speakers.length == 1 ) {
+				speakers_string = conf_sch.speakers_single;
+			} else {
+				speakers_string = conf_sch.speakers_plural;
+			}
+
+			return $( '<h2 id="conf-sch-single-speakers-title">' + speakers_string + '</h2>' );
+		}
+
+		return null;
+	}
+
 	// Format the event meta links
-	Handlebars.registerHelper( 'event_links', function( $options ) {
+	Handlebars.registerHelper( 'event_links', function() {
 
 		// Build the string
 		var event_links_string = '';
@@ -230,7 +252,7 @@
 	});
 
 	// Format the speaker position
-	Handlebars.registerHelper( 'speaker_meta', function( $options ) {
+	Handlebars.registerHelper( 'speaker_meta', function() {
 		var speaker_pos_string = '';
 
 		// Get position.
@@ -263,7 +285,7 @@
 	});
 
 	// Format the speaker social media
-	Handlebars.registerHelper( 'speaker_social', function( $options ) {
+	Handlebars.registerHelper( 'speaker_social', function() {
 		var social_media_string = '';
 
 		if ( this.facebook !== undefined && this.facebook ) {
