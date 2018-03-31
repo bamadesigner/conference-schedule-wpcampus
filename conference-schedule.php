@@ -498,10 +498,10 @@ class Conference_Schedule {
 		global $post;
 
 		// Register our icons.
-		wp_register_style( 'conf-schedule-icons', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule-icons.min.css', array(), null );
+		wp_register_style( 'conf-schedule-icons', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/css' ) . 'conf-schedule-icons.min.css', array(), null );
 
 		// Register our schedule styles.
-		wp_register_style( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule.min.css', array( 'conf-schedule-icons' ), null );
+		wp_register_style( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/css' ) . 'conf-schedule.min.css', array( 'conf-schedule-icons' ), null );
 
 		// Register handlebars.
 		wp_register_script( 'handlebars', '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js', array(), null );
@@ -515,16 +515,16 @@ class Conference_Schedule {
 		// Enqueue the schedule script when needed.
 		if ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_events' ) ) {
 
-			wp_enqueue_script( 'conf-schedule-list', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-list.min.js', array( 'jquery', 'handlebars' ), null, true );
+			wp_enqueue_script( 'conf-schedule-list', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/js' ) . 'conf-schedule-list.min.js', array( 'jquery', 'handlebars' ), null, true );
 			wp_localize_script( 'conf-schedule-list', 'conf_sch', array(
-				'ajaxurl'       => admin_url( 'admin-ajax.php' ),
-				'wp_api_route'  => $wp_rest_api_route,
+				'ajaxurl'      => admin_url( 'admin-ajax.php' ),
+				'wp_api_route' => $wp_rest_api_route,
 			));
 
 		} elseif ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_speakers' ) ) {
 
-			wp_enqueue_style( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/css' ) . 'conf-schedule-speakers.min.css', array( 'conf-schedule-icons' ), null );
-			wp_enqueue_script( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-speakers.min.js', array( 'jquery', 'handlebars' ), null, true );
+			wp_enqueue_style( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/css' ) . 'conf-schedule-speakers.min.css', array( 'conf-schedule-icons' ), null );
+			wp_enqueue_script( 'conf-schedule-speakers', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/js' ) . 'conf-schedule-speakers.min.js', array( 'jquery', 'handlebars' ), null, true );
 
 			wp_localize_script( 'conf-schedule-speakers', 'conf_sch', array(
 				'ajaxurl'		=> admin_url( 'admin-ajax.php' ),
@@ -537,7 +537,7 @@ class Conference_Schedule {
 			wp_enqueue_style( 'conf-schedule' );
 
 			// Enqueue the schedule script.
-			wp_enqueue_script( 'conf-schedule-single', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule-single.min.js', array( 'jquery', 'handlebars' ), null, true );
+			wp_enqueue_script( 'conf-schedule-single', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/js' ) . 'conf-schedule-single.min.js', array( 'jquery', 'handlebars' ), null, true );
 
 			// Build data.
 			$conf_sch_data = array(
@@ -595,8 +595,8 @@ class Conference_Schedule {
 				wp_enqueue_style( 'conf-schedule' );
 
 				// Enqueue the schedule script.
-				wp_enqueue_script( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/js' ) . 'conf-schedule.min.js', array( 'jquery', 'handlebars' ), null, true );
-				
+				wp_enqueue_script( 'conf-schedule', trailingslashit( plugin_dir_url( __FILE__ ) . 'assets/build/js' ) . 'conf-schedule.min.js', array( 'jquery', 'handlebars' ), null, true );
+
 				/*
 				 * Will show up 15 minutes before start.
 				 * @TODO add setting to control.

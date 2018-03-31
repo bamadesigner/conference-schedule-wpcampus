@@ -4,6 +4,32 @@
 	// When the document is ready...
 	$(document).ready(function() {
 
+		// Clear the cache
+		$( '#wpc-sch-clear-cache' ).on( 'click', function(e) {
+			e.preventDefault();
+
+			var proposal_id = $(this).data('proposal');
+
+			$.ajax( {
+				url: ajaxurl,
+				type: 'POST',
+				dataType: 'html',
+				async: true,
+				cache: false,
+				data: {
+					action: 'conf_sch_clear_proposal_cache',
+					proposal_id: proposal_id
+				},
+				success: function( results ) {
+					if ( results != '' ) {
+						alert('Cache was cleared!');
+					} else {
+						alert('Uh-oh. The cache was not cleared. Let Rachel know if it continues.');
+					}
+				}
+			});
+		});
+
 		// Set our date picker.
 		var sch_date_field = $( '.conf-sch-date-field' );
 		if ( sch_date_field.length > 0 ) {

@@ -38,7 +38,7 @@
 
 		// Get the schedule information.
 		$.ajax({
-			url: ajaxurl,
+			url: conf_sch.ajaxurl,
 			type: 'GET',
 			dataType: 'json',
 			async: true,
@@ -98,10 +98,10 @@
 			return null;
 		}
 
-		var output_string = '<div class="speaker-sessions">';
+		var output_string = '<p class="speaker-sessions">';
 		output_string += '<span class="speaker-session-label">' + ( sessions.length == 1 ? 'Session' : 'Sessions' ) + ': </span>';
 		output_string += '<span class="speaker-session-events">' + sessions.join( ', ' ) + '</span>';
-		output_string += '</div>';
+		output_string += '</p>';
 
 		return new Handlebars.SafeString( output_string );
 	});

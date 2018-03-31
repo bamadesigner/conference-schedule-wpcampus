@@ -9,6 +9,10 @@
 	var $conf_sch_single_content = null;
 	var conf_sch_single_content_templ = false;
 
+	// Will hold the video.
+	var $conf_sch_single_video = null;
+	var conf_sch_single_video_templ = false;
+
 	// Will hold the before and template.
 	var $conf_sch_single_meta = null;
 	var conf_sch_single_meta_templ = false;
@@ -23,6 +27,7 @@
 		// Set the containers.
 		$conf_sch_single_ls = $( '#conf-sch-single-livestream' ).hide();
 		$conf_sch_single_content = $( '#conf-sch-single-content' );
+		$conf_sch_single_video = $( '#conf-sch-single-video' );
 		$conf_sch_single_meta = $( '#conf-sch-single-meta' );
 
 		// Hide speakers so we can fade in.
@@ -38,6 +43,12 @@
 		var conf_sch_single_content_templ_content = $( '#conf-sch-single-content-template' ).html();
 		if ( conf_sch_single_content_templ_content ) {
 			conf_sch_single_content_templ = Handlebars.compile( conf_sch_single_content_templ_content );
+		}
+
+		// Take care of the video.
+		var conf_sch_single_video_templ_content = $( '#conf-sch-single-video-template' ).html();
+		if ( conf_sch_single_video_templ_content ) {
+			conf_sch_single_video_templ = Handlebars.compile( conf_sch_single_video_templ_content );
 		}
 
 		// Take care of the single meta.
@@ -80,13 +91,13 @@
 
 				schedule_item = the_schedule_item;
 
-				// Make sure we have a proposal ID.
-				if ( ! schedule_item.proposal ) {
+				// No point if not a session or we have a proposal ID.
+				if ( schedule_item.event_type != 'session' || ! schedule_item.proposal ) {
 					return false;
 				}
 
 				// Get the proposal.
-				$.ajax( {
+				$.ajax({
 					url: conf_sch.ajaxurl,
 					type: 'GET',
 					dataType: 'json',
@@ -106,7 +117,7 @@
 						proposal = the_proposal;
 
 						// If no proposal or not confirmed, update information.
-						if ( ! proposal || 'confirmed' != proposal.proposal_status ) {
+						if ( $.isEmptyObject( proposal ) || 'confirmed' != proposal.proposal_status ) {
 
 							// Reset the item.
 							schedule_item.title.rendered = 'TBA';
@@ -133,34 +144,57 @@
 							schedule_item.speakers = proposal.speakers || [];
 							schedule_item.subjects = proposal.subjects || [];
 
+							schedule_item.session_video = proposal.session_video;
+							schedule_item.session_video_url = proposal.session_video_url;
+							schedule_item.session_video_embed = proposal.session_video_embed;
+
 						}
 					}
 				});
 			},
+			error: function() {
+				print_conf_schedule_single_error();
+			},
 			complete: function() {
 
 				// Make sure we have a schedule item.
-				if ( ! schedule_item ) {
+				if ( $.isEmptyObject( schedule_item ) ) {
+					print_conf_schedule_single_error();
 					return false;
 				}
 
 				// Add the main content.
-				var conf_sch_single_content_templ_html = '';
 				if ( conf_sch_single_content_templ ) {
-					conf_sch_single_content_templ_html = conf_sch_single_content_templ( schedule_item );					
+
+					// Process the template.
+					var conf_sch_single_content_templ_html = conf_sch_single_content_templ( schedule_item ).trim();
+					$conf_sch_single_content.fadeOut( 500, function() {
+						$conf_sch_single_content.hide().html( conf_sch_single_content_templ_html ).fadeIn( 500 );
+					});
 				}
-				
-				$conf_sch_single_content.fadeOut( 500, function() {
-					$conf_sch_single_content.hide().html( conf_sch_single_content_templ_html ).fadeIn( 500 );
-				});
+
+				// Print error if we're viewing a session and we don't have proposal info.
+				if ( schedule_item.event_type == 'session' && $.isEmptyObject( proposal ) ) {
+					print_conf_schedule_single_error();
+				}
+
+				// Build/add the video.
+				if ( conf_sch_single_video_templ ) {
+
+					// Process the template.
+					var conf_sch_single_video_templ_html = conf_sch_single_video_templ( schedule_item ).trim();
+					if ( conf_sch_single_video_templ_html != '' ) {
+						$conf_sch_single_video.html( conf_sch_single_video_templ_html ).fadeIn( 1000 );
+					}
+				}
 
 				// Build/add the livestream button.
 				if ( conf_sch_single_ls_templ ) {
-					
+
 					// Process the template.
 					var conf_sch_single_ls_templ_html = conf_sch_single_ls_templ( schedule_item ).trim();
 					if ( conf_sch_single_ls_templ_html != '' ) {
-						$conf_sch_single_ls.html( conf_sch_single_ls_templ_html ).fadeIn( 1000 );	
+						$conf_sch_single_ls.html( conf_sch_single_ls_templ_html ).fadeIn( 1000 );
 					}
 				}
 
@@ -191,7 +225,14 @@
 		});
 	}
 
-	// Get/update the content
+	// Add error message.
+	function print_conf_schedule_single_error() {
+		$conf_sch_single_content.fadeOut( 500, function() {
+			$conf_sch_single_content.hide().prepend( conf_sch.error_msg ).fadeIn( 500 );
+		});
+	}
+
+	// Get the speaker header markup.
 	function conf_schedule_get_speaker_header( item ) {
 
 		if ( item.speakers !== undefined && item.speakers.length > 0 ) {

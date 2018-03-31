@@ -12,15 +12,22 @@ const wp_pot = require('gulp-wp-pot');
 
 // Define the source paths for each file type.
 const src = {
-	js: ['assets/js/admin-post-schedule.js','assets/js/admin-post-speakers.js','assets/js/conf-schedule.js','assets/js/conf-schedule-list.js','assets/js/conf-schedule-speakers.js','assets/js/conf-schedule-single.js'],
+	js: [
+		'assets/src/js/admin-post-schedule.js',
+		'assets/src/js/admin-post-speakers.js',
+		'assets/src/js/conf-schedule.js',
+		'assets/src/js/conf-schedule-list.js',
+		'assets/src/js/conf-schedule-speakers.js',
+		'assets/src/js/conf-schedule-single.js'
+	],
 	php: ['**/*.php','!vendor/**','!node_modules/**'],
-	sass: ['assets/scss/**/*.scss']
+	sass: ['assets/src/scss/**/*.scss']
 };
 
 // Define the destination paths for each file type.
 const dest = {
-	js: 'assets/js',
-	sass: 'assets/css',
+	js: 'assets/build/js',
+	sass: 'assets/build/css',
 	translate: 'languages/conf-schedule.pot'
 };
 
@@ -45,7 +52,7 @@ gulp.task('sass', function() {
 		.pipe(notify('Conference Schedule SASS compiled'));
 });
 
-// Minify the JS
+// Minify the JS.
 gulp.task('js', function() {
 	gulp.src(src.js)
 		.pipe(uglify({
@@ -56,6 +63,12 @@ gulp.task('js', function() {
 		}))
 		.pipe(gulp.dest(dest.js))
 		.pipe(notify('Conference Schedule JS compiled'));
+
+	// Move our third-party scripts.
+	gulp.src([
+		'assets/src/js/select2.min.js',
+		'assets/src/js/timepicker.min.js'
+	]).pipe(gulp.dest(dest.js));
 });
 
 // "Sniff" our PHP.

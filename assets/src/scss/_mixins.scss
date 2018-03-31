@@ -12,11 +12,13 @@
 	padding: 0 20px;
 	margin: 1.5rem 0;
 	color: #222;
+	font-size: inherit;
 	text-align: center;
 	border: 0;
 	border-radius: 5px;
 	text-decoration: none;
 	cursor: pointer;
+	overflow: hidden;
 	@include set-transition( background-color 1s ease );
 	
 	&.inline {
@@ -116,13 +118,18 @@
 @mixin include-schedule-speaker {
 
 	&.conf-schedule-speakers {
+		margin-top: 1.5rem;
 
 		.conf-schedule-speaker {
 			overflow: auto;
 			clear: left;
-			margin: 30px 0 0 0;
+			margin: 25px 0 0 0;
 			border-top: 1px solid #eee;
-			padding: 25px 0 0 0;
+			padding: 35px 0 0 0;
+
+			*:first-child {
+				margin-top: 0;
+			}
 
 			.speaker-headshot {
 				float: left;
@@ -162,6 +169,12 @@
 				> *:first-child {
 					margin-top: 0;
 				}
+			}
+
+			&:first-child {
+				border-top: 0;
+				margin-top: 0;
+				padding-top: 0;
 			}
 		}
 	}

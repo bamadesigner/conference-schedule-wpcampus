@@ -119,12 +119,6 @@
 						// Go through each item.
 						$.each( schedule_items, function( index, item ) {
 
-							// If this event is a child, don't add (for now).
-							if ( item.event_parent > 0 ) {
-								$children_events.push( item );
-								return true;
-							}
-
 							// If we're a session, make sure we have a proposal.
 							var proposal = null;
 							if ( 'session' == item.event_type ) {
@@ -161,7 +155,16 @@
 									item.speakers = proposal.speakers || [];
 									item.subjects = proposal.subjects || [];
 
+									item.session_video = proposal.session_video;
+									item.session_video_url = proposal.session_video_url;
+
 								}
+							}
+
+							// If this event is a child, don't add (for now).
+							if ( item.event_parent > 0 ) {
+								$children_events.push( item );
+								return true;
 							}
 
 							// Make sure we have a date.
