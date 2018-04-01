@@ -181,8 +181,8 @@ class Conference_Schedule_Admin {
 
 			// Build user data.
 			$user_data = array(
-				'selected'  => 0,
-				'users'     => $users,
+				'selected' => 0,
+				'users'    => $users,
 			);
 
 			/*
@@ -222,15 +222,16 @@ class Conference_Schedule_Admin {
 
 			// If we have a post ID, then get selected terms.
 			$post_id = isset( $_GET['post_id'] ) ? $_GET['post_id'] : 0;
+
 			$selected_terms = $post_id ? wp_get_object_terms( $post_id, $taxonomy_name, array( 'fields' => 'ids' ) ) : array();
 
 			// Get terms.
 			$terms = get_terms( array(
-				'taxonomy'      => $taxonomy_name,
-				'hide_empty'    => false,
-				'orderby'       => 'name',
-				'order'         => 'ASC',
-				'fields'        => 'all',
+				'taxonomy'   => $taxonomy_name,
+				'hide_empty' => false,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+				'fields'     => 'all',
 			));
 
 			// Print the terms.
@@ -268,17 +269,17 @@ class Conference_Schedule_Admin {
 
 			// Get the posts.
 			$posts = get_posts( array(
-				'post_type'         => $post_type,
-				'posts_per_page'    => -1,
-				'post_status'       => array( 'publish', 'future', 'draft', 'pending' ),
-				'orderby'           => 'title',
-				'order'             => 'ASC',
-				'suppress_filters'  => true,
+				'post_type'        => $post_type,
+				'posts_per_page'   => -1,
+				'post_status'      => array( 'publish', 'future', 'draft', 'pending' ),
+				'orderby'          => 'title',
+				'order'            => 'ASC',
+				'suppress_filters' => true,
 			));
 			if ( ! empty( $posts ) ) {
 
 				// If we have a post ID and meta key, then get selected posts.
-				$post_id = isset( $_GET['post_id'] ) ? $_GET['post_id'] : 0;
+				$post_id  = isset( $_GET['post_id'] ) ? $_GET['post_id'] : 0;
 				$meta_key = isset( $_GET['meta_key'] ) ? $_GET['meta_key'] : '';
 				if ( $post_id && $meta_key ) {
 
@@ -317,12 +318,12 @@ class Conference_Schedule_Admin {
 
 		// Get the posts.
 		$posts = get_posts( array(
-			'post_type'         => 'schedule',
-			'posts_per_page'    => -1,
-			'post_status'       => array( 'publish', 'future', 'draft', 'pending' ),
-			'orderby'           => 'title',
-			'order'             => 'ASC',
-			'suppress_filters'  => true,
+			'post_type'        => 'schedule',
+			'posts_per_page'   => -1,
+			'post_status'      => array( 'publish', 'future', 'draft', 'pending' ),
+			'orderby'          => 'title',
+			'order'            => 'ASC',
+			'suppress_filters' => true,
 		));
 		if ( ! empty( $posts ) ) {
 
@@ -508,10 +509,10 @@ class Conference_Schedule_Admin {
 	/**
 	 * Updates the 'conf_schedule' setting.
 	 *
-	 * @access  public
+	 * @access public
 	 * @since   1.0.0
-	 * @param	array - the settings we're sanitizing
-	 * @return	array - the updated settings
+	 * @param   array - the settings we're sanitizing
+	 * @return  array - the updated settings
 	 */
 	public function update_settings( $settings ) {
 		return $settings;
@@ -536,7 +537,10 @@ class Conference_Schedule_Admin {
 			$this->settings_page_id,
 			'side',
 			'core',
-			array( 'id' => 'about', 'settings' => $settings )
+			array(
+				'id'       => 'about',
+				'settings' => $settings,
+			)
 		);
 
 		// Session Fields.
@@ -546,7 +550,10 @@ class Conference_Schedule_Admin {
 			$this->settings_page_id,
 			'normal',
 			'core',
-			array( 'id' => 'fields', 'settings' => $settings )
+			array(
+				'id'       => 'fields',
+				'settings' => $settings,
+			)
 		);
 
 		// Displaying the Schedule.
@@ -556,9 +563,11 @@ class Conference_Schedule_Admin {
 			$this->settings_page_id,
 			'normal',
 			'core',
-			array( 'id' => 'display-schedule', 'settings' => $settings )
+			array(
+				'id'       => 'display-schedule',
+				'settings' => $settings,
+			)
 		);
-
 	}
 
 	/**
@@ -1005,7 +1014,7 @@ class Conference_Schedule_Admin {
 
 		// Make sure user has permissions.
 		$post_type_object = get_post_type_object( $post->post_type );
-		$user_has_cap = $post_type_object && isset( $post_type_object->cap->edit_post ) ? current_user_can( $post_type_object->cap->edit_post, $post_id ) : false;
+		$user_has_cap     = $post_type_object && isset( $post_type_object->cap->edit_post ) ? current_user_can( $post_type_object->cap->edit_post, $post_id ) : false;
 
 		if ( ! $user_has_cap ) {
 			return;
@@ -1128,13 +1137,21 @@ class Conference_Schedule_Admin {
 									$file_type = wp_check_filetype( $file_name );
 
 									// Prepare an array of post data for the attachment.
-									$attachment = array( 'guid' => $upload_file['url'], 'post_mime_type' => $file_type['type'], 'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $file_name ) ), 'post_content' => '', 'post_status' => 'inherit' );
+									$attachment = array(
+										'guid'           => $upload_file['url'],
+										'post_mime_type' => $file_type['type'],
+										'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $file_name ) ),
+										'post_content'   => '',
+										'post_status'    => 'inherit',
+									);
 
 									// Insert the attachment.
-									if ( $attachment_id = wp_insert_attachment( $attachment, $file_name, $post_id ) ) {
+									$attachment_id = wp_insert_attachment( $attachment, $file_name, $post_id );
+									if ( $attachment_id > 0 ) {
 
 										// Generate the metadata for the attachment and update the database record.
-										if ( $attach_data = wp_generate_attachment_metadata( $attachment_id, $file_name ) ) {
+										$attach_data = wp_generate_attachment_metadata( $attachment_id, $file_name );
+										if ( ! empty( $attach_data ) ) {
 											wp_update_attachment_metadata( $attachment_id, $attach_data );
 										}
 
@@ -1355,9 +1372,9 @@ class Conference_Schedule_Admin {
 		wp_nonce_field( 'conf_schedule_save_event_details', 'conf_schedule_save_event_details_nonce' );
 
 		// Get saved event details.
-		$event_date = get_post_meta( $post_id, 'conf_sch_event_date', true ); // Y-m-d
+		$event_date       = get_post_meta( $post_id, 'conf_sch_event_date', true ); // Y-m-d
 		$event_start_time = get_post_meta( $post_id, 'conf_sch_event_start_time', true );
-		$event_end_time = get_post_meta( $post_id, 'conf_sch_event_end_time', true );
+		$event_end_time   = get_post_meta( $post_id, 'conf_sch_event_end_time', true );
 
 		/*
 		 * See if we need to link to the event post in the schedule.
@@ -1437,15 +1454,17 @@ class Conference_Schedule_Admin {
 
 							?>
 							<div id="conf-sch-event-children">
-								<p class="description"><strong><?php
+								<p class="description"><strong>
+									<?php
 
-								if ( $event_parent > 0 ) {
-									_e( 'This event has the following sibling events:', 'conf-schedule' );
-								} else {
-									_e( 'This event is a parent to the following events:', 'conf-schedule' );
-								}
+									if ( $event_parent > 0 ) {
+										_e( 'This event has the following sibling events:', 'conf-schedule' );
+									} else {
+										_e( 'This event is a parent to the following events:', 'conf-schedule' );
+									}
 
-								?></strong></p>
+									?>
+								</strong></p>
 								<ul>
 									<?php
 
@@ -1534,7 +1553,7 @@ class Conference_Schedule_Admin {
 
 					// Get field information.
 					$livestream_disable = get_post_meta( $post_id, 'conf_sch_event_livestream_disable', true );
-					$livestream_url = get_post_meta( $post_id, 'conf_sch_event_livestream_url', true );
+					$livestream_url     = get_post_meta( $post_id, 'conf_sch_event_livestream_url', true );
 
 					?>
 					<tr>
@@ -1559,7 +1578,7 @@ class Conference_Schedule_Admin {
 				if ( in_array( 'slides', $session_fields ) ) :
 
 					// Get field information.
-					$slides_url = get_post_meta( $post_id, 'conf_sch_event_slides_url', true );
+					$slides_url  = get_post_meta( $post_id, 'conf_sch_event_slides_url', true );
 					$slides_file = get_post_meta( $post_id, 'conf_sch_event_slides_file', true );
 
 					?>
@@ -1586,7 +1605,8 @@ class Conference_Schedule_Admin {
 								 *
 								 * Otherwise clear the meta.
 								 */
-								if ( $slides_file_post = get_post( $slides_file ) ) :
+								$slides_file_post = get_post( $slides_file );
+								if ( ! empty( $slides_file_post ) ) :
 
 									// Get URL.
 									$attached_slides_url = wp_get_attachment_url( $slides_file );
@@ -1604,7 +1624,6 @@ class Conference_Schedule_Admin {
 								else :
 									update_post_meta( $post_id, 'conf_sch_event_slides_file', null );
 								endif;
-
 							endif;
 
 							?>
@@ -1864,10 +1883,10 @@ class Conference_Schedule_Admin {
 		wp_nonce_field( 'conf_schedule_save_speaker_profile', 'conf_schedule_save_speaker_profile_nonce' );
 
 		// Get saved speaker profile information.
-		$speaker_url = get_post_meta( $post_id, 'conf_sch_speaker_url', true );
-		$speaker_company = get_post_meta( $post_id, 'conf_sch_speaker_company', true );
+		$speaker_url         = get_post_meta( $post_id, 'conf_sch_speaker_url', true );
+		$speaker_company     = get_post_meta( $post_id, 'conf_sch_speaker_company', true );
 		$speaker_company_url = get_post_meta( $post_id, 'conf_sch_speaker_company_url', true );
-		$speaker_position = get_post_meta( $post_id, 'conf_sch_speaker_position', true );
+		$speaker_position    = get_post_meta( $post_id, 'conf_sch_speaker_position', true );
 
 		?>
 		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's profile information will be displayed on the front-end of the website.", 'conf-schedule' ); ?></p>
@@ -1921,10 +1940,10 @@ class Conference_Schedule_Admin {
 		wp_nonce_field( 'conf_schedule_save_speaker_social_media', 'conf_schedule_save_speaker_social_media_nonce' );
 
 		// Get saved speaker social media information.
-		$speaker_facebook = get_post_meta( $post_id, 'conf_sch_speaker_facebook', true );
+		$speaker_facebook  = get_post_meta( $post_id, 'conf_sch_speaker_facebook', true );
 		$speaker_instagram = get_post_meta( $post_id, 'conf_sch_speaker_instagram', true );
-		$speaker_twitter = get_post_meta( $post_id, 'conf_sch_speaker_twitter', true );
-		$speaker_linkedin = get_post_meta( $post_id, 'conf_sch_speaker_linkedin', true );
+		$speaker_twitter   = get_post_meta( $post_id, 'conf_sch_speaker_twitter', true );
+		$speaker_linkedin  = get_post_meta( $post_id, 'conf_sch_speaker_linkedin', true );
 
 		?>
 		<p class="description conf-schedule-post-desc"><?php _e( "The speaker's social media information will be displayed on the front-end of the website.", 'conf-schedule' ); ?></p>
@@ -2191,7 +2210,6 @@ class Conference_Schedule_Admin {
 
 		// Get the proposals.
 		$proposals = conference_schedule()->get_proposals( $proposal_args );
-
 		if ( empty( $proposals ) ) {
 			return $field;
 		}

@@ -231,8 +231,9 @@ class Conference_Schedule_Event {
 			return $this->parent;
 		}
 
-		// Get/return the event parent
-		return $this->parent = get_post_field( 'post_parent', $this->ID );
+		$this->parent = get_post_field( 'post_parent', $this->ID );
+
+		return $this->parent;
 	}
 
 	/**
@@ -250,8 +251,9 @@ class Conference_Schedule_Event {
 			return $this->date;
 		}
 
-		// Get/return the event date
-		return $this->date = get_post_meta( $this->ID, 'conf_sch_event_date', true );
+		$this->date = get_post_meta( $this->ID, 'conf_sch_event_date', true );
+
+		return $this->date;
 	}
 
 	/**
@@ -284,8 +286,9 @@ class Conference_Schedule_Event {
 			}
 		}
 
-		// Get/return the event date/time.
-		return $this->date_time = ! empty( $event_date ) ? $event_date : false;
+		$this->date_time = ! empty( $event_date ) ? $event_date : false;
+
+		return $this->date_time;
 	}
 
 	/**
@@ -320,11 +323,14 @@ class Conference_Schedule_Event {
 			$date_time->setTimezone( $utc_timezone );
 
 			// Store GMT
-			return $this->date_time_gmt = $date_time->format( 'Y-m-d\TH:i' );
+			$this->date_time_gmt = $date_time->format( 'Y-m-d\TH:i' );
 
+			return $this->date_time_gmt;
 		}
 
-		return $this->date_time_gmt = false;
+		$this->date_time_gmt = false;
+
+		return $this->date_time_gmt;
 	}
 
 	/**
@@ -342,8 +348,9 @@ class Conference_Schedule_Event {
 			return $this->start_time;
 		}
 
-		// Get/return the event start time
-		return $this->start_time = get_post_meta( $this->ID, 'conf_sch_event_start_time', true );
+		$this->start_time = get_post_meta( $this->ID, 'conf_sch_event_start_time', true );
+
+		return $this->start_time;
 	}
 
 	/**
@@ -361,8 +368,9 @@ class Conference_Schedule_Event {
 			return $this->end_time;
 		}
 
-		// Get/return the event end time
-		return $this->end_time = get_post_meta( $this->ID, 'conf_sch_event_end_time', true );
+		$this->end_time = get_post_meta( $this->ID, 'conf_sch_event_end_time', true );
+
+		return $this->end_time;
 	}
 
 	/**
@@ -383,8 +391,10 @@ class Conference_Schedule_Event {
 		// Get the event date
 		$event_date = $this->get_date();
 
-		// Get/return the event date display
-		return $this->date_display = ! empty( $event_date ) ? date( 'l, F j, Y', strtotime( $event_date ) ) : false;
+		// Store and format the date display.
+		$this->date_display = ! empty( $event_date ) ? date( 'l, F j, Y', strtotime( $event_date ) ) : false;
+
+		return $this->date_display;
 	}
 
 	/**
@@ -410,7 +420,8 @@ class Conference_Schedule_Event {
 
 		// Only proceed if we have a start time
 		if ( ! $event_start_time ) {
-			return $this->time_display = false;
+			$this->time_display = false;
+			return $this->time_display;
 		}
 
 		// Convert start time
@@ -436,8 +447,10 @@ class Conference_Schedule_Event {
 
 		}
 
-		// Get/return the event time display.
-		return $this->time_display = preg_replace( '/(a|p)m/', '$1.m.', $time_display );
+		// Store the time display, and change "am" and "pm" to "a.m." and "p.m.".
+		$this->time_display = preg_replace( '/(a|p)m/', '$1.m.', $time_display );
+
+		return $this->time_display;
 	}
 
 	/**
@@ -463,7 +476,8 @@ class Conference_Schedule_Event {
 
 		// Only proceed if we have a start and end time
 		if ( ! $event_start_time || ! $event_end_time ) {
-			return $this->duration = false;
+			$this->duration = false;
+			return $this->duration;
 		}
 
 		// Convert start time
@@ -472,8 +486,10 @@ class Conference_Schedule_Event {
 		// Convert end time
 		$event_end_time = strtotime( $event_end_time );
 
-		// Return the event duration
-		return $this->duration = ( $event_end_time - $event_start_time );
+		// Set the duration.
+		$this->duration = ( $event_end_time - $event_start_time );
+
+		return $this->duration;
 	}
 
 	public function get_location_id() {
@@ -491,8 +507,9 @@ class Conference_Schedule_Event {
 		// Get the event location ID.
 		$location_id = get_post_meta( $this->ID, 'conf_sch_event_location', true );
 
-		// Return the location ID.
-		return $this->location_id = ( $location_id >= 1 ) ? $location_id : 0;
+		$this->location_id = ( $location_id >= 1 ) ? $location_id : 0;
+
+		return $this->location_id;
 	}
 
 	/**
@@ -517,11 +534,14 @@ class Conference_Schedule_Event {
 			// Get the location post.
 			$event_post = get_post( $location_id );
 			if ( ! empty( $event_post ) ) {
-				return $this->location = $event_post;
+				$this->location = $event_post;
+				return $this->location;
 			}
 		}
 
-		return $this->location = false;
+		$this->location = false;
+
+		return $this->location;
 	}
 
 	/**
@@ -543,10 +563,13 @@ class Conference_Schedule_Event {
 		$location_id = $this->get_location_id();
 		if ( $location_id > 0 ) {
 			$conf_sch_location_address = get_post_meta( $location_id, 'conf_sch_location_address', true );
-			return $this->location_address = ! empty( $conf_sch_location_address ) ? $conf_sch_location_address : false;
+			$this->location_address    = ! empty( $conf_sch_location_address ) ? $conf_sch_location_address : false;
+			return $this->location_address;
 		}
 
-		return $this->location_address = false;
+		$this->location_address = false;
+
+		return $this->location_address;
 	}
 
 	/**
@@ -571,11 +594,14 @@ class Conference_Schedule_Event {
 			// Get Google Maps URL for this event location
 			$google_maps_url = get_post_meta( $event_location_id, 'conf_sch_location_google_maps_url', true );
 			if ( ! empty( $google_maps_url ) ) {
-				return $this->google_maps_url = $google_maps_url;
+				$this->google_maps_url = $google_maps_url;
+				return $this->google_maps_url;
 			}
 		}
 
-		return $this->google_maps_url = false;
+		$this->google_maps_url = false;
+
+		return $this->google_maps_url;
 	}
 
 	/**
@@ -583,20 +609,22 @@ class Conference_Schedule_Event {
 	 */
 	public function get_hashtag() {
 
-		// Make sure we have an ID
+		// Make sure we have an ID.
 		if ( ! ( $this->ID >= 1 ) ) {
 			return false;
 		}
 
-		// If already set, return the hashtag
+		// If already set, return the hashtag.
 		if ( isset( $this->hashtag ) ) {
 			return $this->hashtag;
 		}
 
-		// Get the event hashtag
+		// Get the event hashtag.
 		$event_hashtag = get_post_meta( $this->ID, 'conf_sch_event_hashtag', true );
 
-		return $this->hashtag = ! empty( $event_hashtag ) ? $event_hashtag : false;
+		$this->hashtag = ! empty( $event_hashtag ) ? $event_hashtag : false;
+
+		return $this->hashtag;
 	}
 
 	/**
@@ -640,7 +668,9 @@ class Conference_Schedule_Event {
 			}
 		}*/
 
-		return $this->speakers = ! empty( $speakers ) ? $speakers : false;
+		$this->speakers = ! empty( $speakers ) ? $speakers : false;
+
+		return $this->speakers;
 	}
 
 	/**
@@ -676,7 +706,8 @@ class Conference_Schedule_Event {
 
 		// Make sure livestream is enabled.
 		if ( empty( $session_fields ) || ! in_array( 'livestream', $session_fields ) ) {
-			return $this->livestream_url = false;
+			$this->livestream_url = false;
+			return $this->livestream_url;
 		}
 
 		// What time is it in UTC?
@@ -705,7 +736,8 @@ class Conference_Schedule_Event {
 
 			// Remove when the event ends.
 			if ( $current_time->getTimestamp() > ( $event_start_dt->getTimestamp() + $event_duration ) ) {
-				return $this->livestream_url = false;
+				$this->livestream_url = false;
+				return $this->livestream_url;
 			}
 
 			// Get the livestream URL.
@@ -716,7 +748,8 @@ class Conference_Schedule_Event {
 
 			// Return the URL.
 			if ( ! empty( $livestream_url ) ) {
-				return $this->livestream_url = $livestream_url;
+				$this->livestream_url = $livestream_url;
+				return $this->livestream_url;
 			}
 
 			/*
@@ -725,11 +758,14 @@ class Conference_Schedule_Event {
 			 * @TODO this could be a problem for schedule
 			 * items that aren't sessions, like "Lunch".
 			 */
-			return $this->livestream_url = null;
+			$this->livestream_url = null;
+			return $this->livestream_url;
 		}
 
 		// This means the event is not active and not within the range.
-		return $this->livestream_url = false;
+		$this->livestream_url = false;
+
+		return $this->livestream_url;
 	}
 
 	/**
@@ -752,7 +788,8 @@ class Conference_Schedule_Event {
 
 		// Are slides enabled?
 		if ( empty( $session_fields ) || ! in_array( 'slides', $session_fields ) ) {
-			return $this->slides_url = false;
+			$this->slides_url = false;
+			return $this->slides_url;
 		}
 
 		// The URL takes priority when a URL and file is provided
@@ -763,17 +800,21 @@ class Conference_Schedule_Event {
 
 		// If we have a URL...
 		if ( ! empty( $slides_url ) ) {
-			return $this->slides_url = $slides_url;
+			$this->slides_url = $slides_url;
+			return $this->slides_url;
 		}
 
 		// Get the file
 		$slides_file_id = get_post_meta( $this->ID, 'conf_sch_event_slides_file', true );
 		if ( $slides_file_id > 0 ) {
-			$slides_file_url = wp_get_attachment_url( $slides_file_id );
-			return $this->slides_url = ! empty( $slides_file_url ) ? $slides_file_url : false;
+			$slides_file_url  = wp_get_attachment_url( $slides_file_id );
+			$this->slides_url = ! empty( $slides_file_url ) ? $slides_file_url : false;
+			return $this->slides_url;
 		}
 
-		return $this->slides_url = false;
+		$this->slides_url = false;
+
+		return $this->slides_url;
 	}
 
 	/**
@@ -796,7 +837,8 @@ class Conference_Schedule_Event {
 
 		// Is follow up enabled?
 		if ( empty( $session_fields ) || ! in_array( 'follow_up', $session_fields ) ) {
-			return $this->follow_up_url = false;
+			$this->follow_up_url = false;
+			return $this->follow_up_url;
 		}
 
 		// Get the follow up URL
@@ -805,7 +847,9 @@ class Conference_Schedule_Event {
 		// Filter the follow up URL
 		$follow_up_url = apply_filters( 'conf_sch_follow_up_url', $follow_up_url, $this->post );
 
-		return $this->follow_up_url = ! empty( $follow_up_url ) ? $follow_up_url : false;
+		$this->follow_up_url = ! empty( $follow_up_url ) ? $follow_up_url : false;
+
+		return $this->follow_up_url;
 	}
 
 	/**
@@ -828,7 +872,8 @@ class Conference_Schedule_Event {
 
 		// Is the video URL enabled?
 		if ( empty( $session_fields ) || ! in_array( 'video', $session_fields ) ) {
-			return $this->video_url = false;
+			$this->video_url = false;
+			return $this->video_url;
 		}
 
 		// Get the URL
@@ -837,7 +882,9 @@ class Conference_Schedule_Event {
 		// Filter the video URL
 		$video_url = apply_filters( 'conf_sch_video_url', $video_url, $this->ID );
 
-		return $this->video_url = ! empty( $video_url ) ? $video_url : false;
+		$this->video_url = ! empty( $video_url ) ? $video_url : false;
+
+		return $this->video_url;
 	}
 
 	/**
@@ -860,7 +907,8 @@ class Conference_Schedule_Event {
 
 		// Is feedback enabled?
 		if ( empty( $session_fields ) || ! in_array( 'feedback', $session_fields ) ) {
-			return $this->feedback_url = false;
+			$this->feedback_url = false;
+			return $this->feedback_url;
 		}
 
 		/*
@@ -899,21 +947,25 @@ class Conference_Schedule_Event {
 
 				// Feedback URL will only show up 30 minutes after the event has started
 				if ( ( $current_time->getTimestamp() - $event_start->getTimestamp() ) >= $session_feedback_reveal_delay_seconds ) {
-					return $this->feedback_url = $feedback_url;
+					$this->feedback_url = $feedback_url;
+					return $this->feedback_url;
 				}
 
-				return $this->feedback_url = false;
+				$this->feedback_url = false;
 
+				return $this->feedback_url;
 			}
 
 			// If no valid event time, well show URL
-			return $this->feedback_url = $feedback_url;
+			$this->feedback_url = $feedback_url;
 
+			return $this->feedback_url;
 		}
 
-		return $this->feedback_url = false;
-	}
+		$this->feedback_url = false;
 
+		return $this->feedback_url;
+	}
 }
 
 /**
@@ -950,7 +1002,7 @@ class Conference_Schedule_Events {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$class_name      = __CLASS__;
+			$class_name     = __CLASS__;
 			self::$instance = new $class_name;
 		}
 
@@ -974,9 +1026,9 @@ class Conference_Schedule_Events {
 	 * Method to keep our instance from
 	 * being cloned or unserialized.
 	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @return	void
+	 * @since   1.0.0
+	 * @access  private
+	 * @return  void
 	 */
 	private function __clone() {}
 	private function __wakeup() {}
@@ -1009,21 +1061,27 @@ class Conference_Schedule_Events {
 
 		// Define the args for the schedule CPT.
 		$schedule_args = apply_filters( 'conf_schedule_cpt_args', array(
-			'label'             => __( 'Schedule', 'conf-schedule' ),
-			'description'       => __( 'The schedule content for your conference.', 'conf-schedule' ),
-			'labels'            => $schedule_labels,
-			'public'            => true,
-			'hierarchical'      => true,
-			'supports'          => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
-			'has_archive'       => false,
-			'menu_icon'         => 'dashicons-calendar',
-			'can_export'        => true,
-			'capability_type'   => 'post',
-			'show_in_rest'      => true,
-			'rewrite'           => array(
-				'slug'          => 'schedule',
-				'with_front'    => false,
-				'pages'         => false,
+			'label'           => __( 'Schedule', 'conf-schedule' ),
+			'description'     => __( 'The schedule content for your conference.', 'conf-schedule' ),
+			'labels'          => $schedule_labels,
+			'public'          => true,
+			'hierarchical'    => true,
+			'supports'        => array(
+				'title',
+				'editor',
+				'thumbnail',
+				'excerpt',
+				'revisions',
+			),
+			'has_archive'     => false,
+			'menu_icon'       => 'dashicons-calendar',
+			'can_export'      => true,
+			'capability_type' => 'post',
+			'show_in_rest'    => true,
+			'rewrite'         => array(
+				'slug'       => 'schedule',
+				'with_front' => false,
+				'pages'      => false,
 			),
 		) );
 
@@ -1045,10 +1103,11 @@ class Conference_Schedule_Events {
 			return $this->events[ $event_id ];
 		}
 
-		// Get/return the event.
-		return $this->events[ $event_id ] = new Conference_Schedule_Event( $event_id );
-	}
+		// Get/store the event.
+		$this->events[ $event_id ] = new Conference_Schedule_Event( $event_id );
 
+		return $this->events[ $event_id ];
+	}
 }
 
 /**
@@ -1057,9 +1116,9 @@ class Conference_Schedule_Events {
  * Will come in handy when we need to access the
  * class to retrieve data throughout the plugin.
  *
- * @since	1.0.0
- * @access	public
- * @return	Conference_Schedule_Events
+ * @since   1.0.0
+ * @access  public
+ * @return  Conference_Schedule_Events
  */
 function conference_schedule_events() {
 	return Conference_Schedule_Events::instance();

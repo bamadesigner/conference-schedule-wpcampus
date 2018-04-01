@@ -5,9 +5,9 @@ class Conference_Schedule_API {
 	/**
 	 * Holds the class instance.
 	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @var		Conference_Schedule_API
+	 * @since   1.0.0
+	 * @access  private
+	 * @var     Conference_Schedule_API
 	 */
 	private static $instance;
 
@@ -16,11 +16,11 @@ class Conference_Schedule_API {
 	 *
 	 * @access  public
 	 * @since   1.0.0
-	 * @return	Conference_Schedule_API
+	 * @return  Conference_Schedule_API
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$class_name = __CLASS__;
+			$class_name     = __CLASS__;
 			self::$instance = new $class_name;
 		}
 		return self::$instance;
@@ -82,9 +82,9 @@ class Conference_Schedule_API {
 		);
 		foreach ( $event_fields as $field_name ) {
 			register_rest_field( 'schedule', $field_name, array(
-				'get_callback'		=> array( $this, 'get_event_field_value' ),
-				'update_callback'	=> null,
-				'schema'			=> null,
+				'get_callback'    => array( $this, 'get_event_field_value' ),
+				'update_callback' => null,
+				'schema'          => null,
 			));
 		}
 
@@ -102,9 +102,9 @@ class Conference_Schedule_API {
 		);
 		foreach ( $speaker_fields as $field_name ) {
 			register_rest_field( 'speakers', $field_name, array(
-				'get_callback'		=> array( $this, 'get_speaker_field_value' ),
-				'update_callback'	=> null,
-				'schema'			=> null,
+				'get_callback'    => array( $this, 'get_speaker_field_value' ),
+				'update_callback' => null,
+				'schema'          => null,
 			));
 		}
 
@@ -116,21 +116,20 @@ class Conference_Schedule_API {
 
 		foreach ( $location_fields as $field_name ) {
 			register_rest_field( 'locations', $field_name, array(
-				'get_callback'		=> array( $this, 'get_location_field_value' ),
-				'update_callback'	=> null,
-				'schema'			=> null,
+				'get_callback'    => array( $this, 'get_location_field_value' ),
+				'update_callback' => null,
+				'schema'          => null,
 			));
 		}
-
 	}
 
 	/**
 	 * Get event field values for the REST API.
 	 *
-	 * @param	array - $object - details of current post
-	 * @param	string - $field_name - name of field
-	 * @param	WP_REST_Request - $request - current request
-	 * @return	mixed
+	 * @param   array - $object - details of current post
+	 * @param   string - $field_name - name of field
+	 * @param   WP_REST_Request - $request - current request
+	 * @return  mixed
 	 */
 	public function get_event_field_value( $object, $field_name, $request ) {
 		global $wpdb;
@@ -149,7 +148,7 @@ class Conference_Schedule_API {
 			case 'event_end_time':
 				$event_end_time = $event->get_end_time();
 				return ! empty( $event_end_time ) ? $event_end_time : null;
-				
+
 			case 'event_timezone':
 				$event_timezone = conference_schedule()->get_site_timezone();
 				return ! empty( $event_timezone ) ? $event_timezone : null;
@@ -190,14 +189,13 @@ class Conference_Schedule_API {
 
 			// Build the event time display with timezone.
 			case 'event_time_display_tz':
-
 				$event_time_display = $event->get_time_display();
 				if ( empty( $event_time_display ) ) {
 					return null;
 				}
-				
+
 				$event_timezone = conference_schedule()->get_site_timezone();
-				
+
 				return $event_time_display . ' ' . $event_timezone;
 
 			case 'event_type':
@@ -303,10 +301,10 @@ class Conference_Schedule_API {
 	/**
 	 * Get speaker field values for the REST API.
 	 *
-	 * @param	array - $object - details of current post
-	 * @param	string - $field_name - name of field
-	 * @param	WP_REST_Request - $request - current request
-	 * @return	mixed
+	 * @param   array - $object - details of current post
+	 * @param   string - $field_name - name of field
+	 * @param   WP_REST_Request - $request - current request
+	 * @return  mixed
 	 */
 	public function get_speaker_field_value( $object, $field_name, $request ) {
 
@@ -323,7 +321,6 @@ class Conference_Schedule_API {
 			case 'speaker_instagram':
 			case 'speaker_twitter':
 			case 'speaker_linkedin':
-
 				if ( ! empty( $object[ $field_name ] ) ) {
 					$field_value = $object[ $field_name ];
 				} else {
@@ -336,16 +333,15 @@ class Conference_Schedule_API {
 				return ! empty( $image[0] ) ? $image[0] : null;
 
 		}
-
 	}
 
 	/**
 	 * Get location field values for the REST API.
 	 *
-	 * @param	array - $object - details of current post
-	 * @param	string - $field_name - name of field
-	 * @param	WP_REST_Request - $request - current request
-	 * @return	mixed
+	 * @param   array - $object - details of current post
+	 * @param   string - $field_name - name of field
+	 * @param   WP_REST_Request - $request - current request
+	 * @return  mixed
 	 */
 	public function get_location_field_value( $object, $field_name, $request ) {
 
@@ -362,7 +358,6 @@ class Conference_Schedule_API {
 
 		}
 	}
-
 }
 
 /**
@@ -371,9 +366,9 @@ class Conference_Schedule_API {
  * Will come in handy when we need to access the
  * class to retrieve data throughout the plugin.
  *
- * @since	1.0.0
- * @access	public
- * @return	Conference_Schedule_API
+ * @since   1.0.0
+ * @access  public
+ * @return  Conference_Schedule_API
  */
 function conference_schedule_api() {
 	return Conference_Schedule_API::instance();

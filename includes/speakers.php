@@ -125,7 +125,7 @@ class Conference_Schedule_Speakers {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			$class_name      = __CLASS__;
+			$class_name     = __CLASS__;
 			self::$instance = new $class_name;
 		}
 
@@ -164,8 +164,9 @@ class Conference_Schedule_Speakers {
 			return $this->speakers[ $speaker_id ];
 		}
 
-		// Get/return the speaker.
-		return $this->speakers[ $speaker_id ] = new Conference_Schedule_Speaker( $speaker_id );
+		$this->speakers[ $speaker_id ] = new Conference_Schedule_Speaker( $speaker_id );
+
+		return $this->speakers[ $speaker_id ];
 	}
 }
 

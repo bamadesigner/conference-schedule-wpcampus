@@ -289,7 +289,7 @@ class Conference_Schedule {
 		// Get/store the settings.
 		return $this->settings = get_option( 'conf_schedule', $default_settings );
 	}
-	
+
 	/**
 	 * Get the site's timezone abbreviation.
 	 */
@@ -299,15 +299,15 @@ class Conference_Schedule {
 		if ( isset( $this->site_timezone ) ) {
 			return $this->site_timezone;
 		}
-		
+
 		// Get from settings.
 		$timezone = get_option( 'timezone_string' );
 		if ( empty( $timezone ) ) {
 			$timezone = 'UTC';
 		}
-		
+
 		$timezone = new DateTime( 'now', new DateTimeZone( $timezone ) );
-		
+
 		// Get abbreviation.
 		return $this->site_timezone = $timezone->format( 'T' );
 	}
@@ -1553,7 +1553,7 @@ class Conference_Schedule {
 	}
 
 	/**
-	 * Get a specfic proposal via an AJAX request.
+	 * Get a specific proposal via an AJAX request.
 	 */
 	public function ajax_get_proposal() {
 
