@@ -1568,6 +1568,16 @@ class Conference_Schedule {
 	}
 
 	/**
+	 * Get a schedule item's proposal ID.
+	 *
+	 * @args    $post_id - the post ID for the schedule item.
+	 * @return  int - the selected proposal ID.
+	 */
+	public function get_session_proposal_id( $post_id ) {
+		return (int) get_post_meta( $post_id, 'proposal', true );
+	}
+
+	/**
 	 * Request proposal information.
 	 */
 	public function get_proposals( $args = array() ) {
@@ -1742,7 +1752,7 @@ class Conference_Schedule {
 		}
 
 		// Only need to process if it has a proposal ID.
-		$proposal_id = get_post_meta( $post_id, 'proposal', true );
+		$proposal_id = $this->get_session_proposal_id( $post_id );
 		if ( ! $proposal_id || ! is_numeric( $proposal_id ) ) {
 			return;
 		}

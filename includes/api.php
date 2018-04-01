@@ -203,7 +203,7 @@ class Conference_Schedule_API {
 				return ! empty( $event_type ) ? $event_type : null;
 
 			case 'proposal':
-				$proposal = get_post_meta( $object['id'], 'proposal', true );
+				$proposal = conference_schedule()->get_session_proposal_id( $object['id'] );
 				return ! empty( $proposal ) ? intval( $proposal ) : null;
 
 			// Get the hashtag.
