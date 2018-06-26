@@ -603,7 +603,7 @@ class Conference_Schedule {
 		);
 
 		// Get display field settings.
-		$display_fields = conference_schedule()->get_schedule_display_fields();
+		$display_fields = $this->get_schedule_display_fields();
 
 		// Figure out which fields to display.
 		if ( ! empty( $display_fields ) ) {
@@ -713,7 +713,7 @@ class Conference_Schedule {
 			);
 
 			// Get display field settings.
-			$display_fields = conference_schedule()->get_schedule_display_fields();
+			$display_fields = $this->get_schedule_display_fields();
 
 			// Figure out which fields to display.
 			if ( ! empty( $display_fields ) ) {
@@ -1110,11 +1110,9 @@ class Conference_Schedule {
 			// Filter the message.
 			$pre_html = apply_filters( 'conf_schedule_pre_schedule_message', $settings['pre_html'] );
 			if ( ! empty( $pre_html ) ) :
-
 				?>
 				<div class="conference-schedule-pre-message"><?php echo wpautop( $pre_html ); ?></div>
 				<?php
-
 			endif;
 		endif;
 
@@ -1149,42 +1147,11 @@ class Conference_Schedule {
 			// Filter the message.
 			$post_html = apply_filters( 'conf_schedule_post_schedule_message', $settings['post_html'] );
 			if ( ! empty( $post_html ) ) :
-
 				?>
 				<div class="conference-schedule-post-message"><?php echo wpautop( $post_html ); ?></div>
 				<?php
-
 			endif;
 		endif;
-
-		/*// What time is it?
-		$current_time = new DateTime( 'now', new DateTimeZone( 'America/Chicago' ) );
-
-		?><div class="schedule-main-buttons-wrapper">
-			<a href="#" class="btn btn-primary go-to-current-event">Go To Current Event</a>
-			</div><?php
-
-			foreach ( $schedule_data as $day_key => $day ) {
-
-				// Create the date for this day
-				$day_date = new DateTime( $day_key, new DateTimeZone( 'America/Chicago' ) );
-
-				// Has this date passed?
-				//$day_has_passed = $day_date->format( 'j' ) < $current_time->format( 'j' );
-
-				// Wrap in collapsible block
-				*//*if ( $day_has_passed ) {
-					echo '<div class="collapsible-schedule-block">';
-				}*//*
-
-				// Wrap in collapsible block
-				*//*if ( $day_has_passed ) {
-					echo '</div>';
-				}*//*
-
-			}
-
-		?></div><?php */
 
 		return ob_get_clean();
 	}
@@ -1299,7 +1266,7 @@ class Conference_Schedule {
 			'location' => null,
 		), $args, 'print_conference_schedule' );
 
-		return conference_schedule()->get_conference_schedule( $args );
+		return $this->get_conference_schedule( $args );
 	}
 
 	/**
@@ -1316,7 +1283,7 @@ class Conference_Schedule {
 			'event' => null,
 		), $args, 'print_conference_schedule_events' );
 
-		return conference_schedule()->get_conference_schedule_events( $args );
+		return $this->get_conference_schedule_events( $args );
 	}
 
 	/**
@@ -1333,7 +1300,7 @@ class Conference_Schedule {
 			'event' => null,
 		), $args, 'print_conference_schedule_speakers' );
 
-		return conference_schedule()->get_conference_schedule_speakers( $args );
+		return $this->get_conference_schedule_speakers( $args );
 	}
 
 	/**

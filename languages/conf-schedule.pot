@@ -227,7 +227,7 @@ msgstr ""
 msgid "No event types"
 msgstr ""
 
-#: conference-schedule.php:1280
+#: conference-schedule.php:1247
 msgid "Loading speakers..."
 msgstr ""
 
