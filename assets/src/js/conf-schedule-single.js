@@ -14,8 +14,8 @@
 	var conf_sch_single_video_templ = false;
 
 	// Will hold the before and template.
-	var $conf_sch_single_meta = null;
-	var conf_sch_single_meta_templ = false;
+	var $conf_sch_single_notif = null;
+	var conf_sch_single_notif_templ = false;
 
 	// Will hold the speakers template.
 	var $conf_sch_single_speakers = null;
@@ -25,13 +25,13 @@
 	$(document).ready(function() {
 
 		// Set the containers.
-		$conf_sch_single_ls = $( '#conf-sch-single-livestream' ).hide();
+		$conf_sch_single_ls = $( '#conf-sch-single-livestream' );
 		$conf_sch_single_content = $( '#conf-sch-single-content' );
 		$conf_sch_single_video = $( '#conf-sch-single-video' );
-		$conf_sch_single_meta = $( '#conf-sch-single-meta' );
+		$conf_sch_single_notif = $( '#conf-sch-single-notifications' );
 
 		// Hide speakers so we can fade in.
-		$conf_sch_single_speakers = $( '#conf-sch-single-speakers').hide();
+		$conf_sch_single_speakers = $( '#conf-sch-single-speakers' );
 
 		// Take care of the livestream.
 		var conf_sch_single_ls_templ_content = $( '#conf-sch-single-ls-template' ).html();
@@ -52,9 +52,9 @@
 		}
 
 		// Take care of the single meta.
-		var conf_sch_single_meta_templ_content = $( '#conf-sch-single-meta-template' ).html();
-		if ( conf_sch_single_meta_templ_content ) {
-			conf_sch_single_meta_templ = Handlebars.compile( conf_sch_single_meta_templ_content );
+		var conf_sch_single_notif_templ_content = $( '#conf-sch-single-notifications-template' ).html();
+		if ( conf_sch_single_notif_templ_content ) {
+			conf_sch_single_notif_templ = Handlebars.compile( conf_sch_single_notif_templ_content );
 		}
 
 		// Take care of the speakers.
@@ -90,8 +90,90 @@
 				}
 
 				schedule_item = the_schedule_item;
+				schedule_item.valid_session = false;
 
-				// No point if not a session or we have a proposal ID.
+				// Get the group events.
+				if ( schedule_item.event_type == 'group' ) {
+
+					$.ajax({
+						url: conf_sch.wp_api_route + 'schedule/?conf_sch_event_group=' + schedule_item.id,
+						async: false,
+						success: function( group_events ) {
+
+							// Make sure we have events.
+							if ( undefined === group_events || '' == group_events ) {
+								return false;
+							}
+
+							// Make sure event group is an array.
+							 schedule_item.event_group = [];
+
+							$.each( group_events, function(index, event) {
+
+								$.ajax({
+									url: conf_sch.ajaxurl,
+									type: 'GET',
+									dataType: 'json',
+									async: false,
+									cache: false,
+									data: {
+										action: 'conf_sch_get_proposal',
+										post_id: event.id,
+										proposal_id: event.proposal
+									},
+									success: function( event_proposal ) {
+
+										// If no proposal or not confirmed, update information.
+										if ( undefined === event_proposal || '' == event_proposal || $.isEmptyObject( event_proposal ) || 'confirmed' != event_proposal.proposal_status ) {
+
+											// Reset the item.
+											event.title = { rendered: 'TBA' };
+											event.content = { rendered: '' };
+											event.excerpt = { rendered: '' };
+
+											event.proposal = 0;
+											event.speakers = [];
+											event.subjects = [];
+											event.format_slug = '';
+											event.format_name = '';
+
+											event.link_to_post = false;
+
+										} else {
+
+											// Update proposal information.
+											event.title = { rendered: event_proposal.title || '' }
+											event.valid_session = true;
+
+											if ( event_proposal.content.rendered != '' ) {
+												event.content = { rendered: ( schedule_item.content.rendered || '' ) + event_proposal.content.rendered };
+											}
+
+											event.excerpt = { rendered: event_proposal.excerpt.rendered || '' };
+
+											event.speakers = event_proposal.speakers || [];
+											event.subjects = event_proposal.subjects || [];
+											event.format_slug = event_proposal.format_slug;
+											event.format_name = event_proposal.format_name;
+
+											event.session_video = event_proposal.session_video;
+											event.session_video_url = event_proposal.session_video_url;
+											event.session_video_embed = event_proposal.session_video_embed;
+
+											event.session_slides_url = event_proposal.session_slides_url;
+
+										}
+
+										schedule_item.event_group.push(event);
+
+									}
+								});
+							});
+						}
+					});
+				}
+
+				// No point if not a session or we don't have a proposal ID.
 				if ( schedule_item.event_type != 'session' || ! schedule_item.proposal ) {
 					return false;
 				}
@@ -105,6 +187,7 @@
 					cache: false,
 					data: {
 						action: 'conf_sch_get_proposal',
+						post_id: conf_sch.post_id,
 						proposal_id: schedule_item.proposal
 					},
 					success: function( the_proposal ) {
@@ -122,12 +205,14 @@
 							// Reset the item.
 							schedule_item.title.rendered = 'TBA';
 
-							schedule_item.content = {};
-							schedule_item.excerpt = {};
+							schedule_item.content.rendered = '';
+							schedule_item.excerpt = '';
 
 							schedule_item.proposal = 0;
 							schedule_item.speakers = [];
 							schedule_item.subjects = [];
+							schedule_item.format_slug = '';
+							schedule_item.format_name = '';
 
 							schedule_item.link_to_post = false;
 
@@ -138,15 +223,21 @@
 								schedule_item.title = proposal.title;
 							}
 
-							schedule_item.content = proposal.content || {};
-							schedule_item.excerpt = proposal.excerpt || {};
+							schedule_item.valid_session = true;
+
+							schedule_item.content.rendered += proposal.content.rendered || '';
+							schedule_item.excerpt = proposal.excerpt.rendered|| '';
 
 							schedule_item.speakers = proposal.speakers || [];
 							schedule_item.subjects = proposal.subjects || [];
+							schedule_item.format_slug = proposal.format_slug;
+							schedule_item.format_name = proposal.format_name;
 
 							schedule_item.session_video = proposal.session_video;
 							schedule_item.session_video_url = proposal.session_video_url;
 							schedule_item.session_video_embed = proposal.session_video_embed;
+
+							schedule_item.session_slides_url = proposal.session_slides_url;
 
 						}
 					}
@@ -168,6 +259,7 @@
 
 					// Process the template.
 					var conf_sch_single_content_templ_html = conf_sch_single_content_templ( schedule_item ).trim();
+
 					$conf_sch_single_content.fadeOut( 500, function() {
 						$conf_sch_single_content.hide().html( conf_sch_single_content_templ_html ).fadeIn( 500 );
 					});
@@ -199,27 +291,23 @@
 				}
 
 				// Build/add the html.
-				if ( conf_sch_single_meta_templ ) {
-					$conf_sch_single_meta.hide().html( conf_sch_single_meta_templ( schedule_item ) ).fadeIn( 1000 );
+				if ( conf_sch_single_notif_templ ) {
+					var conf_sch_single_notif_html = conf_sch_single_notif_templ( schedule_item ).trim();
+					if ( conf_sch_single_notif_html != '' ) {
+						$conf_sch_single_notif.hide().html( conf_sch_single_notif_html ).fadeIn( 1000 );
+					}
 				}
 
 				// Get the speakers
 				if ( schedule_item.speakers !== undefined ) {
 
 					// Create speakers markup.
-					var $speakers_dom = $( conf_sch_single_speakers_templ( schedule_item ) );
-
-					// Build the speakers header.
-					var $speakers_header = conf_schedule_get_speaker_header( schedule_item );
-
-					// Add the header.
-					if ( $speakers_header !== null ) {
-						$speakers_header.hide().insertBefore( $conf_sch_single_speakers ).fadeIn( 1000 );
-					}
+					var speakers_html = conf_sch_single_speakers_templ( schedule_item ).trim();
 
 					// Render/add the speakers and fade in.
-					$conf_sch_single_speakers.append( $speakers_dom ).fadeIn( 1000 );
-
+					if ( speakers_html != '' ) {
+						$conf_sch_single_speakers.hide().html( speakers_html ).fadeIn( 1000 );
+					}
 				}
 			}
 		});
@@ -232,24 +320,57 @@
 		});
 	}
 
-	// Get the speaker header markup.
-	function conf_schedule_get_speaker_header( item ) {
+	Handlebars.registerHelper( 'notifications', function() {
+		if ( 'workshop' == this.format_slug ) {
+			return new Handlebars.SafeString( '<div class="panel light-royal-blue center"><a href="/tickets/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops include a snack break.</em></div>' );
+		}
+		return null;
+	});
 
-		if ( item.speakers !== undefined && item.speakers.length > 0 ) {
+	// Format the title.
+	Handlebars.registerHelper( 'event_title', function( $options ) {
+		var $new_title = this.title.rendered;
+		if ( $new_title !== undefined && $new_title ) {
+			if ( this.link_to_post && this.link !== undefined && this.link ) {
+				$new_title = '<a href="' + this.link + '">' + $new_title + '</a>';
+			}
+			return new Handlebars.SafeString( '<h2 class="event-title">' + $new_title + '</h2>' );
+		}
+		return null;
+	});
+
+	// Format the event meta links
+	Handlebars.registerHelper( 'event_content', function() {
+		var event_content = '';
+		if ( this.content.rendered != '' ) {
+			event_content = this.content.rendered;
+		}
+		if ( event_content != '' ) {
+			return new Handlebars.SafeString( event_content );
+		}
+		if ( this.event_type == 'group' ) {
+			return null;
+		}
+		return new Handlebars.SafeString( '<p><em>There is no information for this session.</em></p>' );
+	});
+
+	Handlebars.registerHelper( 'speakers_header', function() {
+
+		if ( this.speakers !== undefined && this.speakers.length > 0 ) {
 
 			var speakers_string = '';
 
-			if ( item.speakers.length == 1 ) {
-				speakers_string = conf_sch.speakers_single;
-			} else {
-				speakers_string = conf_sch.speakers_plural;
-			}
+        	if ( this.speakers.length == 1 ) {
+        		speakers_string = conf_sch.speakers_single;
+        	} else {
+        		speakers_string = conf_sch.speakers_plural;
+        	}
 
-			return $( '<h2 id="conf-sch-single-speakers-title">' + speakers_string + '</h2>' );
-		}
+			return new Handlebars.SafeString( '<h2 id="conf-sch-single-speakers-title">' + speakers_string + '</h2>' );
+        }
 
-		return null;
-	}
+        return null;
+	});
 
 	// Format the event meta links
 	Handlebars.registerHelper( 'event_links', function() {
@@ -287,6 +408,28 @@
 
 		if ( event_links_string ) {
 			return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons">' + event_links_string + '</ul>' );
+		}
+
+		return null;
+	});
+
+	// Format the social links.
+	Handlebars.registerHelper( 'social_media', function( $options ) {
+
+		// Build the string.
+		var social_string = '';
+
+		// Do we have speaker twitters?
+		if ( this.speakers !== undefined && this.speakers && this.speakers.length > 0 ) {
+			$.each( this.speakers, function( index, value ) {
+				if ( value.twitter !== undefined && value.twitter ) {
+					social_string += '<li class="event-link event-twitter"><a href="https://twitter.com/' + value.twitter + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">@' + value.twitter + '</span></a></li>';
+				}
+			});
+		}
+
+		if ( social_string ) {
+			return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons conf-sch-social-buttons">' + social_string + '</ul>' );
 		}
 
 		return null;

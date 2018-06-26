@@ -82,10 +82,10 @@
 		$locations.select2();
 
 		// Populate the events and refresh when you click.
-		$event_parent.conf_sch_populate_events();
+		$event_parent.conf_sch_populate_group_events();
 		$( '.conf-sch-refresh-events' ).on( 'click', function( $event ) {
 			$event.preventDefault();
-			$event_parent.conf_sch_populate_events();
+			$event_parent.conf_sch_populate_group_events();
 			return false;
 		});
 
@@ -165,7 +165,7 @@
 	};
 
 	// Populate the event.
-	$.fn.conf_sch_populate_events = function() {
+	$.fn.conf_sch_populate_group_events = function() {
 
 		// Set the <select> field and disable.
 		var $select_field = $( this ).prop( 'disabled', 'disabled' );
@@ -178,7 +178,7 @@
 			async: true,
 			cache: false,
 			data: {
-				action: 'conf_sch_get_events',
+				action: 'conf_sch_get_group_events',
 				select_parent: conf_sch.post_id
 			},
 			success: function( posts ) {

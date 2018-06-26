@@ -88,7 +88,7 @@
 				$.each( schedule_items, function( index, item ) {
 
 					// If this event is a child, don't add.
-					if ( item.event_parent > 0 ) {
+					if ( item.parent > 0 ) {
 						return true;
 					}
 

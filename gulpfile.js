@@ -7,14 +7,13 @@ const rename = require('gulp-rename');
 const sass = require('gulp-sass');
 const shell = require('gulp-shell');
 const sort = require('gulp-sort');
-const uglify = require('gulp-uglify');
+const minify = require('gulp-minify');
 const wp_pot = require('gulp-wp-pot');
 
 // Define the source paths for each file type.
 const src = {
 	js: [
 		'assets/src/js/admin-post-schedule.js',
-		'assets/src/js/admin-post-speakers.js',
 		'assets/src/js/conf-schedule.js',
 		'assets/src/js/conf-schedule-list.js',
 		'assets/src/js/conf-schedule-speakers.js',
@@ -32,7 +31,7 @@ const dest = {
 };
 
 // Take care of SASS.
-gulp.task('sass', function() {
+gulp.task('sass', function(done) {
 	return gulp.src(src.sass)
 		.pipe(sass({
 			outputStyle: 'compressed'
@@ -49,17 +48,19 @@ gulp.task('sass', function() {
 			suffix: '.min'
 		}))
 		.pipe(gulp.dest(dest.sass))
-		.pipe(notify('Conference Schedule SASS compiled'));
+		.pipe(notify('Conference Schedule SASS compiled'))
+		.on('end',done);
 });
 
 // Minify the JS.
-gulp.task('js', function() {
+gulp.task('js', function(done) {
 	gulp.src(src.js)
-		.pipe(uglify({
-			mangle: false
-		}))
-		.pipe(rename({
-			suffix: '.min'
+		.pipe(minify({
+			mangle: false,
+			noSource: true,
+			ext:{
+				min:'.min.js'
+			}
 		}))
 		.pipe(gulp.dest(dest.js))
 		.pipe(notify('Conference Schedule JS compiled'));
@@ -68,11 +69,12 @@ gulp.task('js', function() {
 	gulp.src([
 		'assets/src/js/select2.min.js',
 		'assets/src/js/timepicker.min.js'
-	]).pipe(gulp.dest(dest.js));
+	]).pipe(gulp.dest(dest.js))
+	.on('end',done);
 });
 
 // "Sniff" our PHP.
-gulp.task('php', function() {
+gulp.task('php', function(done) {
 	// TODO: Clean up. Want to run command and show notify for sniff errors.
 	return gulp.src('conference-schedule.php', {read: false})
 		.pipe(shell(['composer sniff'], {
@@ -82,11 +84,12 @@ gulp.task('php', function() {
 		.pipe(notify('Conference Schedule PHP sniffed'), {
 			onLast: true,
 			emitError: true
-		});
+		})
+		.on('end',done);
 });
 
 // Create language files
-gulp.task('translate', function () {
+gulp.task('translate', function (done) {
 	return gulp.src(src.php)
 		.pipe(sort())
 		.pipe(wp_pot({
@@ -98,21 +101,23 @@ gulp.task('translate', function () {
 			team: 'WPCampus <code@wpcampus.org>',
 			headers: false
 		}))
-		.pipe(gulp.dest(dest.translate));
+		.pipe(gulp.dest(dest.translate))
+		.on('end',done);
 });
 
 // Test our files.
-gulp.task('test',['php']);
+gulp.task('test',gulp.series('php'));
 
 // Compile all the things.
-gulp.task('compile',['sass','js']);
-
-// I've got my eyes on you(r file changes).
-gulp.task('watch',function() {
-	gulp.watch(src.js, ['js']);
-	gulp.watch(src.php, ['test','translate']);
-	gulp.watch(src.sass, ['sass']);
-});
+gulp.task('compile',gulp.series('sass','js'));
 
 // Let's get this party started.
-gulp.task('default',['compile','test','translate']);
+gulp.task('default', gulp.series('compile','test','translate'));
+
+// I've got my eyes on you(r file changes).
+gulp.task('watch', gulp.series('default',function(done) {
+	gulp.watch(src.js, gulp.series('js'));
+	gulp.watch(src.php,gulp.series('test','translate'));
+	gulp.watch(src.sass,gulp.series('sass'));
+	return done();
+}));

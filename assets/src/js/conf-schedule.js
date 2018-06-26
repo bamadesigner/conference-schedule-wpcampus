@@ -1,51 +1,69 @@
 (function( $ ) {
 	'use strict';
 
-	// Will hold the template.
-	var $conf_sch_templ = false;
-
-	// Will hold the schedule and container.
-	var $conf_schedule = null;
-	var $conf_sch_container = null;
-
 	// When the document is ready...
 	$(document).ready(function() {
 
-		// Set the schedule and container.
-		$conf_schedule = $( '#conference-schedule' );
-		$conf_sch_container = $( '#conference-schedule-container' );
-
-		// Get the templates.
-		var $conf_sch_templ_content = $( '#conference-schedule-template' ).html();
-		if ( $conf_sch_templ_content !== undefined && $conf_sch_templ_content ) {
-
-			// Parse the template.
-			$conf_sch_templ = Handlebars.compile( $conf_sch_templ_content );
-
-			// Render the schedule.
-			render_conference_schedule();
-
+		if ( ! $('.conference-schedule-container').length ) {
+			return false;
 		}
+
+		// Process each schedule.
+		$('.conference-schedule-container').each(function(){
+			$(this).render_conference_schedule();
+		});
+
+		// Lets us know if a schedule is in the viewport.
+		$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
+			$('.conference-schedule-container').each(function(){
+				$(this).conf_schedule_check_active();
+		  	});
+		});
 	});
 
 	///// FUNCTIONS /////
 
-	// Get/update the schedule.
-	function render_conference_schedule() {
+	// Invoked by a schedule container.
+	$.fn.render_conference_schedule = function(refresh) {
+		var $conf_sch_container = $(this),
+			$conf_schedule = $conf_sch_container.find( '.conference-schedule' ),
+			conf_sch_templ = null;
+
+		$conf_sch_container.addClass('loading');
+
+		// Get the template.
+		var conf_sch_templ_content = $( '#conference-schedule-template' ).html();
+		if ( conf_sch_templ_content !== undefined && conf_sch_templ_content ) {
+			conf_sch_templ = Handlebars.compile( conf_sch_templ_content );
+		}
+
+		// No point if no template.
+		if ( ! conf_sch_templ ) {
+			return false;
+		}
 
 		// Build the URL.
-		var apiURL = conf_sch.wp_api_route + 'schedule';
+		var apiURL = conf_sch.wp_api_route + 'schedule',
+			apiQuery = '';
 
 		// Add date.
-		if ( $conf_sch_container.data('date') != '' ) {
-			apiURL += '?conf_sch_event_date=' +  $conf_sch_container.data('date');
+		if ( $conf_sch_container.data('date') !== undefined && $conf_sch_container.data('date') != '' ) {
+			apiQuery += '?conf_sch_event_date=' +  $conf_sch_container.data('date');
+		}
+
+		// Add location.
+		if ( $conf_sch_container.data('location') !== undefined && $conf_sch_container.data('location') != '' ) {
+			apiQuery += '?conf_sch_event_location=' +  $conf_sch_container.data('location');
 		}
 
 		var schedule_items = [], proposals = {};
 
+		// Holds count of how many sessions have speakers.
+		var scheduleSpeakersCount = 0;
+
 		// Get the schedule information.
 		$.ajax({
-			url: apiURL,
+			url: apiURL + apiQuery,
 			type: 'GET',
 			dataType: 'json',
 			cache: false,
@@ -65,7 +83,7 @@
 					type: 'GET',
 					dataType: 'json',
 					cache: false,
-					asynce: false,
+					async: false,
 					data: {
 						action: 'conf_sch_get_proposals'
 					},
@@ -78,8 +96,8 @@
 
 						// Process the proposals.
 						$.each( the_proposals, function( index, proposal ) {
-							if ( proposal.id ) {
-								proposals['proposal'+proposal.id] = proposal;
+							if ( proposal.ID ) {
+								proposals['proposal'+proposal.ID] = proposal;
 							}
 						});
 					},
@@ -110,11 +128,11 @@
 						// Figure out how to convert the event hours to local times.
 						var local_hour_diff = utc_timezone_diff - parseInt( conf_sch.tz_offset );
 
-						// Build the HTML.
-						var $schedule_html = '';
+						// Build the new schedule.
+						var $newSchedule = $('<div class="conference-schedule"></div>');
 
 						// Index by date.
-						var $schedule_by_dates = {};
+						var scheduleByDates = {};
 
 						// Go through each item.
 						$.each( schedule_items, function( index, item ) {
@@ -131,7 +149,9 @@
 								if ( ! proposal || 'confirmed' != proposal.proposal_status ) {
 
 									// Reset the item.
-									item.title.rendered = 'TBA';
+									item.title = {
+										rendered: 'TBA'
+                                    };
 
 									item.content = {};
 									item.excerpt = {};
@@ -139,6 +159,8 @@
 									item.proposal = 0;
 									item.speakers = [];
 									item.subjects = [];
+									item.format_slug = '';
+									item.format_name = '';
 
 									item.link_to_post = false;
 
@@ -146,7 +168,7 @@
 
 									// Update proposal information.
 									if ( proposal.title ) {
-										item.title = proposal.title;
+										item.title.rendered = proposal.title;
 									}
 
 									item.content = proposal.content || {};
@@ -154,15 +176,21 @@
 
 									item.speakers = proposal.speakers || [];
 									item.subjects = proposal.subjects || [];
+									item.format_slug = proposal.format_slug;
+									item.format_name = proposal.format_name;
 
-									item.session_video = proposal.session_video;
 									item.session_video_url = proposal.session_video_url;
+									item.session_slides_url = proposal.session_slides_url;
 
+									// Lets us know we have speakers.
+									if (item.speakers.length) {
+										scheduleSpeakersCount += item.speakers.length;
+									}
 								}
 							}
 
 							// If this event is a child, don't add (for now).
-							if ( item.event_parent > 0 ) {
+							if ( item.parent > 0 ) {
 								$children_events.push( item );
 								return true;
 							}
@@ -186,13 +214,13 @@
 							}
 
 							// Make sure array exists for the day.
-							if ( $schedule_by_dates[item.event_date] === undefined ) {
-								$schedule_by_dates[item.event_date] = {};
+							if ( scheduleByDates[item.event_date] === undefined ) {
+								scheduleByDates[item.event_date] = {};
 							}
 
 							// Make sure time row exists.
-							if ( $schedule_by_dates[item.event_date][$event_time_index] === undefined ) {
-								$schedule_by_dates[item.event_date][$event_time_index] = {
+							if ( scheduleByDates[item.event_date][$event_time_index] === undefined ) {
+								scheduleByDates[item.event_date][$event_time_index] = {
 									event_date: item.event_date,
 									start_time: item.event_start_time,
 									end_time: item.event_end_time,
@@ -201,29 +229,26 @@
 							}
 
 							// Add this item by date.
-							$schedule_by_dates[item.event_date][$event_time_index]['events'].push( item );
+							scheduleByDates[item.event_date][$event_time_index].events.push( item );
 
 						});
 
 						// Print out the schedule by date.
-						$.each( $schedule_by_dates, function( $date, $day_by_time ) {
+						$.each( scheduleByDates, function( date, dayByTime ) {
 
-							// Will hold the day HTML.
-							var $schedule_day_html = '';
+							// Will hold the event day/date for display.
+							var dayDisplay = '', dateDisplay = '';
 
-							// Will hold the event day for display.
-							var $day_display = '';
-							
 							// Will be true if any event is in progress.
 							var event_in_progress = false;
 
+							var $newScheduleTable = $('<div class="schedule-table"></div>');
+
 							// Sort through events by the time.
-							$.each( $day_by_time, function( $time, $time_items ) {
+							$.each( dayByTime, function( time, timeItems ) {
 
 								// Make sure we have events.
-								if ( $time_items.events === undefined
-									|| typeof $time_items.events != 'object'
-									|| $time_items.events.length == 0 ) {
+								if ( timeItems.events === undefined || typeof timeItems.events != 'object' || timeItems.events.length == 0 ) {
 									return true;
 								}
 
@@ -231,14 +256,17 @@
 								var $row_time_display = '';
 
 								// Build events HTML.
-								var $row_events = [];
+								var rowEvents = [];
 
 								// Add the events.
-								$.each( $time_items.events, function( index, item ) {
+								$.each( timeItems.events, function( index, item ) {
 
-									// Get the date.
-									if ( '' == $day_display && item.event_date_display ) {
-										$day_display = item.event_date_display;
+									// Get the day/date.
+									if ( '' == dayDisplay && item.event_day ) {
+										dayDisplay = item.event_day;
+									}
+									if ( '' == dateDisplay && item.event_date_display ) {
+										dateDisplay = item.event_date_display;
 									}
 
 									// Set the time display to the default time display.
@@ -246,18 +274,20 @@
 										$row_time_display = item.event_time_display;
 									}
 
+									var $scheduleEvent = $( conf_sch_templ( item ) );
+
 									// Render the templates.
-									$row_events.push( $conf_sch_templ( item ) );
+									rowEvents.push( $scheduleEvent );
 
 								});
 
 								// If we have events, add a row.
-								if ( $row_events.length >= 1 ) {
+								if ( rowEvents.length >= 1 ) {
 
 									// Split up the date and times.
-									var row_date_pieces = null !== $time_items.event_date && $time_items.event_date.search( '-' ) > -1 ? $time_items.event_date.split( '-' ) : [];
-									var row_start_time_pieces = null !== $time_items.start_time && $time_items.start_time.search( ':' ) > -1 ? $time_items.start_time.split( ':' ) : [];
-									var row_end_time_pieces = null !== $time_items.end_time && $time_items.end_time.search( ':' ) > -1 ? $time_items.end_time.split( ':' ) : [];
+									var row_date_pieces = null !== timeItems.event_date && timeItems.event_date.search( '-' ) > -1 ? timeItems.event_date.split( '-' ) : [];
+									var row_start_time_pieces = null !== timeItems.start_time && timeItems.start_time.search( ':' ) > -1 ? timeItems.start_time.split( ':' ) : [];
+									var row_end_time_pieces = null !== timeItems.end_time && timeItems.end_time.search( ':' ) > -1 ? timeItems.end_time.split( ':' ) : [];
 
 									// Get the date year, month, and day.
 									var row_start_dt_year = parseInt( row_date_pieces[0] );
@@ -270,7 +300,7 @@
 
 									// Set the start date/time.
 									var row_start_dt = new Date( row_start_dt_year, row_start_dt_month, row_start_dt_day, row_start_hour, row_start_minute );
-									
+
 									// Set the start "delay reveal time".
 									var row_start_dt_delay = new Date( row_start_dt.valueOf() );
 									if ( conf_sch.reveal_delay !== undefined ) {
@@ -305,17 +335,32 @@
 										}
 									}
 
-									// Will hold the row HTML - start with the time.
-									var $schedule_row_html = '<div class="schedule-row-item time">' + $row_time_display + '</div>';
+									// Create the row.
+									var $scheduleRow = $( '<div class="schedule-row ' + schedule_row_status + '"></div>' );
+
+									// Start with the time.
+									$scheduleRow.append( '<div class="schedule-row-item time">' + $row_time_display + '</div>' );
 
 									// Add the events.
-									$schedule_row_html += '<div class="schedule-row-item events">' + $row_events.join( '' ) + '</div>';
+									var $scheduleRowEvents = $('<div class="schedule-row-item events"></div>');
+									$.each( rowEvents, function( index, $value ) {
 
-									// Wrap the row.
-									$schedule_row_html = '<div class="schedule-row ' + schedule_row_status + '">' + $schedule_row_html + '</div>';
+										// If more than 1 event, let us know how many links for each event.
+										if ( rowEvents.length > 1 ) {
+											var eventLinksCount = $value.find('.event-links .event-link').length;
+											if (eventLinksCount > 0) {
+												$value.addClass('has-event-links has-event-links-' + eventLinksCount);
+											}
+										}
 
-									// Add to the day.
-									$schedule_day_html += $schedule_row_html;
+										$scheduleRowEvents.append( $value );
+									});
+
+									// Add events to the row.
+									$scheduleRow.append( $scheduleRowEvents );
+
+									// Add to the table.
+									$newScheduleTable.append($scheduleRow);
 
 								}
 							});
@@ -331,33 +376,66 @@
 							// Add the column header row.
 							$schedule_day_html = '<div class="schedule-header-row">' + $schedule_header + '</div>' + $schedule_day_html;*/
 
-							// Wrap the day in the table.
-							$schedule_day_html = '<div class="schedule-table">' + $schedule_day_html + '</div>';
+							// Wrap by the day.
+							var $newScheduleDay = $('<div class="schedule-by-day"></div>');
 
-							// Prefix the date header.
-							$schedule_day_html = '<h2 class="schedule-header">' + $day_display + '</h2>' + $schedule_day_html;
+							// Add the date header.
+							$newScheduleDay.append($('<h2 class="schedule-header">' + dateDisplay + '</h2>'));
 
-							// Wrap in day.
-							var day_class = 'schedule-by-day';
+							// Add the table.
+							$newScheduleDay.append($newScheduleTable);
+
 							if ( event_in_progress ) {
-								day_class += ' schedule-in-progress';
-							}
-							$schedule_day_html = '<div class="' + day_class + '">' + $schedule_day_html + '</div>';
+								$newScheduleDay.addClass('schedule-in-progress');
+                            }
 
-							// Add to schedule.
-							$schedule_html += $schedule_day_html;
+                            // See if all events are in the past.
+							var pastEventsCount = $newScheduleTable.find('.schedule-row.status-past').length;
+							if (pastEventsCount > 0) {
+
+								$newScheduleDay.addClass('schedule-in-past');
+
+								// Add toggle button.
+								var $showButton = get_conf_schedule_toggle_button(dayDisplay);
+								$showButton.insertBefore($newScheduleTable);
+							}
+
+							// Add to the table.
+							$newSchedule.append($newScheduleDay);
 
 						});
 
-						// Add the html.
-						$conf_schedule.html( $schedule_html );
-
 						// Process the children.
 						if ( $children_events.length >= 1 ) {
+
+							// See if times and locations match.
+							var children_events_time = null,
+								children_events_time_count = 0,
+								children_events_location = null,
+								children_events_location_count = 0;
+
 							$.each( $children_events, function( index, item ) {
 
+								if (item.event_time_display != '') {
+									if (children_events_time === null) {
+										children_events_time = item.event_time_display;
+										children_events_time_count++;
+									} else if (children_events_time === item.event_time_display) {
+										children_events_time_count++;
+									}
+								}
+
+								if (item.event_location.ID){
+									if (children_events_location === null) {
+										children_events_location = item.event_location.ID;
+										children_events_location_count++;
+									} else if (children_events_location === item.event_location.ID) {
+										children_events_location_count++;
+									}
+								}
+
 								// Get the parent.
-								var $event_parent = $( '#conf-sch-event-' + item.event_parent );
+								var $event_parent = $newSchedule.find( '#conf-sch-event-' + item.parent );
 								if ( $event_parent.length > 0 ) {
 
 									// Make sure the parent knows it's a parent.
@@ -369,88 +447,259 @@
 										$event_children = $( '<div class="event-children"></div>' ).appendTo( $event_parent );
 									}
 
+									if (children_events_time_count === $children_events.length) {
+										$event_children.addClass('has-same-time');
+                                    }
+
+                                    if (children_events_location_count === $children_events.length) {
+										$event_children.addClass('has-same-location');
+									}
+
 									// Render the templates.
-									$event_children.append( $conf_sch_templ( item ) );
+									$event_children.append( conf_sch_templ( item ) );
 
 								}
 							});
 						}
 
-						// Build the buttons.
-						var $scheduleNavButtonsTop = $('<div class="schedule-nav-buttons nav-top has-highlight"></div>');
-						
-						// Add the watch button.
-						var $watchSession = $( '<a class="schedule-nav-button highlight" href="' + conf_sch.watch_url + '">' + conf_sch.watch_message + '</a>' );
-						$scheduleNavButtonsTop.append( $watchSession );
-						
-						// Add the "jump" button if event in progress.
-						var $inProgress = $('#conference-schedule .schedule-row.status-in-progress:first');
-						if ( $inProgress.length > 0 ) {
-						
-							// Create "jump to current session" button.
-							var $jumpSession = $('<button class="schedule-nav-button schedule-jump">' + conf_sch.jump_message + '</button>');
-							
-							// Add to top buttons.
-							$scheduleNavButtonsTop.append( $jumpSession );
+						// Replace the schedule.
+						$conf_schedule.replaceWith( $newSchedule );
 
-						}
-						
-						// Add the speakers button.
-						var $viewSpeakers = $( '<a class="schedule-nav-button" href="' + conf_sch.speakers_url + '">' + conf_sch.speakers_message + '</a>' );
-						$scheduleNavButtonsTop.append( $viewSpeakers );
-						
-						// Build bottom buttons
-						var $scheduleNavButtonsBottom = $scheduleNavButtonsTop.clone().removeClass( 'nav-top has-highlight' ).addClass( 'nav-bottom' );
-						
-						// Build "Go to top" button.
-						var $goToTop = $('<button class="schedule-nav-button schedule-top">' + conf_sch.top_message + '</button>');
-						
-						// Add to buttons.
-						$scheduleNavButtonsBottom.append( $goToTop );
-						
-						// Add buttons to beginning of schedule
-						$scheduleNavButtonsTop.insertAfter( $('#conference-schedule .schedule-by-day:first .schedule-header') );
+						// Store data.
+						$conf_sch_container.data('speakersCount', scheduleSpeakersCount);
 
-						// Add to end of schedule.
-						$conf_schedule.append( $scheduleNavButtonsBottom );
-						
-						$('#conference-schedule .schedule-jump').on( 'click', function(e) {
-							e.preventDefault();
+						// Add buttons.
+						$conf_sch_container.conf_schedule_add_buttons();
 
-							$( 'html, body' ).animate({
-								scrollTop: $inProgress.offset().top
-							}, 500, function() {
-								$inProgress.find('*:tabbable:first').focus();
-							});	
-						});
-						
-						$('#conference-schedule .schedule-top').on( 'click', function(e) {
-							e.preventDefault();
-							
-							var $theSchedule = $('#conference-schedule');
-							if ( $theSchedule.length > 0 ) {
+						// Setup actions.
+						$conf_sch_container.conf_schedule_add_actions();
 
-								$( 'html, body' ).animate({
-									scrollTop: $theSchedule.offset().top
-								}, 500, function() {
-									$theSchedule.find('*:tabbable:first').focus();
-								});	
-							}
-						});
+						// Check if container is "active".
+						$conf_sch_container.conf_schedule_check_active();
+
+						// Remove load events.
+						$( window ).off( 'resize.conf_schedule_load, scroll.conf_schedule_load' );
 
 						// Remove loading status and fade schedule in.
-						$conf_sch_container.children().fadeOut();
 						$conf_sch_container.removeClass( 'loading' );
-						$conf_sch_container.children().fadeIn( 1000 );
+
+						// Reset loading.
+						$conf_sch_container.find('.conference-schedule-loading').removeAttr('style');
+
+						// Update the schedule every 10 minutes.
+						var refreshSchedule = setTimeout(function(){
+							clearTimeout(refreshSchedule);
+							$conf_sch_container.refresh_conf_sch_container();
+						}, 600000);
 
 					}
 				});
 			}
 		});
+	};
+
+	function get_conf_schedule_toggle_button(dayDisplay) {
+		var showLabel = 'Show ' + dayDisplay + "'" + 's past events',
+			hideLabel = 'Hide ' + dayDisplay + "'" + 's past events';
+		return $('<button class="schedule-show-toggle" data-show="' + showLabel + '" data-hide="' + hideLabel + '">' + showLabel + '</button>');
 	}
 
+	// Invoked by a schedule container.
+	$.fn.conf_schedule_add_actions = function() {
+    	var $conf_sch_container = $(this);
+
+    	$conf_sch_container.find('.schedule-show-toggle').on('click',function(e){
+    		var $scheduleToggle = $(this),
+    		 	$scheduleByDay = $scheduleToggle.closest('.schedule-by-day');
+    		if ( $scheduleByDay.hasClass('schedule-show') ) {
+    			$scheduleByDay.removeClass('schedule-show');
+    			$scheduleToggle.text($scheduleToggle.data('show'));
+    		} else {
+    			$scheduleByDay.addClass('schedule-show');
+    			$scheduleToggle.text($scheduleToggle.data('hide'));
+    		}
+    	});
+
+    	$conf_sch_container.find('.schedule-go-current').on( 'click', function(e) {
+			e.preventDefault();
+
+			var $schedule = $(this).closest('.conference-schedule-container').find('.conference-schedule'),
+				$sessionInProgress = $schedule.find('.schedule-row.status-in-progress:first');
+
+			if ( $sessionInProgress.length > 0 ){
+				$( 'html, body' ).animate({
+					scrollTop: $sessionInProgress.offset().top
+				}, 500, function() {
+					$sessionInProgress.find('*:tabbable:first').focus();
+				});
+			}
+		});
+
+		$conf_sch_container.find('.schedule-go-top').on( 'click', function(e) {
+			e.preventDefault();
+
+			var $schedule = $(this).closest('.conference-schedule-container').find('.conference-schedule');
+			if ( $schedule.length > 0 ) {
+
+				$( 'html, body' ).animate({
+					scrollTop: $schedule.offset().top
+				}, 500, function() {
+					$schedule.find('*:tabbable:first').focus();
+				});
+			}
+		});
+
+		// Setup refresh button.
+		$conf_sch_container.find('.schedule-refresh').on('click',function(e) {
+			e.preventDefault();
+			$(this).closest('.conference-schedule-container').refresh_conf_sch_container();
+		});
+    };
+
+	// Invoked by a schedule container.
+    $.fn.conf_schedule_add_buttons = function() {
+    	var $conf_sch_container = $(this),
+    		$conf_schedule = $conf_sch_container.find( '.conference-schedule' );
+
+		// Build the top buttons, which will be duplicated for bottom.
+		var $scheduleTopButtons = $('<div class="schedule-nav-buttons nav-top"></div>');
+		var $scheduleBottomButtons = $('<div class="schedule-nav-buttons nav-bottom"></div>');
+
+		// Build the side buttons.
+		var $scheduleSideButtons = $('<div class="schedule-side-buttons"></div>');
+
+		// Add the "jump" button if event in progress.
+		var $inProgress = $conf_schedule.find('.schedule-row.status-in-progress:first');
+		if ( $inProgress.length > 0 ) {
+
+			// Create the watch button.
+			var $watchSession = $( '<a class="button schedule-video highlight" href="' + conf_sch.watch_url + '"><span>' + conf_sch.watch_message + '</span></a>' );
+
+			// Create "jump to current session" button.
+			var $jumpSession = $('<button class="schedule-go-current highlight"><span>' + conf_sch.jump_message + '</span></button>');
+
+			// Add to top buttons.
+			$watchSession.clone(true).appendTo( $scheduleTopButtons );
+			$jumpSession.clone(true).appendTo( $scheduleTopButtons );
+
+			$scheduleTopButtons.addClass( 'has-highlight' );
+
+			// Add to side buttons.
+			$scheduleSideButtons.append( $watchSession );
+			$scheduleSideButtons.append( $jumpSession );
+
+		}
+
+		// If viewing location page, add link to view full schedule.
+		if ($conf_sch_container.data('location')) {
+			var $viewSchedule = $( '<a class="button" href="' + conf_sch.schedule_url + '">' + conf_sch.schedule_message + '</a>' );
+			$viewSchedule.clone(true).appendTo( $scheduleTopButtons );
+			$scheduleBottomButtons.append( $viewSchedule );
+		}
+
+		// Add the speakers button to the top.
+		if ( $conf_sch_container.data('speakersCount') > 0 ) {
+			var $viewSpeakers = $( '<a class="button" href="' + conf_sch.speakers_url + '">' + conf_sch.speakers_message + '</a>' );
+			$viewSpeakers.clone().appendTo( $scheduleTopButtons );
+			//$scheduleBottomButtons.append( $viewSpeakers );
+		}
+
+		// Add "Go to top" button to side buttons.
+        var $goToTop = $('<button class="schedule-go-top"><span>' + conf_sch.top_message + '</span></button>');
+        $scheduleSideButtons.append( $goToTop );
+
+        // Add refresh button to side buttons.
+		var $refreshButton = $( '<button class="schedule-refresh"><span>' + conf_sch.refresh + '</span></button>');
+		$scheduleSideButtons.append( $refreshButton );
+
+        // Add buttons to top of schedule
+		$conf_sch_container.find('.conference-schedule-pre').empty().append($scheduleTopButtons);
+
+		// Add buttons to end of schedule.
+		$conf_sch_container.find('.conference-schedule-post').empty().append($scheduleBottomButtons).append($scheduleSideButtons);
+    };
+
+	// Invoked by a schedule container.
+	$.fn.conf_schedule_check_active = function() {
+		var $conf_sch_container = $(this);
+		if ($conf_sch_container.conf_sch_is_in_viewport()) {
+			$conf_sch_container.addClass('active');
+		} else {
+			$conf_sch_container.removeClass('active').removeAttr('style');
+		}
+	};
+
+	// Invoked by container.
+	$.fn.refresh_conf_sch_container = function() {
+		var $conf_sch_container = $(this);
+
+		$conf_sch_container.set_conf_sch_container_loading().render_conference_schedule(true);
+
+		$( window ).on( 'resize.conf_schedule_load, scroll.conf_schedule_load', function(e) {
+			$( '.conference-schedule-container.loading' ).each(function(){
+				$(this).set_conf_sch_container_loading();
+			});
+		});
+	};
+
+	// Invoked by container.
+	$.fn.set_conf_sch_container_loading = function() {
+		var $conf_sch_container = $(this),
+			$conf_sch_loading = $conf_sch_container.find('.conference-schedule-loading'),
+			windowScrollTop = $(window).scrollTop(),
+			windowHeight = $(window).height(),
+			containerTop = $conf_sch_container.offset().top,
+			containerBottom = containerTop + containerHeight,
+			containerY = containerTop - windowScrollTop,
+			containerHeight = $conf_sch_container.outerHeight(),
+			containerLoadHeight = windowHeight,
+			containerLoadTop = 0,
+			containerLoadCSS = {},
+			containerMinHeight = 100;
+
+		if ( containerY > 0 ) {
+			containerLoadHeight -= containerY;
+		} else if ( containerY < 0 ) {
+			containerLoadTop = Math.abs(containerY);
+		}
+
+		if ( containerBottom < ( windowScrollTop + windowHeight ) ) {
+			containerLoadHeight = (containerHeight - windowScrollTop) + containerTop;
+		}
+
+		if (containerLoadHeight < containerMinHeight) {
+			containerLoadHeight = containerMinHeight;
+		}
+
+		if (containerLoadTop > ( containerHeight - containerMinHeight) ) {
+			containerLoadTop = containerHeight - containerMinHeight;
+		}
+
+		// Setup the CSS.
+		if (containerLoadHeight !== null) {
+			containerLoadCSS.height = containerLoadHeight;
+		}
+
+		if (containerLoadTop !== null) {
+			containerLoadCSS.top = containerLoadTop;
+		}
+
+		$conf_sch_loading.css(containerLoadCSS);
+
+		return $conf_sch_container;
+	};
+
+	// Returns true if invoked element is in viewport.
+	$.fn.conf_sch_is_in_viewport = function() {
+		var elementTop = $(this).offset().top,
+			elementBottom = elementTop + $(this).outerHeight(),
+			viewportTop = $(window).scrollTop(),
+			viewportBottom = viewportTop + $(window).height();
+		return elementBottom > viewportTop && elementTop < viewportBottom;
+	};
+
 	// Format the title.
-	Handlebars.registerHelper( 'title', function( $options ) {
+	Handlebars.registerHelper( 'event_title', function( $options ) {
 		var $new_title = this.title.rendered;
 		if ( $new_title !== undefined && $new_title ) {
 			if ( this.link_to_post && this.link !== undefined && this.link ) {
@@ -462,11 +711,16 @@
 	});
 
 	// Format the excerpt.
-	Handlebars.registerHelper( 'excerpt', function( $options ) {
-		var $new_excerpt = this.excerpt.rendered;
-		if ( $new_excerpt !== undefined && $new_excerpt ) {
-			return new Handlebars.SafeString( '<div class="event-desc">' + $new_excerpt + '</div>' );
+	Handlebars.registerHelper( 'event_excerpt', function( $options ) {
+
+		if ( this.event_type == 'session' ) {
+			return null;
 		}
+
+		if ( this.excerpt.rendered != '' ) {
+			return new Handlebars.SafeString( '<div class="event-excerpt">' + this.excerpt.rendered + '</div>' );
+		}
+
 		return null;
 	});
 

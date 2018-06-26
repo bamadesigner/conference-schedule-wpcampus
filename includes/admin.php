@@ -4,166 +4,74 @@
  * Holds the back-end admin
  * functionality for the plugin.
  */
-class Conference_Schedule_Admin {
+final class Conference_Schedule_Admin {
 
 	/**
-	 * ID of the settings page
+	 * IDs for admin pages.
 	 *
 	 * @since   1.0.0
 	 * @access  public
 	 * @var     string
 	 */
-	public $settings_page_id;
+	public $settings_page_id,
+		$preview_page_id;
 
 	/**
-	 * Holds the class instance.
-	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @var		Conference_Schedule_Admin
+	 * We don't need to instantiate this class.
 	 */
-	private static $instance;
+	protected function __construct() {}
 
 	/**
-	 * Returns the instance of this class.
+	 * Registers all of our hooks and what not.
 	 *
-	 * @access  public
-	 * @since   1.0.0
-	 * @return	Conference_Schedule_Admin
+	 * @return void
 	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			$class_name = __CLASS__;
-			self::$instance = new $class_name;
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Warming things up.
-	 *
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	protected function __construct() {
+	public static function register() {
+		$plugin = new self();
 
 		// Return data to AJAX.
-		add_action( 'wp_ajax_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
-		add_action( 'wp_ajax_conf_sch_get_users', array( $this, 'ajax_get_users' ) );
-		add_action( 'wp_ajax_conf_sch_get_terms', array( $this, 'ajax_get_terms' ) );
-		add_action( 'wp_ajax_conf_sch_get_posts', array( $this, 'ajax_get_posts' ) );
-		add_action( 'wp_ajax_conf_sch_get_events', array( $this, 'ajax_get_events' ) );
+		add_action( 'wp_ajax_conf_sch_get_users', array( $plugin, 'ajax_get_users' ) );
+		add_action( 'wp_ajax_conf_sch_get_terms', array( $plugin, 'ajax_get_terms' ) );
+		add_action( 'wp_ajax_conf_sch_get_posts', array( $plugin, 'ajax_get_posts' ) );
+		add_action( 'wp_ajax_conf_sch_get_group_events', array( $plugin, 'ajax_get_group_events' ) );
+		add_action( 'wp_ajax_conf_sch_clear_proposal_cache', array( $plugin, 'ajax_clear_proposal_cache' ) );
 
 		// Add styles and scripts for the tools page.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $plugin, 'enqueue_styles_scripts' ), 20 );
 
 		// Add regular settings page.
-		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
+		add_action( 'admin_menu', array( $plugin, 'add_settings_page' ) );
 
 		// Register our settings.
-		add_action( 'admin_init', array( $this, 'register_settings' ), 1 );
+		add_action( 'admin_init', array( $plugin, 'register_settings' ), 1 );
 
 		// Add our settings meta boxes.
-		add_action( 'admin_head-schedule_page_conf-schedule-settings', array( $this, 'add_settings_meta_boxes' ) );
+		add_action( 'admin_head-schedule_page_conf-schedule-settings', array( $plugin, 'add_settings_meta_boxes' ) );
 
 		// Add admin notices.
-		add_action( 'admin_notices', array( $this, 'print_admin_notice' ) );
+		add_action( 'admin_notices', array( $plugin, 'print_admin_notice' ) );
 
 		// Add meta boxes.
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ), 1, 2 );
+		add_action( 'add_meta_boxes', array( $plugin, 'add_meta_boxes' ), 1, 2 );
+		add_action( 'edit_form_after_title', array( $plugin, 'print_meta_boxes_after_title' ), 0 );
 
 		// Save meta box data.
-		add_action( 'save_post', array( $this, 'save_meta_box_data' ), 20, 3 );
+		add_action( 'save_post', array( $plugin, 'save_meta_box_data_pre' ), 0, 3 );
+		add_action( 'save_post', array( $plugin, 'save_meta_box_data' ), 20, 3 );
 
 		// Set it up so we can do file uploads.
-		add_action( 'post_edit_form_tag' , array( $this, 'post_edit_form_tag' ) );
+		add_action( 'post_edit_form_tag', array( $plugin, 'post_edit_form_tag' ) );
 
 		// Add custom columns.
-		add_filter( 'manage_posts_columns', array( $this, 'add_posts_columns' ), 10, 2 );
+		add_filter( 'manage_posts_columns', array( $plugin, 'add_posts_columns' ), 10, 2 );
 
 		// Populate our custom admin columns.
-		add_action( 'manage_schedule_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
-		add_action( 'manage_speakers_posts_custom_column', array( $this, 'populate_posts_columns' ), 10, 2 );
+		add_action( 'manage_schedule_posts_custom_column', array( $plugin, 'populate_posts_columns' ), 10, 2 );
+		add_action( 'manage_speakers_posts_custom_column', array( $plugin, 'populate_posts_columns' ), 10, 2 );
 
 		// Populate ACF field choices.
-		add_filter( 'acf/load_field/name=proposal', array( $this, 'load_proposal_field_choices' ) );
+		add_filter( 'acf/load_field/name=proposal', array( $plugin, 'load_proposal_field_choices' ) );
 
-	}
-
-	/**
-	 * Method to keep our instance from
-	 * being cloned or unserialized.
-	 *
-	 * @since	1.0.0
-	 * @access	private
-	 * @return	void
-	 */
-	private function __clone() {}
-	private function __wakeup() {}
-
-	/**
-	 * Print list of speakers in JSON for AJAX.
-	 *
-	 * @TODO: Update to work with new system.
-	 *
-	 * @since   1.0.0
-	 * @access  public
-	 * @return  void
-	 */
-	public function ajax_get_speakers() {
-
-		// Get post statuses.
-		$post_statuses = get_post_stati();
-
-		// Remove the ones we don't want.
-		foreach ( array( 'auto-draft', 'inherit', 'private', 'trash' ) as $status ) {
-			if ( isset( $post_statuses[ $status ] ) ) {
-				unset( $post_statuses[ $status ] );
-			}
-		}
-
-		echo json_encode( array() );
-
-		/*// Get list of speakers.
-		$speakers = get_posts( array(
-			'post_type'         => 'speakers',
-			'posts_per_page'    => -1,
-			'orderby'           => 'title',
-			'order'             => 'ASC',
-			'post_status'       => $post_statuses,
-		));
-
-		if ( empty( $speakers ) ) {
-			echo json_encode( array() );
-		} else {
-
-			// Will hold selected speaker IDs.
-			$selected = array();
-
-			*//*
-			 * If we passed a schedule post ID,
-			 * get the selected speakers.
-			 *//*
-			$schedule_post_id = isset( $_GET['schedule_post_id'] ) ? $_GET['schedule_post_id'] : 0;
-			if ( $schedule_post_id > 0 ) {
-
-				// Get the selected speakers.
-				$selected = get_post_meta( $schedule_post_id, 'conf_sch_event_speaker', false );
-
-				// If selected, add to speakers data.
-				if ( ! empty( $selected ) ) {
-					foreach ( $speakers as $speaker ) {
-						$speaker->is_selected = in_array( $speaker->ID, $selected );
-					}
-				}
-			}
-
-			// Print the speakers data.
-			echo json_encode( $speakers );
-
-		}*/
-
-		wp_die();
 	}
 
 	/**
@@ -314,7 +222,7 @@ class Conference_Schedule_Admin {
 	 * @access  public
 	 * @return  void
 	 */
-	public function ajax_get_events() {
+	public function ajax_get_group_events() {
 
 		// Get the posts.
 		$posts = get_posts( array(
@@ -324,6 +232,8 @@ class Conference_Schedule_Admin {
 			'orderby'          => 'title',
 			'order'            => 'ASC',
 			'suppress_filters' => true,
+			'meta_key'         => 'event_type',
+			'meta_value'       => 'group',
 		));
 		if ( ! empty( $posts ) ) {
 
@@ -347,6 +257,40 @@ class Conference_Schedule_Admin {
 	}
 
 	/**
+	 * Clears the cache for a specific proposal.
+	 *
+	 * @return  void
+	 */
+	public function ajax_clear_proposal_cache() {
+
+		if ( ! empty( $_POST['proposal_id'] ) ) {
+			$proposal_id = (int) $_POST['proposal_id'];
+			if ( $proposal_id > 0 ) {
+
+				$this->clear_proposal_cache( $proposal_id );
+				echo true;
+				wp_die();
+
+			}
+		}
+
+		echo false;
+		wp_die();
+
+	}
+
+	/**
+	 * Clears the cache for a specific proposal.
+	 *
+	 * @return  void
+	 */
+	public function clear_proposal_cache( $proposal_id ) {
+		if ( ! empty( $proposal_id ) ) {
+			set_transient( "wpc_proposal_{$proposal_id}", '', 1 );
+		}
+	}
+
+	/**
 	 * Add styles and scripts in the admin.
 	 *
 	 * @access  public
@@ -357,8 +301,10 @@ class Conference_Schedule_Admin {
 	public function enqueue_styles_scripts( $hook_suffix ) {
 		global $post_type, $post_id;
 
-		// Only for the settings page
-		if ( $this->settings_page_id == $hook_suffix ) {
+		// Only for the preview page
+		if ( $this->preview_page_id == $hook_suffix ) {
+			conference_schedule()->enqueue_schedule_assets();
+		} elseif ( $this->settings_page_id == $hook_suffix ) {
 
 			// Enqueue our settings styles
 			wp_enqueue_style( 'conf-schedule-settings', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'conf-schedule-settings.min.css', array(), null );
@@ -431,6 +377,15 @@ class Conference_Schedule_Admin {
 			'conf-schedule-settings',
 			array( $this, 'print_settings_page' )
 		);
+
+		$this->preview_page_id = add_submenu_page(
+			'edit.php?post_type=schedule',
+			__( 'Conference Schedule Preview', 'conf-schedule' ),
+			__( 'Preview', 'conf-schedule' ),
+			'edit_posts',
+			'conf-schedule-preview',
+			array( $this, 'print_preview_page' )
+		);
 	}
 
 	/**
@@ -490,6 +445,28 @@ class Conference_Schedule_Admin {
 					<br class="clear" />
 				</div>
 			</form>
+		</div>
+		<?php
+
+	}
+
+	/**
+	 * Print our preview page.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function print_preview_page() {
+
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<?php
+
+			echo conference_schedule()->get_conference_schedule();
+
+			?>
 		</div>
 		<?php
 
@@ -593,8 +570,8 @@ class Conference_Schedule_Admin {
 				?>
 				<p><?php _e( 'Helps you build a simple schedule for your conference website.', 'conf-schedule' ); ?></p>
 				<p>
-					<strong><a href="<?php echo CONFERENCE_SCHEDULE_PLUGIN_URL; ?>" target="_blank"><?php _e( 'Conference Schedule', 'conf-schedule' ); ?></a></strong><br />
-					<strong><?php _e( 'Version', 'conf-schedule' ); ?>:</strong> <?php echo CONFERENCE_SCHEDULE_VERSION; ?><br /><strong><?php _e( 'Author', 'conf-schedule' ); ?>:</strong> <a href="https://wpcampus.org/" target="_blank">WPCampus</a>
+					<strong><a href="<?php echo CONFERENCE_SCHEDULE_PLUGIN_URL; ?>" target="_blank"><?php _e( 'Conference Schedule', 'conf-schedule' ); ?></a></strong><br>
+					<strong><?php _e( 'Version', 'conf-schedule' ); ?>:</strong> <?php echo CONFERENCE_SCHEDULE_VERSION; ?><br><strong><?php _e( 'Author', 'conf-schedule' ); ?>:</strong> <a href="https://wpcampus.org/" target="_blank">WPCampus</a>
 				</p>
 				<?php
 
@@ -621,10 +598,10 @@ class Conference_Schedule_Admin {
 							<td>
 								<fieldset>
 									<legend><strong><?php _e( 'Which session fields would you like to enable?', 'conf-schedule' ); ?></strong></legend>
-									<label for="conf-sch-fields-livestream"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-livestream" value="livestream"<?php checked( is_array( $fields ) && in_array( 'livestream', $fields ) ); ?> /> <?php _e( 'Livestream', 'conf-schedule' ); ?></label><br />
-									<label for="conf-sch-fields-slides"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-slides" value="slides"<?php checked( is_array( $fields ) && in_array( 'slides', $fields ) ); ?> /> <?php _e( 'Slides', 'conf-schedule' ); ?></label><br />
-									<label for="conf-sch-fields-feedback"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-feedback" value="feedback"<?php checked( is_array( $fields ) && in_array( 'feedback', $fields ) ); ?> /> <?php _e( 'Feedback', 'conf-schedule' ); ?></label><br />
-									<label for="conf-sch-fields-follow-up"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-follow-up" value="follow_up"<?php checked( is_array( $fields ) && in_array( 'follow_up', $fields ) ); ?> /> <?php _e( 'Follow Up', 'conf-schedule' ); ?></label><br />
+									<label for="conf-sch-fields-livestream"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-livestream" value="livestream"<?php checked( is_array( $fields ) && in_array( 'livestream', $fields ) ); ?> /> <?php _e( 'Livestream', 'conf-schedule' ); ?></label><br>
+									<label for="conf-sch-fields-slides"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-slides" value="slides"<?php checked( is_array( $fields ) && in_array( 'slides', $fields ) ); ?> /> <?php _e( 'Slides', 'conf-schedule' ); ?></label><br>
+									<label for="conf-sch-fields-feedback"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-feedback" value="feedback"<?php checked( is_array( $fields ) && in_array( 'feedback', $fields ) ); ?> /> <?php _e( 'Feedback', 'conf-schedule' ); ?></label><br>
+									<label for="conf-sch-fields-follow-up"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-follow-up" value="follow_up"<?php checked( is_array( $fields ) && in_array( 'follow_up', $fields ) ); ?> /> <?php _e( 'Follow Up', 'conf-schedule' ); ?></label><br>
 									<label for="conf-sch-fields-video"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-video" value="video"<?php checked( is_array( $fields ) && in_array( 'video', $fields ) ); ?> /> <?php _e( 'Video', 'conf-schedule' ); ?></label>
 								</fieldset>
 							</td>
@@ -680,9 +657,9 @@ class Conference_Schedule_Admin {
 							<td>
 								<fieldset>
 									<legend><strong><?php _e( 'Display the following fields on the main schedule:', 'conf-schedule' ); ?></strong></legend>
-									<label for="conf-schedule-display-slides"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-slides" value="view_slides"<?php checked( is_array( $display_fields ) && in_array( 'view_slides', $display_fields ) ); ?> /> <?php _e( 'View Slides', 'conf-schedule' ); ?></label><br />
-									<label for="conf-schedule-display-livestream"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-livestream" value="view_livestream"<?php checked( is_array( $display_fields ) && in_array( 'view_livestream', $display_fields ) ); ?> /> <?php _e( 'View Livestream', 'conf-schedule' ); ?></label><br />
-									<label for="conf-schedule-display-feedback"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-feedback" value="give_feedback"<?php checked( is_array( $display_fields ) && in_array( 'give_feedback', $display_fields ) ); ?> /> <?php _e( 'Give Feedback', 'conf-schedule' ); ?></label><br />
+									<label for="conf-schedule-display-slides"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-slides" value="view_slides"<?php checked( is_array( $display_fields ) && in_array( 'view_slides', $display_fields ) ); ?> /> <?php _e( 'View Slides', 'conf-schedule' ); ?></label><br>
+									<label for="conf-schedule-display-livestream"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-livestream" value="view_livestream"<?php checked( is_array( $display_fields ) && in_array( 'view_livestream', $display_fields ) ); ?> /> <?php _e( 'View Livestream', 'conf-schedule' ); ?></label><br>
+									<label for="conf-schedule-display-feedback"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-feedback" value="give_feedback"<?php checked( is_array( $display_fields ) && in_array( 'give_feedback', $display_fields ) ); ?> /> <?php _e( 'Give Feedback', 'conf-schedule' ); ?></label><br>
 									<label for="conf-schedule-display-video"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-video" value="watch_video"<?php checked( is_array( $display_fields ) && in_array( 'watch_video', $display_fields ) ); ?> /> <?php _e( 'Watch Session', 'conf-schedule' ); ?></label>
 								</fieldset>
 							</td>
@@ -827,6 +804,36 @@ class Conference_Schedule_Admin {
 
 			case 'schedule':
 
+				// Add a meta box to link to the session info.
+				$event_type = conference_schedule()->get_event_type( $post->ID );
+				if ( 'session' == $event_type ) {
+
+					$proposal_id = conference_schedule()->get_session_proposal_id( $post->ID );
+					if ( $proposal_id > 0 ) {
+						add_meta_box(
+							'conf-schedule-edit-session',
+							sprintf( __( '%s: Edit Proposal', 'wpcampus' ), 'WPCampus' ),
+							array( $this, 'print_meta_boxes' ),
+							$post_type,
+							'side',
+							'high',
+							array(
+								'proposal' => $proposal_id,
+							)
+						);
+					}
+				}
+
+				// Print instructions.
+				add_meta_box(
+					'conf-schedule-session-instructions',
+					sprintf( __( '%s: How To Manage Sessions', 'wpcampus' ), 'WPCampus' ),
+					array( $this, 'print_meta_boxes' ),
+					$post_type,
+					'conf_sch_after_title',
+					'high'
+				);
+
 				// Event Details.
 				add_meta_box(
 					'conf-schedule-event-details',
@@ -857,6 +864,15 @@ class Conference_Schedule_Admin {
 				add_meta_box(
 					'conf-schedule-social-media',
 					__( 'Event Social Media', 'conf-schedule' ),
+					array( $this, 'print_meta_boxes' ),
+					$post_type,
+					'normal',
+					'high'
+				);
+
+				add_meta_box(
+					'conf-schedule-session-proposal',
+					__( 'Event: The Proposal', 'conf-schedule' ),
 					array( $this, 'print_meta_boxes' ),
 					$post_type,
 					'normal',
@@ -934,7 +950,17 @@ class Conference_Schedule_Admin {
 				break;
 
 		}
+	}
 
+	/**
+	 * Print meta boxes after the title, before the editor.
+	 */
+	public function print_meta_boxes_after_title() {
+		global $post, $wp_meta_boxes;
+
+		do_meta_boxes( get_current_screen(), 'conf_sch_after_title', $post );
+
+		unset( $wp_meta_boxes['post']['conf_sch_after_title'] );
 	}
 
 	/**
@@ -950,6 +976,14 @@ class Conference_Schedule_Admin {
 
 		switch ( $metabox['id'] ) {
 
+			case 'conf-schedule-edit-session':
+				$this->print_edit_session_mb( $metabox['args'] );
+				break;
+
+			case 'conf-schedule-session-instructions':
+				$this->print_session_instructions();
+				break;
+
 			case 'conf-schedule-event-details':
 				$this->print_event_details_form( $post->ID );
 				break;
@@ -960,6 +994,10 @@ class Conference_Schedule_Admin {
 
 			case 'conf-schedule-social-media':
 				$this->print_event_social_media_form( $post->ID );
+				break;
+
+			case 'conf-schedule-session-proposal':
+				$this->print_session_proposal_mb( $post->ID );
 				break;
 
 			case 'conf-schedule-speaker-events':
@@ -988,6 +1026,71 @@ class Conference_Schedule_Admin {
 
 		}
 
+	}
+
+	/**
+	 *
+	 */
+	public function save_meta_box_data_pre( $post_id, $post, $update ) {
+		global $wpdb;
+
+		// Disregard on autosave.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		// Not for auto drafts.
+		if ( 'auto-draft' == $post->post_status ) {
+			return;
+		}
+
+		// Make sure user has permissions.
+		$post_type_object = get_post_type_object( $post->post_type );
+		$user_has_cap     = $post_type_object && isset( $post_type_object->cap->edit_post ) ? current_user_can( $post_type_object->cap->edit_post, $post_id ) : false;
+
+		if ( ! $user_has_cap ) {
+			return;
+		}
+
+		// Proceed depending on post type.
+		switch ( $post->post_type ) {
+
+			case 'schedule':
+
+				// Update session title from proposal.
+				if ( ! empty( $_POST['acf'] ) ) {
+					$acf = $_POST['acf'];
+					if ( ! empty( $acf['field_5a36f647b6c4d'] ) && 'session' == $acf['field_5a36f647b6c4d'] ) {
+						if ( ! empty( $acf['field_5a36fb1df46a0'] ) && $acf['field_5a36fb1df46a0'] > 0 ) {
+
+							// Is run early enough that current session will be blank if newly set.
+							$session         = (int) $acf['field_5a36fb1df46a0'];
+							$current_session = (int) get_post_meta( $_POST['ID'], 'proposal', true );
+
+							if ( $current_session != $session ) {
+								$proposal = conference_schedule()->get_proposal( $session );
+								if ( ! empty( $proposal->title ) ) {
+									//$_POST['post_title'] = $proposal->title;
+									$wpdb->update(
+										$wpdb->posts,
+										array(
+											'post_title' => $proposal->title,
+											'post_name'  => $proposal->slug,
+										),
+										array(
+											'ID' => $_POST['ID'],
+										),
+										array( '%s', '%s' ),
+										array( '%d' )
+									);
+								}
+							}
+						}
+					}
+				}
+				break;
+
+		}
 	}
 
 	/**
@@ -1103,7 +1206,7 @@ class Conference_Schedule_Admin {
 						if ( wp_verify_nonce( $_POST['conf_schedule_save_session_details_nonce'], 'conf_schedule_save_session_details' ) ) {
 
 							// Process each field.
-							foreach ( array( 'livestream_disable', 'livestream_url', 'slides_url', 'feedback_url', 'feedback_reveal_delay_seconds', 'follow_up_url', 'video_url' ) as $field_name ) {
+							foreach ( array( 'livestream_disable', 'livestream_url', 'slides_url', 'feedback_url', 'feedback_reveal_delay_seconds', 'follow_up_url' ) as $field_name ) {
 								if ( isset( $_POST['conf_schedule']['event'][ $field_name ] ) ) {
 
 									// Sanitize the value.
@@ -1198,109 +1301,9 @@ class Conference_Schedule_Admin {
 					}
 				}
 
-				break;
-
-			case 'speakers':
-
-				// Make sure event fields are set.
-				if ( isset( $_POST['conf_schedule'] ) && isset( $_POST['conf_schedule']['speaker'] ) ) {
-
-					/*
-					 * Check if our speaker admin nonce is set because the
-					 * 'save_post' action can be triggered at other times.
-					 */
-					if ( isset( $_POST['conf_schedule_save_speaker_admin_nonce'] ) ) {
-
-						// Verify the nonce.
-						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_admin_nonce'], 'conf_schedule_save_speaker_admin' ) ) {
-
-							// Process each field.
-							foreach ( array( 'user_id' ) as $field_name ) {
-								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
-
-									// Sanitize the value.
-									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
-
-									// Update/save value.
-									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
-
-								}
-							}
-						}
-					}
-
-					/*
-					 * Check if our speaker contact nonce is set because the
-					 * 'save_post' action can be triggered at other times.
-					 */
-					if ( isset( $_POST['conf_schedule_save_speaker_contact_nonce'] ) ) {
-
-						// Verify the nonce.
-						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_contact_nonce'], 'conf_schedule_save_speaker_contact' ) ) {
-
-							// Process each field.
-							foreach ( array( 'email', 'phone' ) as $field_name ) {
-								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
-
-									// Sanitize the value.
-									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
-
-									// Update/save value.
-									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
-
-								}
-							}
-						}
-					}
-
-					/*
-					 * Check if our speaker profile nonce is set because the
-					 * 'save_post' action can be triggered at other times.
-					 */
-					if ( isset( $_POST['conf_schedule_save_speaker_profile_nonce'] ) ) {
-
-						// Verify the nonce.
-						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_profile_nonce'], 'conf_schedule_save_speaker_profile' ) ) {
-
-							// Process each field.
-							foreach ( array( 'position', 'url', 'company', 'company_url' ) as $field_name ) {
-								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
-
-									// Sanitize the value.
-									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
-
-									// Update/save value.
-									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
-
-								}
-							}
-						}
-					}
-
-					/*
-					 * Check if our speaker social media nonce is set because
-					 * the 'save_post' action can be triggered at other times.
-					 */
-					if ( isset( $_POST['conf_schedule_save_speaker_social_media_nonce'] ) ) {
-
-						// Verify the nonce.
-						if ( wp_verify_nonce( $_POST['conf_schedule_save_speaker_social_media_nonce'], 'conf_schedule_save_speaker_social_media' ) ) {
-
-							// Process each field.
-							foreach ( array( 'facebook', 'instagram', 'twitter', 'linkedin' ) as $field_name ) {
-								if ( isset( $_POST['conf_schedule']['speaker'][ $field_name ] ) ) {
-
-									// Sanitize the value.
-									$field_value = sanitize_text_field( $_POST['conf_schedule']['speaker'][ $field_name ] );
-
-									// Update/save value.
-									update_post_meta( $post_id, "conf_sch_speaker_{$field_name}", $field_value );
-
-								}
-							}
-						}
-					}
-				}
+				// Clear the proposal cache.
+				$proposal_id = conference_schedule()->get_session_proposal_id( $post_id );
+				$this->clear_proposal_cache( $proposal_id );
 
 				break;
 
@@ -1354,7 +1357,58 @@ class Conference_Schedule_Admin {
 				break;
 
 		}
+	}
 
+	/**
+	 * Print the "Edit Proposal" meta box which
+	 * has buttons to easily edit the session
+	 * and clear the cache.
+	 */
+	public function print_edit_session_mb( $args = array() ) {
+		$proposal_id = ! empty( $args['proposal'] ) ? $args['proposal'] : 0;
+		if ( $proposal_id > 0 ) :
+
+			$main_site_url = trailingslashit( conference_schedule()->get_network_site_url() );
+
+			$edit_url = add_query_arg(
+				array(
+					'post'   => $proposal_id,
+					'action' => 'edit',
+				),
+				$main_site_url . 'wp-admin/post.php'
+			);
+
+			?>
+			<div class="wpc-inside-mb">
+				<a class="button button-primary button-large" style="display:block;text-align:center;" href="<?php echo $edit_url; ?>" target="_blank"><?php _e( 'Edit proposal', 'conf-schedule' ); ?></a>
+				<button id="wpc-sch-clear-cache" data-proposal="<?php echo $proposal_id; ?>" class="button" style="display:block;width:100%;text-align:center;margin:5px 0 0 0;"><?php _e( 'Clear proposal cache', 'conf-schedule' ); ?></button>
+			</div>
+			<?php
+		endif;
+	}
+
+	/**
+	 * Print instructions to manage sessions.
+	 */
+	public function print_session_instructions() {
+
+		$main_site_url     = trailingslashit( conference_schedule()->get_network_site_url() );
+		$view_proposal_url = add_query_arg( 'post_type', 'proposal', $main_site_url . 'wp-admin/edit.php' );
+		$view_profile_url  = add_query_arg( 'post_type', 'profile', $main_site_url . 'wp-admin/edit.php' );
+
+		?>
+		<div class="wpc-inside-mb">
+			<ul>
+				<li>All of our session information is managed on our main site as <a href="<?php echo $view_proposal_url; ?>" target="_blank">proposals</a> and <a href="<?php echo $view_profile_url; ?>" target="_blank">speaker profiles</a>.</li>
+				<li>This page only manages event-specific information, e.g. date, time, location, etc.</li>
+				<li>For event sessions, choose which proposal you'd like to use in the "The Basics" meta box.</li>
+				<li>The proposal information will auto-populate the schedule where needed, including speaker information.</li>
+				<li>Any text you add to the main editor will be placed <em>above</em> the proposal's description.</li>
+				<li>For all non-session event types, e.g. opening remarks or lunch, choose the "Basic" event type.</li>
+				<li>Use the "Edit Proposal" meta box to edit the selected proposal and to clear it's information in our cache.</li>
+			</ul>
+		</div>
+		<?php
 	}
 
 	/**
@@ -1417,7 +1471,7 @@ class Conference_Schedule_Admin {
 							<a class="conf-sch-refresh-events" href="#"><?php _e( 'Refresh events', 'conf-schedule' ); ?></a> |
 							<a href="<?php echo admin_url( 'edit.php?post_type=schedule' ); ?>" target="_blank"><?php _e( 'Manage events', 'conf-schedule' ); ?></a>
 						</p>
-						<p class="description"><strong><?php _e( 'Group this event by selecting the event parent.', 'conf-schedule' ); ?></strong><br /><?php _e( 'For example, lightning talks are usually events where multiple sessions equal one block on the schedule. To group events, create a "parent" event and assign them all under the same parent.', 'conf-schedule' ); ?></p>
+						<p class="description"><strong><?php _e( 'Group this event by selecting the event parent.', 'conf-schedule' ); ?><br><?php _e( 'The event parent must be assigned as a "Group of events" event type.', 'conf-schedule' ); ?></strong><br><?php _e( 'For example, lightning talks are usually events where multiple sessions equal one block on the schedule. To group events, create a "parent" event and assign them all under the same parent.', 'conf-schedule' ); ?></p>
 						<?php
 
 						// See if this event has a parent.
@@ -1679,24 +1733,6 @@ class Conference_Schedule_Admin {
 
 				endif;
 
-				// Print video field(s).
-				if ( in_array( 'video', $session_fields ) ) :
-
-					// Get field information.
-					$video_url = get_post_meta( $post_id, 'conf_sch_event_video_url', true );
-
-					?>
-					<tr>
-						<th scope="row"><label for="conf-sch-video-url"><?php _e( 'Video URL', 'conf-schedule' ); ?></label></th>
-						<td>
-							<input type="url" id="conf-sch-video-url" name="conf_schedule[event][video_url]" value="<?php echo esc_attr( $video_url ); ?>"/>
-							<p class="description"><?php _e( 'Please provide the URL you wish to provide for the session recording.', 'conf-schedule' ); ?></p>
-						</td>
-					</tr>
-					<?php
-
-				endif;
-
 				?>
 			</tbody>
 		</table>
@@ -1734,6 +1770,30 @@ class Conference_Schedule_Admin {
 		</table>
 		<?php
 
+	}
+
+	/**
+	 *
+	 */
+	public function print_session_proposal_mb( $post_id ) {
+
+		$proposal_id = conference_schedule()->get_session_proposal_id( $post_id );
+		if ( empty( $proposal_id ) ) :
+
+			?>
+			<p><em><?php _e( 'No proposal has been selected.', 'conf-schedule' ); ?></em></p>
+			<?php
+
+			return;
+
+		endif;
+
+		$proposal = conference_schedule()->get_proposal( $proposal_id );
+
+		?>
+		<p><strong><?php _e( 'Proposal', 'conf-schedule' ); ?></strong></p>
+		<pre style="overflow:scroll;"><?php print_r( $proposal ); ?></pre>
+		<?php
 	}
 
 	/**
@@ -2083,9 +2143,11 @@ class Conference_Schedule_Admin {
 		// Columns to add after title.
 		$add_columns_after_title = array(
 			'schedule' => array(
-				'speakers'  => __( 'Speakers', 'conf-schedule' ),
-				'date'      => __( 'Date', 'conf-schedule' ),
-				'location'  => __( 'Location', 'conf-schedule' ),
+				'social'   => __( 'Social', 'conf-schedule' ),
+				'proposal' => __( 'Proposal', 'conf-schedule' ),
+				'speakers' => __( 'Speaker(s)', 'conf-schedule' ),
+				'date'     => __( 'Date', 'conf-schedule' ),
+				'location' => __( 'Location', 'conf-schedule' ),
 			),
 			'speakers' => array(
 				'events' => __( 'Events', 'conf-schedule' ),
@@ -2123,7 +2185,7 @@ class Conference_Schedule_Admin {
 	public function populate_posts_columns( $column, $post_id ) {
 
 		// Add data for our custom date column.
-		if ( in_array( $column, array( 'conf-sch-date', 'conf-sch-location', 'conf-sch-speakers' ) ) ) {
+		if ( in_array( $column, array( 'conf-sch-date', 'conf-sch-location' ) ) ) {
 
 			// Get event.
 			$event = new Conference_Schedule_Event( $post_id );
@@ -2133,59 +2195,149 @@ class Conference_Schedule_Admin {
 
 				$date = $event->get_date();
 				$date_display = $event->get_date_display();
-				if ( ! empty( $date ) && ! empty( $date_display ) ) :
 
-					// Setup the filter URL.
-					$filters = $_GET;
-					$filters['conf_sch_event_date'] = $date;
-					$filter_url = add_query_arg( $filters, 'edit.php' );
+				if ( empty( $date ) || empty( $date_display ) ) {
+					return;
+				}
 
-					?><a href="<?php echo $filter_url; ?>"><?php echo $date_display; ?></a><?php
+				// Setup the filter URL.
+				$filters = $_GET;
+				$filters['conf_sch_event_date'] = $date;
+				$filter_url = add_query_arg( $filters, 'edit.php' );
 
-				endif;
-			} elseif ( 'conf-sch-location' == $column ) {
+				?>
+				<a href="<?php echo $filter_url; ?>"><?php echo $date_display; ?></a>
+				<?php
+
+				return;
+
+			}
+
+			if ( 'conf-sch-location' == $column ) {
 
 				// Get event location.
 				$event_location = $event->get_location();
-				if ( ! empty( $event_location->ID ) ) :
-					?><a href="<?php echo get_edit_post_link( $event_location->ID ); ?>"><?php echo $event_location->post_title; ?></a><?php
+				if ( empty( $event_location->ID ) ) {
+					return;
+				}
+
+				?>
+				<a href="<?php echo get_edit_post_link( $event_location->ID ); ?>"><?php echo $event_location->post_title; ?></a>
+				<?php
+
+				return;
+
+			}
+
+			return;
+		}
+
+		// Get data for our proposal and speakers.
+		if ( in_array( $column, array( 'conf-sch-proposal', 'conf-sch-speakers' ) ) ) {
+
+			// Get proposal info, which has speaker info too.
+			$event_type  = conference_schedule()->get_event_type( $post_id );
+			$proposal_id = conference_schedule()->get_session_proposal_id( $post_id );
+			$proposal    = $proposal_id > 0 ? conference_schedule()->get_proposal( $proposal_id ) : null;
+
+			$main_site_url = trailingslashit( conference_schedule()->get_network_site_url() );
+
+			if ( 'conf-sch-proposal' == $column ) {
+
+				if ( 'session' != $event_type ) {
+					return;
+				}
+
+				if ( ! $proposal_id || empty( $proposal->ID ) ) :
+					?>
+					<em><?php _e( 'No proposal', 'conf-schedule' ); ?></em>
+					<?php
+				else :
+
+					$edit_url = add_query_arg(
+						array(
+							'post'   => $proposal->ID,
+							'action' => 'edit',
+						),
+						$main_site_url . 'wp-admin/post.php'
+					);
+
+					?>
+					<a href="<?php echo $edit_url; ?>" target="_blank"><?php _e( 'Edit proposal', 'conf-schedule' ); ?></a>
+					<?php
 				endif;
-			} elseif ( 'conf-sch-speakers' == $column ) {
 
-				// Get event speakers.
-				$speakers = $event->get_speakers();
-				if ( $speakers ) {
+				return;
+			}
 
-					// Build string of speakers.
-					$speakers_list = array();
-					foreach ( $speakers as $speaker ) {
-						$speakers_list[] = '<a href="' . get_edit_post_link( $speaker->ID ) . '">' . $speaker->post_title . '</a>';
-					}
+			if ( 'conf-sch-speakers' == $column ) {
 
-					// Print speakers list.
-					echo implode( '<br>', $speakers_list );
+				if ( 'session' != $event_type ) {
+					return;
+				}
+
+				if ( ! $proposal_id || empty( $proposal->ID ) || empty( $proposal->speakers ) ) {
+					return;
+				}
+
+				$speakers_list = array();
+
+				foreach ( $proposal->speakers as $speaker ) {
+
+					$edit_url = add_query_arg(
+						array(
+							'post'   => $speaker->ID,
+							'action' => 'edit',
+						),
+						$main_site_url . 'wp-admin/post.php'
+					);
+
+					$speakers_list[] = '<a href="' . $edit_url . '" target="_blank">' . $speaker->display_name . '</a>';
 
 				}
+
+				echo implode( '<br>', $speakers_list );
+
+				return;
 			}
-		} elseif ( 'conf-sch-events' == $column ) {
+		}
+
+		if ( 'conf-sch-social' == $column ) {
+
+			$message = get_post_meta( $post_id, 'sws_meta_format', true );
+
+			$images_url = conference_schedule()->get_plugin_url() . 'assets/images/';
+
+			if ( ! empty( $message ) ) :
+				?>
+				<img style="width:auto;height:25px;margin:5px 5px 5px 0;" src="<?php echo $images_url; ?>twitter-logo.svg" alt="<?php printf( esc_attr__( 'This post has a %s message.', 'conf-schedule' ), 'Twitter' ); ?>" title="<?php echo esc_attr( $message ); ?>">
+				<img style="width:auto;height:25px;margin:5px 5px 5px 0;" src="<?php echo $images_url; ?>facebook-logo.svg" alt="<?php printf( esc_attr__( 'This post has a %s message.', 'conf-schedule' ), 'Facebook' ); ?>" title="<?php echo esc_attr( $message ); ?>">
+				<?php
+			endif;
+		}
+
+		if ( 'conf-sch-events' == $column ) {
 
 			// Get speaker.
 			$speaker = new Conference_Schedule_Speaker( $post_id );
 
 			// Get speaker's events.
 			$events = $speaker->get_events();
-			if ( $events ) {
 
-				// Build string of events.
-				$events_lists = array();
-				foreach ( $events as $event ) {
-					$events_lists[] = '<a href="' . get_edit_post_link( $event->ID ) . '">' . $event->post_title . '</a>';
-				}
-
-				// Print events list.
-				echo implode( '<br>', $events_lists );
-
+			if ( empty( $events ) ) {
+				return;
 			}
+
+			// Build string of events.
+			$events_lists = array();
+			foreach ( $events as $event ) {
+				$events_lists[] = '<a href="' . get_edit_post_link( $event->ID ) . '">' . $event->post_title . '</a>';
+			}
+
+			// Print events list.
+			echo implode( '<br>', $events_lists );
+
+			return;
 		}
 	}
 
@@ -2202,12 +2354,6 @@ class Conference_Schedule_Admin {
 			'proposal_status' => array( 'confirmed', 'selected' ),
 		);
 
-		// Add event ID to limit query.
-		$event_id = get_option( 'wpc_proposal_event' );
-		if ( ! empty( $event_id ) ) {
-			$proposal_args['event'] = $event_id;
-		}
-
 		// Get the proposals.
 		$proposals = conference_schedule()->get_proposals( $proposal_args );
 		if ( empty( $proposals ) ) {
@@ -2216,32 +2362,17 @@ class Conference_Schedule_Admin {
 
 		foreach ( $proposals as $proposal ) {
 
-			$proposal_title = $proposal->title->rendered;
+			$proposal_title = $proposal->title;
 
 			if ( 'confirmed' != $proposal->proposal_status ) {
 				$proposal_title .= ' <span style="text-transform:uppercase;font-style:italic;font-weight:bold;color:#900;">(' . __( 'Not Confirmed', 'conf-schedule' ) . ')</span>';
 			}
 
-			$field['choices'][ $proposal->id ] = $proposal_title;
+			$field['choices'][ $proposal->ID ] = $proposal_title;
+
 		}
 
 		return $field;
 	}
 }
-
-/**
- * Returns the instance of our Conference_Schedule_Admin class.
- *
- * Will come in handy when we need to access the
- * class to retrieve data throughout the plugin.
- *
- * @since	1.0.0
- * @access	public
- * @return	Conference_Schedule_Admin
- */
-function conference_schedule_admin() {
-	return Conference_Schedule_Admin::instance();
-}
-
-// Let's get this show on the road.
-conference_schedule_admin();
+Conference_Schedule_Admin::register();

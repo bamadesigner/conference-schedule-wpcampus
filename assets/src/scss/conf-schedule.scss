@@ -24,7 +24,7 @@
 
 	a {
 		display: block;
-		background-color: #662d91;
+		background-color: $video-color;
 		color: #fff !important;
 		padding: 15px 20px;
 		text-align: center;
@@ -34,12 +34,13 @@
 
 		&:focus,
 		&:hover {
-			background-color: darken( #662d91, 10% );
+			background-color: darken( $video-color, 10% );
 		}
 	}
 }
 
 #conf-sch-single-content {
+	clear: left;
 	
 	.conf-schedule-single-loading,
     .conf-schedule-single-error {
@@ -48,6 +49,65 @@
 
 	.conf-schedule-single-error {
 		color: #900;
+	}
+
+	.conf-sch-group-events {
+
+		.conf-sch-group-event {
+			border-top: 1px solid #eee;
+			margin: 2rem 0 0 0;
+			padding: 2.1rem 0 0 0;
+
+			*:first-child {
+				margin-top: 0;
+			}
+
+			*:last-child {
+				margin-bottom: 0;
+			}
+
+			.event-time {
+				font-size: 0.9rem;
+				color: #666;
+			}
+
+			.event-title {
+				font-size: 1.5rem;
+				line-height: 2.3rem;
+				margin: 0;
+			}
+
+			.event-subjects {
+				margin: 0.4rem 0 0 0;
+				font-style: italic;
+			}
+
+			.event-speakers {
+				font-weight: 700;
+				font-size: 1.2rem;
+				line-height: 1.3;
+				margin: 0.4rem 0 0 0;
+			}
+
+			.event-excerpt {
+				margin: 0.8rem 0 1.2rem 0;
+
+				* {
+					font-size: 0.9rem;
+					line-height: 1.8;
+				}
+			}
+
+			.event-links {
+				margin: 0.6rem 0 0 0;
+			}
+
+			&:first-child {
+				border-top: 0;
+				margin-top: 0;
+				padding-top: 0;
+			}
+		}
 	}
 
 	@media screen and (min-width: 620px) {
@@ -67,7 +127,6 @@
 
 // Customize the single schedule pages
 #conf-sch-single-meta {
-	display: none;
 	background: #fff;
 	border: 1px solid #e8e8e8;
 	border-radius: 5px;
@@ -92,12 +151,13 @@
 	.conf-sch-event-buttons {
 		margin: 12px 0 0 0 !important;
 	}
-}
 
-// Move meta to the right when screen gets larger
-@media screen and (min-width: 620px) {
+	*:first-child {
+		margin-top: 0 !important;
+	}
 
-	#conf-sch-single-meta {
+	// Move meta to the right when screen gets larger
+	@media screen and (min-width: 620px) {
 		float: right;
 		margin-left: 30px;
 		min-width: 300px;
@@ -120,6 +180,7 @@ $session-video-height: 450px;
 
 #conf-sch-single-speakers {
 	display: none;
+	clear: both;
 
 	@include include-schedule-speaker();
 
@@ -141,88 +202,11 @@ $session-video-height: 450px;
 // Set schedule variables
 $conf-sch-time-width: 15%;
 $conf-sch-events-width: 85%;
-#conference-schedule-container {
+.conference-schedule-container {
 	box-sizing: border-box;
 
 	* {
 		box-sizing: border-box;
-	}
-
-	// Is displayed when done loading
-	& > * {
-		display: none;
-	}
-
-	.schedule-by-day {
-		margin-top: 30px;
-	}
-	
-	.schedule-nav-button {
-		@include is-button();
-			
-		& + .schedule-nav-button {
-			margin-top: -0.7rem;
-		}
-	}
-	
-	.schedule-nav-buttons {
-		
-		@media screen and (min-width: 600px) {
-			display: flex;
-			flex-wrap: wrap;
-			margin: 1.3rem 0;
-			
-			.schedule-nav-button {
-				margin: 5px !important;
-			}
-			
-			&.nav-bottom {
-				
-				.schedule-nav-button {
-					width: 48%;
-					flex: auto;
-					margin: 5px 1%;
-				}
-			}
-			
-			&.has-highlight {
-			
-				.schedule-nav-button {
-					flex: 1;
-					
-					&.highlight {
-						width: 100%;
-						flex: auto;
-					}
-				}	
-			}
-		}
-
-		@media screen and (min-width: $schedule-table-col-breakpoint) {
-			
-			&.nav-top {
-
-				.schedule-nav-button {
-					flex: 1 !important;
-					width: auto !important;
-				}
-			}
-			
-			&.nav-bottom {
-
-				.schedule-nav-button {
-					width: auto !important;
-					
-					&:first-child {
-						margin-left: 0 !important;
-					}
-					
-					&:last-child {
-						margin-right: 0 !important;
-					}
-				}
-			}
-		}
 	}
 
 	.schedule-table {
@@ -236,6 +220,7 @@ $conf-sch-events-width: 85%;
 			clear: both;
 			overflow: auto;
 			padding: 0 0 25px 0;
+			border-top: 5px solid $schedule-border-color;
 
 			&:last-child {
 				border-bottom: 1px solid $schedule-border-color;
@@ -257,6 +242,8 @@ $conf-sch-events-width: 85%;
 					text-transform: none;
 				}
 
+				.event-excerpt,
+				.event-format,
 				.event-location,
 				.event-address {
 					display: block;
@@ -268,6 +255,24 @@ $conf-sch-events-width: 85%;
 					a {
 						color: inherit;
 					}
+				}
+
+				.event-excerpt {
+					background: rgba($wpc-royal-blue,0.05);
+					padding: 10px;
+					margin-top: 15px;
+
+					*:first-child {
+						margin-top: 0;
+					}
+
+					*:last-child {
+						margin-bottom: 0;
+					}
+				}
+
+				.event-format {
+					font-style: italic;
 				}
 
 				.event-subjects {
@@ -292,18 +297,6 @@ $conf-sch-events-width: 85%;
 					}
 				}
 
-				.event-desc {
-
-					/*.twitter-to-left {
-						background-size: auto 20px;
-						padding: 0 0 0 30px;
-					}*/
-
-					& > *:last-child {
-						margin-bottom: 0;
-					}
-				}
-
 				& > *:last-child {
 					margin-bottom: 0;
 				}
@@ -316,15 +309,28 @@ $conf-sch-events-width: 85%;
 						margin: 25px 0 0 0;
 
 						.schedule-event {
-							float: none !important;
-							width: 100% !important;
-							padding: 0 !important;
-							margin: 25px 0 0 0 !important;
 
 							.event-time {
 								display: block !important;
 								font-size: 0.9em;
 								line-height: 1.7;
+							}
+						}
+
+						// When gets broken into columns.
+						@media screen and (min-width: $schedule-table-col-breakpoint) {
+							display: flex;
+							
+							&.has-same-time {
+								.event-time {
+									display: none !important;
+								}
+							}
+
+							&.has-same-location {
+								.event-location {
+									display: none !important;
+								}
 							}
 						}
 					}
@@ -356,7 +362,9 @@ $conf-sch-events-width: 85%;
 			}
 
 			&.status-in-progress {
-				background: rgba( 0, 128, 0, 0.05 );
+				background: rgba( $in-progress-color, 0.05 );
+				border-top: 5px solid rgba( $in-progress-color, 0.3 );
+				border-bottom: 5px solid rgba( $in-progress-color, 0.3 );
 				
 				// Only tweak for small screens.
 				@media screen and (max-width: $schedule-table-col-breakpoint - 1) {
@@ -374,6 +382,14 @@ $conf-sch-events-width: 85%;
 				}
 			}
 
+			&.status-in-progress + .schedule-row {
+				border-top: 0;
+			}
+
+			&.status-past {
+				opacity: 0.5;
+			}
+
 			//&.status-future {}
 		}
 
@@ -384,27 +400,243 @@ $conf-sch-events-width: 85%;
 			}
 		}
 	}
-	
-	.schedule-by-day {
-		
-		&.schedule-in-progress {
-			
-			.schedule-table {
-				
-				.schedule-row {
-					
-					&.status-past {
-						opacity: 0.5;
+
+	.conference-schedule {
+		opacity: 1;
+		@include set-transition( opacity 1s ease );
+
+		.schedule-by-day {
+			margin-top: 0;
+
+			&.schedule-in-past {
+
+				&.schedule-show {
+
+					.status-past {
+						opacity: 1;
+					}
+				}
+
+				&:not(.schedule-show) {
+
+					.schedule-row.status-past {
+						display: none;
+					}
+				}
+			}
+
+			& + .schedule-by-day {
+				margin-top: -10px;
+			}
+		}
+	}
+
+	.schedule-nav-buttons {
+
+		button,
+		.button {
+			@include is-button();
+
+			&.highlight {
+				background-color: $wpc-royal-blue;
+				color: #fff;
+
+				&.schedule-video  {
+					background-color: $video-color;
+				}
+
+				&.schedule-go-current {
+					background-color: $in-progress-color;
+				}
+			}
+
+			& + button,
+			& + .button {
+				margin-top: -0.7rem;
+			}
+		}
+
+		@media screen and (min-width: 600px) {
+			display: flex;
+			flex-wrap: wrap;
+			margin: 1.3rem 0;
+
+			button,
+			.button {
+				margin: 5px !important;
+			}
+
+			&.nav-top {
+				border-bottom: 1px solid $schedule-border-color;
+				padding-bottom: 1.3rem;
+			}
+
+			&.nav-bottom {
+
+				button,
+				.button {
+					width: 48%;
+					flex: auto;
+					margin: 5px 1%;
+				}
+			}
+
+			&.has-highlight {
+
+				button,
+				.button {
+					flex: 1;
+
+					&.highlight {
+						width: 100%;
+						flex: auto;
 					}
 				}
 			}
 		}
 
+		@media screen and (min-width: $schedule-table-col-breakpoint) {
+
+			&.nav-top {
+
+				button,
+				.button {
+					flex: 1 !important;
+					width: auto !important;
+				}
+			}
+
+			&.nav-bottom {
+
+				button,
+				.button {
+					width: auto !important;
+
+					&:first-child {
+						margin-left: 0 !important;
+					}
+
+					&:last-child {
+						margin-right: 0 !important;
+					}
+				}
+			}
+		}
 	}
 
+	$side-buttons-width: 60px;
+	$side-buttons-height: 60px;
+	.schedule-side-buttons {
+		position: fixed;
+		right: 0;
+		top: 70px;
+		width: $side-buttons-width;
+		opacity: 0;
+		pointer-events: none;
+		z-index: 1000;
+		@include set-transition(opacity 1s ease);
+
+		button,
+		.button {
+			@include is-button();
+			width: $side-buttons-width;
+			height: $side-buttons-height;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+			margin: 10px 0;
+
+			span {
+				@include for-screen-reader();
+			}
+
+			&.schedule-refresh {
+				background: url('../../images/refresh.svg') center center no-repeat rgba(0,0,0,0.1);
+				background-size: 28px auto;
+			}
+
+			&.schedule-video {
+				background: url('../../images/video.svg') center center no-repeat rgba(0,0,0,0.1);
+				background-size: 32px auto;
+			}
+
+			&.schedule-go-current {
+				background: url('../../images/clock.svg') center center no-repeat rgba(0,0,0,0.1);
+				background-size: 32px auto;
+			}
+
+			&.schedule-go-top {
+				background: url('../../images/arrow-up.svg') center center no-repeat rgba(0,0,0,0.1);
+				background-size: 32px auto;
+			}
+
+			&.highlight {
+				background-color: rgba($wpc-royal-blue, 0.1);
+
+				&.schedule-video  {
+					background-color: rgba($video-color, 0.1);
+				}
+
+				&.schedule-go-current {
+					background-color: rgba($in-progress-color, 0.1);
+				}
+			}
+		}
+	}
+
+	.conference-schedule-pre,
+	.conference-schedule-post {
+		opacity: 1;
+		@include set-transition( opacity 1s ease );
+	}
+
+	.conference-schedule-loading {
+		pointer-events: none;
+		opacity: 0;
+		@include set-transition( opacity 1s ease );
+	}
+
+	&.active {
+
+		.schedule-side-buttons {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
+	$loading-opacity: 0.2;
+	$loading-min-height: 100px;
 	&.loading {
-		min-height: 200px;
-		background: url( '../../images/loading.gif' ) center center no-repeat;
+		min-height: $loading-min-height;
+		position: relative;
+		pointer-events: none;
+
+		.conference-schedule {
+			opacity: $loading-opacity;
+			pointer-events: none;
+		}
+
+		.conference-schedule-pre,
+		.conference-schedule-post {
+			opacity: $loading-opacity;
+			pointer-events: none;
+		}
+
+		.schedule-side-buttons {
+			opacity: $loading-opacity;
+			pointer-events: none;
+		}
+
+		.conference-schedule-loading {
+			opacity: 1;
+			min-height: $loading-min-height;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: url('../../images/loading.gif') center center no-repeat;
+			z-index: 1000;
+		}
 	}
 }
 
@@ -540,7 +772,7 @@ $conf-sch-events-width: 85%;
 // Screens larger than 1000px get broken into columns
 @media screen and (min-width: $schedule-table-col-breakpoint) {
 
-	#conference-schedule-container {
+	.conference-schedule-container {
 
 		.schedule-table {
 
@@ -597,6 +829,7 @@ $conf-sch-events-width: 85%;
 			}
 
 			.schedule-row {
+				border-top: 0;
 
 				&:last-child {
 					border-bottom: 1px solid $schedule-border-color !important;
@@ -613,9 +846,31 @@ $conf-sch-events-width: 85%;
 
 				.schedule-event {
 					margin-bottom: 0;
+					position: relative;
 
 					.event-time {
 						display: none;
+					}
+
+					&.has-event-links {
+						.event-links {
+							position: absolute;
+							left: 0;
+							bottom: 0;
+							width: 100%;
+						}
+					}
+
+					$event-link-padding-base: 60px;
+					$event-link-padding-inc: 45px;
+					@for $i from 1 through 20 {
+						&.has-event-links-#{$i} {
+							@if $i > 1 {
+								padding-bottom: $event-link-padding-base + ($event-link-padding-inc * ($i - 1));
+							} @else {
+								padding-bottom: $event-link-padding-base;
+							}
+						}
 					}
 				}
 
@@ -641,28 +896,36 @@ $conf-sch-events-width: 85%;
 						position: relative;
 
 						.schedule-event {
+							width: 100%;
 							padding-right: 10px;
 							padding-left: 10px;
 							min-height: 1px;
+
+							.event-links {
+								padding-right: 10px;
+								padding-left: 10px;
+							}
 
 							// Two and four items
 							&:first-child:nth-last-child(2),
 							&:first-child:nth-last-child(2) ~ .schedule-event,
 							&:first-child:nth-last-child(4),
 							&:first-child:nth-last-child(4) ~ .schedule-event {
-								float: left;
 								width: 50%;
 							}
 
 							// Three items
 							&:first-child:nth-last-child(3),
 							&:first-child:nth-last-child(3) ~ .schedule-event {
-								float: left;
 								width: 33.3333%;
 							}
 
 							&:first-child {
 								padding-left: 0;
+
+								.event-links {
+									padding-left: 0;
+								}
 							}
 						}
 					}

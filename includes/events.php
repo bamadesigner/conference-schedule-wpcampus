@@ -87,7 +87,7 @@ class Conference_Schedule_Event {
 	 * @access  private
 	 * @var     string
 	 */
-	private $date_display;
+	private $day, $date_display;
 
 	/**
 	 * Will hold the event time display.
@@ -371,6 +371,30 @@ class Conference_Schedule_Event {
 		$this->end_time = get_post_meta( $this->ID, 'conf_sch_event_end_time', true );
 
 		return $this->end_time;
+	}
+
+	/**
+	 * Get the event day.
+	 */
+	public function get_day() {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the day
+		if ( isset( $this->day ) ) {
+			return $this->day;
+		}
+
+		// Get the event date
+		$event_date = $this->get_date();
+
+		// Store and format the date display.
+		$this->day = ! empty( $event_date ) ? date( 'l', strtotime( $event_date ) ) : false;
+
+		return $this->day;
 	}
 
 	/**
@@ -854,6 +878,9 @@ class Conference_Schedule_Event {
 
 	/**
 	 * Get the event's video URL.
+	 *
+	 * @TODO:
+	 *  - Update to use with new system.
 	 */
 	public function get_video_url() {
 
@@ -867,7 +894,9 @@ class Conference_Schedule_Event {
 			return $this->video_url;
 		}
 
-		// Get our enabled session fields
+		return '';
+
+		/*// Get our enabled session fields
 		$session_fields = conference_schedule()->get_session_fields();
 
 		// Is the video URL enabled?
@@ -884,7 +913,7 @@ class Conference_Schedule_Event {
 
 		$this->video_url = ! empty( $video_url ) ? $video_url : false;
 
-		return $this->video_url;
+		return $this->video_url;*/
 	}
 
 	/**

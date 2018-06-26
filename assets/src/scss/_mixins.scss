@@ -1,3 +1,17 @@
+// Will convert the element to a screen reader element
+@mixin for-screen-reader() {
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+	position: absolute !important;
+	white-space: nowrap !important;
+	width: 1px !important;
+	height: 1px !important;
+	overflow: hidden !important;
+	border: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
 // Will set transition values
 @mixin set-transition( $transform... ) {
 	transition: $transform;
@@ -80,15 +94,19 @@
     		&.event-video {
 
     			a {
-    				background-color: #662d91;
+    				background-color: $video-color;
     				color: #fff;
 
 					&:focus,
     				&:hover {
-    					background-color: darken( #662d91, 10% );
+    					background-color: darken( $video-color, 10% );
     				}
     			}
     		}
+
+		    &:first-child {
+			    margin-top: 0;
+		    }
     	}
     	
     	&.conf-sch-social-buttons {

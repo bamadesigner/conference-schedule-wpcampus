@@ -62,12 +62,13 @@ class Conference_Schedule_API {
 			'event_start_time',
 			'event_end_time',
 			'event_timezone',
+			'event_day',
 			'event_date_display',
 			'event_time_display',
 			'event_time_display_tz',
 			'event_duration',
-			'event_parent',
 			'event_type',
+			'event_group',
 			'proposal',
 			'event_location',
 			'event_address',
@@ -78,7 +79,6 @@ class Conference_Schedule_API {
 			'session_slides_url',
 			'session_feedback_url',
 			'session_follow_up_url',
-			'session_video_url',
 		);
 		foreach ( $event_fields as $field_name ) {
 			register_rest_field( 'schedule', $field_name, array(
@@ -168,9 +168,10 @@ class Conference_Schedule_API {
 				$event_date = $event->get_date();
 				return ! empty( $event_date ) ? $event_date : null;
 
-			// Get the event parent.
-			case 'event_parent':
-				return $event->get_parent();
+			// Get the event day.
+			case 'event_day':
+				$event_day = $event->get_day();
+				return ! empty( $event_day ) ? $event_day : null;
 
 			// Get the event date display.
 			case 'event_date_display':
@@ -199,7 +200,7 @@ class Conference_Schedule_API {
 				return $event_time_display . ' ' . $event_timezone;
 
 			case 'event_type':
-				$event_type = get_post_meta( $object['id'], 'event_type', true );
+				$event_type = conference_schedule()->get_event_type( $object['id'] );
 				return ! empty( $event_type ) ? $event_type : null;
 
 			case 'proposal':
@@ -284,10 +285,6 @@ class Conference_Schedule_API {
 			case 'session_follow_up_url':
 				$event_follow_up_url = $event->get_follow_up_url();
 				return ! empty( $event_follow_up_url ) ? $event_follow_up_url : null;
-
-			case 'session_video_url':
-				$event_video_url = $event->get_video_url();
-				return ! empty( $event_video_url ) ? $event_video_url : null;
 
 			case 'session_feedback_url':
 				$event_feedback_url = $event->get_feedback_url();
