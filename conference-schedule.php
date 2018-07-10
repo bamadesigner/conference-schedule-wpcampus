@@ -1441,8 +1441,14 @@ class Conference_Schedule {
 			$transient_name .= '_' . $args['date'];
 		}
 
+		// Bust cache override.
+		$bust_cache = ! empty( $_GET['wpc_cache'] ) && 'bust' == $_GET['wpc_cache'];
+		if ( ! $bust_cache ) {
+			$bust_cache = ! empty( $args['bust_cache'] );
+		}
+
 		// Check the transient.
-		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+		if ( ! $bust_cache ) {
 			$stored_schedule = get_transient( $transient_name );
 			if ( false !== $stored_schedule && is_array( $stored_schedule ) ) {
 				return $stored_schedule;
@@ -1510,8 +1516,14 @@ class Conference_Schedule {
 			$transient_name .= '_' . $args['date'];
 		}
 
+		// Bust cache override.
+		$bust_cache = ! empty( $_GET['wpc_cache'] ) && 'bust' == $_GET['wpc_cache'];
+		if ( ! $bust_cache ) {
+			$bust_cache = ! empty( $args['bust_cache'] );
+		}
+
 		// Check the transient.
-		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+		if ( ! $bust_cache ) {
 			$stored_speakers = get_transient( $transient_name );
 			if ( false !== $stored_speakers && is_array( $stored_speakers ) ) {
 				return $stored_speakers;
@@ -1666,8 +1678,14 @@ class Conference_Schedule {
 			$transient_name .= '_' . $args['proposal_event'];
 		}
 
+		// Bust cache override.
+		$bust_cache = ! empty( $_GET['wpc_cache'] ) && 'bust' == $_GET['wpc_cache'];
+		if ( ! $bust_cache ) {
+			$bust_cache = ! empty( $args['bust_cache'] );
+		}
+
 		// Check the transient.
-		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+		if ( ! $bust_cache ) {
 			$stored_profiles = get_transient( $transient_name );
 			if ( false !== $stored_profiles && is_array( $stored_profiles ) ) {
 				return $stored_profiles;
@@ -1809,9 +1827,14 @@ class Conference_Schedule {
 		if ( ! empty( $args['proposal_event'] ) ) {
 			$transient_name .= '_' . $args['proposal_event'];
 		}
+		// Bust cache override.
+		$bust_cache = ! empty( $_GET['wpc_cache'] ) && 'bust' == $_GET['wpc_cache'];
+		if ( ! $bust_cache ) {
+			$bust_cache = ! empty( $args['bust_cache'] );
+		}
 
 		// Check the transient.
-		if ( ! $args['bust_cache'] || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+		if ( ! $bust_cache ) {
 			$stored_proposals = get_transient( $transient_name );
 			if ( false !== $stored_proposals && is_array( $stored_proposals ) ) {
 				return $stored_proposals;
@@ -1889,8 +1912,13 @@ class Conference_Schedule {
 
 		$transient_name = "wpc_proposal_{$proposal_id}";
 
+		// Bust cache override.
+		if ( ! $bust_cache ) {
+			$bust_cache = ! empty( $_GET['wpc_cache'] ) && 'bust' == $_GET['wpc_cache'];
+		}
+
 		// Check the transient.
-		if ( ! $bust_cache || empty( $_GET['wpc_cache'] ) || 'bust' !== $_GET['wpc_cache'] ) {
+		if ( ! $bust_cache ) {
 			$stored_proposal = get_transient( $transient_name );
 			if ( false !== $stored_proposal ) {
 				return $stored_proposal;
