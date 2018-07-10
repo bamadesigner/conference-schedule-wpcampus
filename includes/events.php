@@ -316,7 +316,7 @@ class Conference_Schedule_Event {
 			$timezone = conference_schedule()->get_site_timezone();
 
 			// Store in date object
-			$date_time = new DateTime( $event_date_time, new DateTimeZone( $timezone ) );
+			$date_time = new DateTime( $event_date_time, $timezone );
 
 			// Convert to UTC/GMT
 			$utc_timezone = new DateTimeZone( 'UTC' );

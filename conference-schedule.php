@@ -343,10 +343,21 @@ class Conference_Schedule {
 			$timezone = 'UTC';
 		}
 
-		$timezone = new DateTime( 'now', new DateTimeZone( $timezone ) );
-
 		// Get abbreviation.
-		return $this->site_timezone = $timezone->format( 'T' );
+		return $this->site_timezone = new DateTimeZone( $timezone );
+	}
+
+	/**
+	 * Return the timezone abbr, e.g. "CDT".
+	 */
+	public function get_site_timezone_abbr() {
+
+		$timezone = $this->get_site_timezone();
+
+		// Create time to get format.
+		$now = new DateTime( 'now', $timezone );
+
+		return $now->format( 'T' );
 	}
 
 	/**
@@ -633,7 +644,7 @@ class Conference_Schedule {
 		$timezone = $this->get_site_timezone();
 
 		// Get the current time.
-		$current_time = new DateTime( 'now', new DateTimeZone( $timezone ) );
+		$current_time = new DateTime( 'now', $timezone );
 
 		// Get the timezone offset.
 		$current_time_offset = $current_time->getOffset();
