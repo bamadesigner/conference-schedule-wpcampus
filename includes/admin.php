@@ -336,15 +336,13 @@ final class Conference_Schedule_Admin {
 			// Enqueue the post styles.
 			wp_enqueue_style( 'conf-schedule-admin-post', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'admin-post.min.css', $admin_style_dep, null );
 
-			// Register the various script dependencies.
-			wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'select2.min.js', array( 'jquery' ), null, true );
-
 			// Load assets for the speakers page.
 			switch ( $post_type ) {
 
 				case 'schedule':
 
 					// Register the various script dependencies.
+					wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'select2.min.js', array( 'jquery' ), null, true );
 					wp_register_script( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'timepicker.min.js', array( 'jquery' ), null, true );
 
 					// Enqueue the post script.
