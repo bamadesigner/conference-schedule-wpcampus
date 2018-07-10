@@ -315,6 +315,11 @@ final class Conference_Schedule_Admin {
 
 		}
 
+		// Only for our post types.
+		if ( ! in_array( $post_type, array( 'locations', 'schedule' ) ) ) {
+			return;
+		}
+
 		// Only for the post pages.
 		if ( in_array( $hook_suffix, array( 'post.php', 'post-new.php' ) ) ) {
 
