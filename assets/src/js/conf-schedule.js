@@ -846,10 +846,11 @@
 	// Invoked by a schedule container.
 	$.fn.conf_schedule_check_active = function() {
 		var $conf_sch_container = $(this);
-		if ($conf_sch_container.conf_sch_is_in_viewport()) {
-			$conf_sch_container.addClass('active');
-		} else {
+
+		if ( $conf_sch_container.hasClass('loading') || ! $conf_sch_container.conf_sch_is_in_viewport() ) {
 			$conf_sch_container.removeClass('active').removeAttr('style');
+		} else {
+			$conf_sch_container.addClass('active');
 		}
 	};
 
