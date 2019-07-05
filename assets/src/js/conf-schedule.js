@@ -6,26 +6,30 @@
 		space: 32
 	};
 
+	const globals = {
+		window_resize_scroll: false,
+	};
+
 	// When the document is ready...
 	$(document).ready(function() {
 
-		var hasConfSchContainer = false;
-
 		// Process each schedule.
 		$('.conf-sch-container').each(function(){
-			hasConfSchContainer = true;
 			$(this).render_conf_schedule();
 		});
-
-		// Lets us know if a schedule is in the viewport.
-		if (hasConfSchContainer) {
-			$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
-				$('.conf-sch-container').each(function(){
-					$(this).conf_schedule_check_active();
-				});
-			});
-		}
 	});
+
+	function load_conf_schedule_window_resize_scroll() {
+		if (globals.window_resize_scroll) {
+			return;
+		}
+		globals.window_resize_scroll = true;
+		$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
+			$('.conf-sch-container').each(function(){
+				$(this).conf_schedule_check_active();
+			});
+		});
+	}
 
 	///// FUNCTIONS /////
 
@@ -506,6 +510,9 @@
 
 		// Check if container is "active".
 		$conf_sch_container.conf_schedule_check_active();
+
+		// Load window resize/scroll events.
+		load_conf_schedule_window_resize_scroll();
 
 		// Update the schedule every 10 minutes.
 		var refreshSchedule = setTimeout(function(){
