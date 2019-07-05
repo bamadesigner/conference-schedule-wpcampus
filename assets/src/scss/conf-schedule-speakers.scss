@@ -19,6 +19,14 @@
 		font-weight: bold;
 	}
 
+	.conf-sch-event-buttons {
+
+		li {
+			display: inline-block;
+			margin: 0 10px 10px 0;
+		}
+	}
+
 	&.conf-schedule-speakers {
 
 		.conf-schedule-speaker {

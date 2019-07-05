@@ -21,6 +21,52 @@
 
 	///// FUNCTIONS /////
 
+	/**
+	 * Removes issue with duplicate speakers on list by grouping by WordPress user ID.
+	 */
+	function wpc_process_speakers(speakers) {
+		var wp_speakers = {};
+
+		// Loop through current speakers and store in new array.
+		for (var i=0; i<speakers.length; i++) {
+			var speaker = speakers[i],
+				speakerKey;
+
+			/*
+			 * Index speakers by their WordPress user ID.
+			 * If no user account, index by their profile ID.
+			 */
+			if (undefined === speaker.wordpress_user) {
+				speakerKey = 'speaker'+speaker.ID;
+			} else {
+				speakerKey = 'speaker'+speaker.wordpress_user;
+			}
+
+			// If doesnt exist in new grouping, add and move on.
+			if (!wp_speakers[speakerKey]) {
+				wp_speakers[speakerKey] = speaker;
+				continue;
+			}
+
+			// If speaker has no sessions, move on.
+			if (!speaker.sessions || !speaker.sessions.length) {
+				continue;
+			}
+
+			// If duplicate/stored speaker doesnt have sessions, create array.
+			if (!wp_speakers[speakerKey].sessions) {
+				wp_speakers[speakerKey].sessions = [];
+            }
+
+			// Loop through new speaker's sessions and add to duplicate/stored speaker sessions.
+			for (var s=0; s<speaker.sessions.length; s++) {
+				wp_speakers[speakerKey].sessions.push(speaker.sessions[s]);
+			}
+		}
+
+		return wp_speakers;
+	}
+
 	$.fn.render_conference_speakers = function() {
 		var $this_list = $(this), speakers_date = null, speakers_event;
 
@@ -46,7 +92,8 @@
 			data: {
 				action: 'conf_sch_get_speakers',
 				date: speakers_date,
-				event: speakers_event
+				event: speakers_event,
+				transient: 'speakers_list'
 			},
 			success: function( speakers ) {
 
@@ -56,6 +103,8 @@
 				}
 
 				speaker_success = true;
+
+				speakers = wpc_process_speakers(speakers);
 				
 				$this_list.fadeOut( 500, function() {
 					$this_list.hide().html( conf_sch_speakers_templ( speakers ) ).fadeIn( 500 );
@@ -135,41 +184,4 @@
 		}
 		return output_string ? new Handlebars.SafeString( '<div class="speaker-meta">' + output_string + '</div>' ) : null;
 	});
-
-	// Format the speaker social.
-	Handlebars.registerHelper( 'speaker_social', function() {
-		var speaker = this, social_items = [];
-
-		var socials = ['twitter','linkedin'];
-		socials.forEach( function(social_key) {
-
-			// Build social media URL and label.
-			var social_url = '';
-			var social_label = speaker.hasOwnProperty( social_key ) ? speaker[social_key] : null;
-
-			if ( social_label ) {
-				switch ( social_key ) {
-
-					case 'twitter':
-						// Clean up Twitter handle.
-						social_label = social_label.replace( /[^a-z0-9\_]/i, '' );
-						social_url = 'https://twitter.com/' + social_label;
-						social_label = '@' + social_label;
-						break;
-
-					case 'linkedin':
-						social_url = social_label;
-						social_label = 'LinkedIn';
-						break;
-				}
-			}
-
-			if ( social_label ) {
-				var social_item = '<li class="social-media ' + social_key + '"><a href="' + social_url + '"><i class="conf-sch-icon conf-sch-icon-' + social_key + '"></i> <span class="icon-label">' + social_label + '</span></a></li>';
-				social_items.push( social_item );
-			}
-		});
-
-		return social_items.length > 0 ? new Handlebars.SafeString( '<ul class="conf-sch-event-buttons conf-sch-social-buttons">' + social_items.join('') + '</ul>' ) : null;
-	});
-})( jQuery );
+})(jQuery);

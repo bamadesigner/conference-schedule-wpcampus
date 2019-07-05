@@ -78,6 +78,74 @@ function conference_schedule_add_fields() {
 			'active' => 1,
 			'description' => '',
 		));
+		
+		acf_add_local_field_group( array(
+			'key' => 'group_5a37f62d4632g',
+			'title' => __( 'Event: Livestream', 'conf-schedule' ),
+			'fields' => array(
+				array(
+					'key' => 'field_2b25abc36890b',
+					'label' => __( 'Livestream is over', 'conf-schedule' ),
+					'name' => 'livestream_over',
+					'type' => 'true_false',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'message' => __( 'Check if the livestream is over.', 'conf-schedule' ),
+					'default_value' => 0,
+					'ui' => 1,
+					'ui_on_text' => '',
+					'ui_off_text' => '',
+				),
+				array(
+					'key' => 'field_5b36e657b7c5d',
+					'label' => __( 'YouTube Live Watch ID', 'conf-schedule' ),
+					'name' => 'yt_live_watch_id',
+					'type' => 'text',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'allow_null' => 1,
+					'other_choice' => 0,
+					'save_other_choice' => 0,
+					'default_value' => '',
+					'layout' => 'vertical',
+					'return_format' => 'value',
+				),
+				array(
+					'key' => 'field_5c46e552b7c5d',
+					'label' => __( 'Live Captioning Embed URL', 'conf-schedule' ),
+					'name' => 'live_caption_url',
+					'type' => 'url',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'allow_null' => 1,
+					'other_choice' => 0,
+					'save_other_choice' => 0,
+					'default_value' => '',
+					'layout' => 'vertical',
+					'return_format' => 'value',
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param' => 'post_type',
+						'operator' => '==',
+						'value' => 'schedule',
+					),
+				),
+			),
+			'menu_order' => 1,
+			'position' => 'normal',
+			'style' => 'default',
+			'label_placement' => 'left',
+			'instruction_placement' => 'field',
+			'hide_on_screen' => '',
+			'active' => 1,
+			'description' => '',
+		));
 	endif;
 }
 add_action( 'plugins_loaded', 'conference_schedule_add_fields' );

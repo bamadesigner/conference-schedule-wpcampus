@@ -1,334 +1,373 @@
 (function( $ ) {
 	'use strict';
 
-	// Will hold the livestream.
-	var $conf_sch_single_ls = null;
-    var conf_sch_single_ls_templ = false;
-
-	// Will hold the main content.
-	var $conf_sch_single_content = null;
-	var conf_sch_single_content_templ = false;
-
-	// Will hold the video.
-	var $conf_sch_single_video = null;
-	var conf_sch_single_video_templ = false;
-
-	// Will hold the before and template.
-	var $conf_sch_single_notif = null;
-	var conf_sch_single_notif_templ = false;
-
-	// Will hold the speakers template.
-	var $conf_sch_single_speakers = null;
-	var conf_sch_single_speakers_templ = false;
-
 	// When the document is ready...
 	$(document).ready(function() {
 
-		// Set the containers.
-		$conf_sch_single_ls = $( '#conf-sch-single-livestream' );
-		$conf_sch_single_content = $( '#conf-sch-single-content' );
-		$conf_sch_single_video = $( '#conf-sch-single-video' );
-		$conf_sch_single_notif = $( '#conf-sch-single-notifications' );
-
-		// Hide speakers so we can fade in.
-		$conf_sch_single_speakers = $( '#conf-sch-single-speakers' );
-
-		// Take care of the livestream.
-		var conf_sch_single_ls_templ_content = $( '#conf-sch-single-ls-template' ).html();
-		if ( conf_sch_single_ls_templ_content ) {
-			conf_sch_single_ls_templ = Handlebars.compile( conf_sch_single_ls_templ_content );
-		}
-
-		// Take care of the main content.
-		var conf_sch_single_content_templ_content = $( '#conf-sch-single-content-template' ).html();
-		if ( conf_sch_single_content_templ_content ) {
-			conf_sch_single_content_templ = Handlebars.compile( conf_sch_single_content_templ_content );
-		}
-
-		// Take care of the video.
-		var conf_sch_single_video_templ_content = $( '#conf-sch-single-video-template' ).html();
-		if ( conf_sch_single_video_templ_content ) {
-			conf_sch_single_video_templ = Handlebars.compile( conf_sch_single_video_templ_content );
-		}
-
-		// Take care of the single meta.
-		var conf_sch_single_notif_templ_content = $( '#conf-sch-single-notifications-template' ).html();
-		if ( conf_sch_single_notif_templ_content ) {
-			conf_sch_single_notif_templ = Handlebars.compile( conf_sch_single_notif_templ_content );
-		}
-
-		// Take care of the speakers.
-		var conf_sch_single_speakers_templ_content = $( '#conf-sch-single-speakers-template' ).html();
-		if ( conf_sch_single_speakers_templ_content ) {
-			conf_sch_single_speakers_templ = Handlebars.compile( conf_sch_single_speakers_templ_content );
-		}
-
-		render_conf_schedule_single();
-
+		// Process all single containers.
+		$('.conf-sch-single-container').each(function(){
+			$(this).render_conf_schedule_single();
+		});
 	});
 
 	///// FUNCTIONS /////
 
-	// Get/update the content
-	function render_conf_schedule_single() {
+	function get_conf_schedule_post(postID) {
+		return $.ajax({
+			url: conf_sch.wp_api_route + 'schedule/' + postID,
+			type: 'GET',
+			dataType: 'json',
+			async: true,
+			cache: true
+		});
+	}
 
-		// Make sure we have an ID.
-		if ( ! ( conf_sch.post_id !== undefined && conf_sch.post_id > 0 ) ) {
-			return false;
-		}
-
-		var schedule_item = {}, proposal = {};
-
-		// Get the schedule information
-		$.ajax({
-			url: conf_sch.wp_api_route + 'schedule/' + conf_sch.post_id,
-			success: function( the_schedule_item ) {
-
-				// Make sure we have an item.
-				if ( undefined === the_schedule_item || '' == the_schedule_item ) {
-					return false;
-				}
-
-				schedule_item = the_schedule_item;
-				schedule_item.valid_session = false;
-
-				// Get the group events.
-				if ( schedule_item.event_type == 'group' ) {
-
-					$.ajax({
-						url: conf_sch.wp_api_route + 'schedule/?conf_sch_event_group=' + schedule_item.id,
-						async: false,
-						success: function( group_events ) {
-
-							// Make sure we have events.
-							if ( undefined === group_events || '' == group_events ) {
-								return false;
-							}
-
-							// Make sure event group is an array.
-							 schedule_item.event_group = [];
-
-							$.each( group_events, function(index, event) {
-
-								$.ajax({
-									url: conf_sch.ajaxurl,
-									type: 'GET',
-									dataType: 'json',
-									async: false,
-									cache: false,
-									data: {
-										action: 'conf_sch_get_proposal',
-										post_id: event.id,
-										proposal_id: event.proposal
-									},
-									success: function( event_proposal ) {
-
-										// If no proposal or not confirmed, update information.
-										if ( undefined === event_proposal || '' == event_proposal || $.isEmptyObject( event_proposal ) || 'confirmed' != event_proposal.proposal_status ) {
-
-											// Reset the item.
-											event.title = { rendered: 'TBA' };
-											event.content = { rendered: '' };
-											event.excerpt = { rendered: '' };
-
-											event.proposal = 0;
-											event.speakers = [];
-											event.subjects = [];
-											event.format_slug = '';
-											event.format_name = '';
-
-											event.link_to_post = false;
-
-										} else {
-
-											// Update proposal information.
-											event.title = { rendered: event_proposal.title || '' }
-											event.valid_session = true;
-
-											if ( event_proposal.content.rendered != '' ) {
-												event.content = { rendered: ( schedule_item.content.rendered || '' ) + event_proposal.content.rendered };
-											}
-
-											event.excerpt = { rendered: event_proposal.excerpt.rendered || '' };
-
-											event.speakers = event_proposal.speakers || [];
-											event.subjects = event_proposal.subjects || [];
-											event.format_slug = event_proposal.format_slug;
-											event.format_name = event_proposal.format_name;
-
-											event.session_video = event_proposal.session_video;
-											event.session_video_url = event_proposal.session_video_url;
-											event.session_video_embed = event_proposal.session_video_embed;
-
-											event.session_slides_url = event_proposal.session_slides_url;
-
-										}
-
-										schedule_item.event_group.push(event);
-
-									}
-								});
-							});
-						}
-					});
-				}
-
-				// No point if not a session or we don't have a proposal ID.
-				if ( schedule_item.event_type != 'session' || ! schedule_item.proposal ) {
-					return false;
-				}
-
-				// Get the proposal.
-				$.ajax({
-					url: conf_sch.ajaxurl,
-					type: 'GET',
-					dataType: 'json',
-					async: false,
-					cache: false,
-					data: {
-						action: 'conf_sch_get_proposal',
-						post_id: conf_sch.post_id,
-						proposal_id: schedule_item.proposal
-					},
-					success: function( the_proposal ) {
-
-						// Make sure we have proposal.
-						if ( undefined === the_proposal || '' == the_proposal ) {
-							return false;
-						}
-
-						proposal = the_proposal;
-
-						// If no proposal or not confirmed, update information.
-						if ( $.isEmptyObject( proposal ) || 'confirmed' != proposal.proposal_status ) {
-
-							// Reset the item.
-							schedule_item.title.rendered = 'TBA';
-
-							schedule_item.content.rendered = '';
-							schedule_item.excerpt = '';
-
-							schedule_item.proposal = 0;
-							schedule_item.speakers = [];
-							schedule_item.subjects = [];
-							schedule_item.format_slug = '';
-							schedule_item.format_name = '';
-
-							schedule_item.link_to_post = false;
-
-						} else {
-
-							// Update proposal information.
-							if ( proposal.title ) {
-								schedule_item.title = proposal.title;
-							}
-
-							schedule_item.valid_session = true;
-
-							schedule_item.content.rendered += proposal.content.rendered || '';
-							schedule_item.excerpt = proposal.excerpt.rendered|| '';
-
-							schedule_item.speakers = proposal.speakers || [];
-							schedule_item.subjects = proposal.subjects || [];
-							schedule_item.format_slug = proposal.format_slug;
-							schedule_item.format_name = proposal.format_name;
-
-							schedule_item.session_video = proposal.session_video;
-							schedule_item.session_video_url = proposal.session_video_url;
-							schedule_item.session_video_embed = proposal.session_video_embed;
-
-							schedule_item.session_slides_url = proposal.session_slides_url;
-
-						}
-					}
-				});
-			},
-			error: function() {
-				print_conf_schedule_single_error();
-			},
-			complete: function() {
-
-				// Make sure we have a schedule item.
-				if ( $.isEmptyObject( schedule_item ) ) {
-					print_conf_schedule_single_error();
-					return false;
-				}
-
-				// Add the main content.
-				if ( conf_sch_single_content_templ ) {
-
-					// Process the template.
-					var conf_sch_single_content_templ_html = conf_sch_single_content_templ( schedule_item ).trim();
-
-					$conf_sch_single_content.fadeOut( 500, function() {
-						$conf_sch_single_content.hide().html( conf_sch_single_content_templ_html ).fadeIn( 500 );
-					});
-				}
-
-				// Print error if we're viewing a session and we don't have proposal info.
-				if ( schedule_item.event_type == 'session' && $.isEmptyObject( proposal ) ) {
-					print_conf_schedule_single_error();
-				}
-
-				// Build/add the video.
-				if ( conf_sch_single_video_templ ) {
-
-					// Process the template.
-					var conf_sch_single_video_templ_html = conf_sch_single_video_templ( schedule_item ).trim();
-					if ( conf_sch_single_video_templ_html != '' ) {
-						$conf_sch_single_video.html( conf_sch_single_video_templ_html ).fadeIn( 1000 );
-					}
-				}
-
-				// Build/add the livestream button.
-				if ( conf_sch_single_ls_templ ) {
-
-					// Process the template.
-					var conf_sch_single_ls_templ_html = conf_sch_single_ls_templ( schedule_item ).trim();
-					if ( conf_sch_single_ls_templ_html != '' ) {
-						$conf_sch_single_ls.html( conf_sch_single_ls_templ_html ).fadeIn( 1000 );
-					}
-				}
-
-				// Build/add the html.
-				if ( conf_sch_single_notif_templ ) {
-					var conf_sch_single_notif_html = conf_sch_single_notif_templ( schedule_item ).trim();
-					if ( conf_sch_single_notif_html != '' ) {
-						$conf_sch_single_notif.hide().html( conf_sch_single_notif_html ).fadeIn( 1000 );
-					}
-				}
-
-				// Get the speakers
-				if ( schedule_item.speakers !== undefined ) {
-
-					// Create speakers markup.
-					var speakers_html = conf_sch_single_speakers_templ( schedule_item ).trim();
-
-					// Render/add the speakers and fade in.
-					if ( speakers_html != '' ) {
-						$conf_sch_single_speakers.hide().html( speakers_html ).fadeIn( 1000 );
-					}
-				}
+	function get_conf_schedule_post_questions(postID) {
+		return $.ajax({
+			url: conf_sch.ajaxurl,
+			type: 'GET',
+			dataType: 'html',
+			async: true,
+			cache: true,
+			data: {
+				action: 'conf_sch_get_questions',
+				postID: postID
 			}
 		});
 	}
 
-	// Add error message.
-	function print_conf_schedule_single_error() {
-		$conf_sch_single_content.fadeOut( 500, function() {
-			$conf_sch_single_content.hide().prepend( conf_sch.error_msg ).fadeIn( 500 );
+	function get_conf_schedule_proposals(args) {
+		var data = {};
+		if (undefined !== args && undefined !== args.post__in){
+			data.post__in = args.post__in;
+			data.transient = args.post__in;
+		}
+		data.action = 'conf_sch_get_proposals';
+		return $.ajax({
+			url: conf_sch.ajaxurl,
+			type: 'GET',
+			dataType: 'json',
+			async: true,
+			cache: true,
+			data: data
+		});
+	};
+
+	function get_conf_schedule_proposal(proposalID,postID) {
+		return $.ajax({
+			url: conf_sch.ajaxurl,
+        	type: 'GET',
+        	dataType: 'json',
+        	async: true,
+        	cache: true,
+			data: {
+				action: 'conf_sch_get_proposal',
+				post_id: postID,
+				proposal_id: proposalID
+			}
+		});
+	}
+
+	function get_conf_schedule_event_children(postID) {
+		return $.ajax({
+			url: conf_sch.wp_api_route + 'schedule/?conf_sch_event_children=' + postID,
+			type: 'GET',
+			async: true,
+			cache: true
+		});
+	}
+
+	function update_conf_schedule_post_proposal(post,proposal) {
+
+		// If no proposal or not confirmed, update information.
+		if ( $.isEmptyObject( proposal ) || 'confirmed' != proposal.proposal_status ) {
+			post = conf_schedule_reset_schedule_item(post);
+		} else {
+			post = conf_schedule_update_schedule_item_from_proposal(post,proposal);
+		}
+
+		return post;
+	}
+
+	// Add error message, invoked by single container.
+	$.fn.print_conf_schedule_single_error = function(errorMsg) {
+		var $conf_sch_single = $(this),
+			$contentArea = $conf_sch_single.find('.conf-sch-single-content');
+
+		if ( undefined === errorMsg || '' == errorMsg ) {
+			errorMsg = conf_sch.error_msg;
+		}
+
+		// Create error container if doesn't exist.
+		var $errorArea = $contentArea.find('.conf-sch-single-error');
+		if (!$errorArea.length) {
+
+			// Create the error container.
+			$errorArea = $('<div class="conf-sch-single-error">' + errorMsg + '</div>');
+
+			$contentArea.fadeOut( 500, function() {
+				$contentArea.hide().prepend($errorArea);
+				$conf_sch_single.addClass('error').removeClass('loading loading--initial');
+				$contentArea.fadeIn(500);
+			});
+		} else {
+
+			$contentArea.fadeOut( 500, function() {
+				$contentArea.hide();
+				$errorArea.html(errorMsg);
+				$conf_sch_single.addClass('error').removeClass('loading loading--initial');
+				$contentArea.fadeIn(500);
+			});
+		}
+	}
+
+	// Populate the single area templates.
+	$.fn.populate_conf_schedule_single = function(post) {
+		var $conf_sch_single = $(this);
+
+		// Make sure the post is valid.
+		if ( undefined === post || '' == post || ! post.id ) {
+			$conf_sch_single.print_conf_schedule_single_error();
+			return false;
+		}
+
+		// Setup event links.
+		post.event_links = conf_sch_get_item_links(post);
+		if (null === post.event_links) {
+			post.event_links = {}
+		}
+		post.event_links.schedule = conf_sch.schedule_url;
+
+		// Take care of the main content.
+		var content_template = $('#conf-sch-single-content-template').html();
+		if (content_template) {
+
+			// Process the template.
+			var process_content = Handlebars.compile(content_template);
+
+			// Update the content.
+			$conf_sch_single.find('.conf-sch-single-content').html(process_content(post).trim());
+		}
+
+		// Take care of the video content.
+		var video_template = $('#conf-sch-single-video-template').html();
+		if (video_template) {
+
+			// Process the template.
+			var process_video = Handlebars.compile(video_template);
+
+			// Update the content.
+			$conf_sch_single.find('.conf-sch-single-video').append(process_video(post).trim());
+		}
+
+		// Take care of the livestream button.
+		var ls_template = $('#conf-sch-single-ls-template').html();
+		if (ls_template) {
+
+			// Process the template.
+			var process_ls = Handlebars.compile(ls_template);
+
+			// Update the content.
+			$conf_sch_single.find('.conf-sch-single-livestream').html(process_ls(post).trim());
+		}
+
+		// Take care of the session notifications.
+		var notifications_template = $('#conf-sch-single-notifications-template').html();
+		if (notifications_template) {
+
+			// Process the template.
+			var process_notifications = Handlebars.compile(notifications_template);
+
+			// Update the content.
+			$conf_sch_single.find('.conf-sch-single-notifications').html(process_notifications(post).trim());
+		}
+
+		// Take care of the speakers.
+		var speakers_template = $('#conf-sch-single-speakers-template').html();
+		if (speakers_template) {
+
+			// Process the template.
+			var process_speakers = Handlebars.compile(speakers_template);
+
+			// Update the content.
+			$conf_sch_single.find('.conf-sch-single-speakers').html(process_speakers(post).trim());
+		}
+
+		// Take care of the questions.
+		/*var $questionsArea = $conf_sch_single.find('.conf-sch-single-questions');
+		if ( $questionsArea ) {
+			const getSchedulePostQuestions = get_conf_schedule_post_questions(post.id);
+			getSchedulePostQuestions.done(function(questions){
+				$questionsArea.html(questions);
+				$conf_sch_single.removeClass('loading loading--initial');
+			});
+		} else {
+			$conf_sch_single.removeClass('loading loading--initial');
+		}*/
+
+		$conf_sch_single.removeClass('loading loading--initial');
+	}
+
+	// Render the single area.
+	$.fn.render_conf_schedule_single = function() {
+		var $conf_sch_single = $(this);
+
+		// Make sure we have an ID.
+		var postID = $conf_sch_single.data('post');
+		if ( ! ( postID !== undefined && postID > 0 ) ) {
+			$conf_sch_single.print_conf_schedule_single_error();
+			return false;
+		}
+
+		$conf_sch_single.addClass('loading');
+
+		// Get the schedule item.
+		const getSchedulePost = get_conf_schedule_post(postID);
+		getSchedulePost.done(function(post){
+
+			// Make sure the post is valid.
+			if ( undefined === post || '' == post || ! post.id ) {
+				$conf_sch_single.print_conf_schedule_single_error();
+				return false;
+			}
+
+			post.valid_session = false;
+
+			// No need to continue if not a session or group of events.
+            if ($.inArray(post.event_type,['group','session']) < 0) {
+
+            	// Populate the page.
+				$conf_sch_single.populate_conf_schedule_single(post);
+				return false;
+            }
+
+            // If a session, no need if no proposal.
+            if ('session' == post.event_type && (undefined === post.proposal || ! post.proposal)) {
+
+            	// Populate the page.
+				$conf_sch_single.populate_conf_schedule_single(post);
+				return false;
+            }
+
+			if ('session' == post.event_type) {
+
+				// Get the proposal information.
+				const getScheduleProposal = get_conf_schedule_proposal(post.proposal,postID);
+				getScheduleProposal.done(function(proposal){
+
+					// Make sure the proposal is valid.
+					if ( undefined === proposal || '' == proposal || ! proposal.ID ) {
+						$conf_sch_single.print_conf_schedule_single_error();
+						return false;
+					}
+
+					// Update the post with proposal info.
+					post = update_conf_schedule_post_proposal(post,proposal)
+
+					// Populate the page.
+					$conf_sch_single.populate_conf_schedule_single(post);
+
+				});
+			} else if ( post.event_type == 'group' ) {
+
+				// Get the event children.
+				const getEventChildren = get_conf_schedule_event_children(postID);
+				getEventChildren.done(function(children){
+
+					if (undefined === children || !children.length) {
+						$conf_sch_single.print_conf_schedule_single_error();
+                        return false;
+					}
+
+					var proposalArgs = {
+						post__in: []
+					};
+
+					// Get the children proposals IDs.
+					$.each(children, function(index,child) {
+						if (child.proposal) {
+							proposalArgs.post__in.push(child.proposal);
+						}
+					});
+
+					const getProposals = get_conf_schedule_proposals(proposalArgs);
+					getProposals.done(function(the_proposals){
+
+						if (undefined === the_proposals || !the_proposals.length) {
+							$conf_sch_single.print_conf_schedule_single_error();
+							return false;
+						}
+
+						// Store proposals by ID.
+						var proposals = {};
+						$.each(the_proposals, function(index,proposal) {
+							if (proposal.ID) {
+								proposals['proposal'+proposal.ID] = proposal;
+							}
+						});
+
+						// Make sure event group is an array.
+						post.event_children = [];
+
+						// Add proposals to children.
+						$.each(children, function(index,child) {
+
+							if (!child.proposal) {
+								return false;
+							}
+
+							var proposal = null;
+							if ( ( 'proposal' + child.proposal ) in proposals ) {
+								proposal = proposals['proposal' + child.proposal];
+							}
+
+							// If no proposal or not confirmed, update information.
+							if ( null === proposal || '' == proposal || $.isEmptyObject( proposal ) || 'confirmed' != proposal.proposal_status ) {
+								child = conf_schedule_reset_schedule_item(child);
+							} else {
+								child = conf_schedule_update_schedule_item_from_proposal(child,proposal);
+							}
+
+							// Setup event links.
+							child.event_links = conf_sch_get_item_links(child);
+							if (null === post.event_links) {
+								post.event_links = {}
+							}
+
+							post.event_children.push(child);
+
+						});
+
+						// Populate the page.
+						$conf_sch_single.populate_conf_schedule_single(post);
+
+					});
+				});
+			}
 		});
 	}
 
 	Handlebars.registerHelper( 'notifications', function() {
 		if ( 'workshop' == this.format_slug ) {
-			return new Handlebars.SafeString( '<div class="panel light-royal-blue center"><a href="/tickets/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops include a snack break.</em></div>' );
+			return new Handlebars.SafeString( '<div class="panel light-royal-blue center"><a href="/tickets/workshops/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops include a snack break.</em></div>' );
+		} else if ( $.inArray( this.format_slug, ['session','lightning-talk'] ) >= 0 ) {
+			if ('' != this.session_livestream_url) {
+				return null;
+			}
+			// @TODO add back
+			return null;
+			var watchURL = '/watch/';
+			// @TODO add back
+			/*if (this.event_location && this.event_location.post_name) {
+				watchURL += this.event_location.post_name + '/';
+			}*/
+			return new Handlebars.SafeString( '<div class="panel light-royal-blue center">This session will be live streamed for free. <a href="' + watchURL + '"><strong>Visit the watch page</strong></a> during the time slot to join the session.</div>' );
 		}
 		return null;
 	});
 
 	// Format the title.
-	Handlebars.registerHelper( 'event_title', function( $options ) {
+	Handlebars.registerHelper( 'event_title', function() {
 		var $new_title = this.title.rendered;
 		if ( $new_title !== undefined && $new_title ) {
 			if ( this.link_to_post && this.link !== undefined && this.link ) {
@@ -354,6 +393,38 @@
 		return new Handlebars.SafeString( '<p><em>There is no information for this session.</em></p>' );
 	});
 
+	Handlebars.registerHelper( 'session_video_message', function() {
+		var format = this.format_slug,
+			videoSoon = new Handlebars.SafeString( '<p><em>This session\'s recording will be available soon.</em></p>' ),
+			noVideoYet = new Handlebars.SafeString( '<p><em>This session does not have a video recording (yet).</em></p>' ),
+			workshopMessage = new Handlebars.SafeString( '<p><em>Workshops are not recorded.</em></p>' );
+
+		if ( ! this.event_dt_gmt ) {
+			if ( 'workshop' == format ) {
+				return workshopMessage;
+			} else {
+				return noVideoYet;
+			}
+		}
+
+		var now = new Date(),
+			eventDate = new Date( this.event_dt_gmt );
+
+		if ( now <= eventDate ) {
+			if ( 'workshop' == format ) {
+				return workshopMessage;
+			} else {
+				return noVideoYet;
+			}
+		}
+
+		if ( 'workshop' == format ) {
+			return workshopMessage;
+		}
+
+		return videoSoon;
+	});
+
 	Handlebars.registerHelper( 'speakers_header', function() {
 
 		if ( this.speakers !== undefined && this.speakers.length > 0 ) {
@@ -370,69 +441,6 @@
         }
 
         return null;
-	});
-
-	// Format the event meta links
-	Handlebars.registerHelper( 'event_links', function() {
-
-		// Build the string
-		var event_links_string = '';
-
-		// Do we have a livestream URL?
-		if ( conf_sch.view_livestream !== undefined && '' != conf_sch.view_livestream && this.session_livestream_url !== undefined && this.session_livestream_url ) {
-			event_links_string += '<li class="event-link event-livestream"><a href="' + this.session_livestream_url + '">' + conf_sch.view_livestream + '</span></a></li>';
-		}
-
-		// Do we have a video URL?
-		if ( conf_sch.watch_video !== undefined && conf_sch.watch_video != '' && this.session_video_url !== undefined && this.session_video_url ) {
-			event_links_string += '<li class="event-link event-video"><a href="' + this.session_video_url + '">' + conf_sch.watch_video + '</span></a></li>';
-		}
-
-		// Do we have a feedback URL?
-		if ( conf_sch.give_feedback !== undefined && conf_sch.give_feedback != '' && this.session_feedback_url !== undefined && this.session_feedback_url ) {
-			event_links_string += '<li class="event-link event-feedback"><a href="' + this.session_feedback_url + '">' + conf_sch.give_feedback + '</span></a></li>';
-		}
-
-		// Do we have a slides URL?
-		if ( conf_sch.view_slides !== undefined && conf_sch.view_slides != '' && this.session_slides_url !== undefined && this.session_slides_url ) {
-			event_links_string += '<li class="event-link event-slides"><a href="' + this.session_slides_url + '">' + conf_sch.view_slides + '</span></a></li>';
-		}
-		
-		// Add link to schedule.
-		event_links_string += '<li class="event-link"><a href="' + conf_sch.schedule_url + '">' + conf_sch.view_schedule + '</span></a></li>';
-
-		// Do we have a hashtag?
-		/*if ( this.event_hashtag !== undefined && this.event_hashtag ) {
-			event_links_string += '<li class="event-link event-twitter"><a href="https://twitter.com/search?q=%23' + this.event_hashtag + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">#' + this.event_hashtag + '</span></a></li>';
-		}*/
-
-		if ( event_links_string ) {
-			return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons">' + event_links_string + '</ul>' );
-		}
-
-		return null;
-	});
-
-	// Format the social links.
-	Handlebars.registerHelper( 'social_media', function( $options ) {
-
-		// Build the string.
-		var social_string = '';
-
-		// Do we have speaker twitters?
-		if ( this.speakers !== undefined && this.speakers && this.speakers.length > 0 ) {
-			$.each( this.speakers, function( index, value ) {
-				if ( value.twitter !== undefined && value.twitter ) {
-					social_string += '<li class="event-link event-twitter"><a href="https://twitter.com/' + value.twitter + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">@' + value.twitter + '</span></a></li>';
-				}
-			});
-		}
-
-		if ( social_string ) {
-			return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons conf-sch-social-buttons">' + social_string + '</ul>' );
-		}
-
-		return null;
 	});
 
 	// Format the speaker position
@@ -467,30 +475,4 @@
 
 		return new Handlebars.SafeString( '<div class="speaker-meta">' + speaker_pos_string + '</div>' );
 	});
-
-	// Format the speaker social media
-	Handlebars.registerHelper( 'speaker_social', function() {
-		var social_media_string = '';
-
-		if ( this.facebook !== undefined && this.facebook ) {
-			social_media_string += '<li class="social-media facebook"><a href="' + this.facebook + '"><i class="conf-sch-icon conf-sch-icon-facebook-square"></i> <span class="icon-label">Facebook</span></a></li>';
-		}
-
-		if ( this.twitter !== undefined && this.twitter ) {
-			social_media_string += '<li class="social-media twitter"><a href="https://twitter.com/' + this.twitter + '"><i class="conf-sch-icon conf-sch-icon-twitter"></i> <span class="icon-label">@' + this.twitter + '</span></a></li>';
-		}
-
-		if ( this.instagram !== undefined && this.instagram ) {
-			social_media_string += '<li class="social-media instagram"><a href="https://www.instagram.com/' + this.instagram + '"><i class="conf-sch-icon conf-sch-icon-instagram"></i> <span class="icon-label">Instagram</span></a></li>';
-		}
-
-		if ( this.linkedin !== undefined && this.linkedin ) {
-			social_media_string += '<li class="social-media linkedin"><a href="' + this.linkedin + '"><i class="conf-sch-icon conf-sch-icon-linkedin-square"></i> <span class="icon-label">LinkedIn</span></a></li>';
-		}
-
-		if ( social_media_string ) {
-			return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons conf-sch-social-buttons">' + social_media_string + '</ul>' );
-		}
-		return null;
-	});
-})( jQuery );
+})(jQuery);

@@ -15,6 +15,8 @@ const src = {
 	js: [
 		'assets/src/js/admin-post-schedule.js',
 		'assets/src/js/conf-schedule.js',
+		'assets/src/js/conf-sch-functions.js',
+		'assets/src/js/conf-sch-handlebars.js',
 		'assets/src/js/conf-schedule-list.js',
 		'assets/src/js/conf-schedule-speakers.js',
 		'assets/src/js/conf-schedule-single.js'

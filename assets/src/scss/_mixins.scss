@@ -71,12 +71,12 @@
     		}
     		
     		&.event-slides a {
-    			background-color: $social-color; //#02528d;
+    			background-color: $slides-color;
     			color: #fff;
 
 				&:focus,
     			&:hover {
-    				background-color: darken( $social-color, 20% );
+    				background-color: darken( $slides-color, 20% );
     			}
     		}
 
@@ -121,24 +121,6 @@
 			    margin-top: 0;
 		    }
     	}
-    	
-    	&.conf-sch-social-buttons {
-
-	    	li {
-	    		display: inline-block;
-	    		margin: 0 10px 10px 0;
-	
-	    		a {
-	    			background-color: $social-color;
-	    			color: #fff;
-	
-					&:focus,
-	    			&:hover {
-	    				background-color: darken( $social-color, 20% );
-	    			}
-	    		}
-	    	}
-	    }
     }
     
     .conf-sch-event-buttons + .conf-sch-event-buttons {
@@ -171,7 +153,6 @@
 
 				@media screen and (min-width: 55em) {
 					width: 150px;
-					height: 150px;
 				}
 			}
 

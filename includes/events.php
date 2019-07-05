@@ -51,7 +51,7 @@ class Conference_Schedule_Event {
 	 * @access  private
 	 * @var     string
 	 */
-	private $date_time;
+	private $date_time, $date_time_test;
 
 	/**
 	 * Will hold the event date/time in GMT.
@@ -60,7 +60,7 @@ class Conference_Schedule_Event {
 	 * @access  private
 	 * @var     string
 	 */
-	private $date_time_gmt;
+	private $date_time_gmt, $end_dt, $end_date_time_gmt;
 
 	/**
 	 * Will hold the event start time.
@@ -87,7 +87,7 @@ class Conference_Schedule_Event {
 	 * @access  private
 	 * @var     string
 	 */
-	private $day, $date_display;
+	private $day, $date_display, $date_time_display;
 
 	/**
 	 * Will hold the event time display.
@@ -96,7 +96,7 @@ class Conference_Schedule_Event {
 	 * @access  private
 	 * @var     string
 	 */
-	private $time_display;
+	private $start_time_display, $end_time_display, $time_display;
 
 	/**
 	 * Will hold the event location ID.
@@ -152,6 +152,8 @@ class Conference_Schedule_Event {
 	 * @var     array
 	 */
 	private $speakers;
+
+	private $is_livestream_over;
 
 	/**
 	 * Will hold the event's livestream URL.
@@ -259,6 +261,46 @@ class Conference_Schedule_Event {
 	/**
 	 * Get the event date/time.
 	 */
+	public function get_date_time_test() {
+
+		// Make sure we have an ID.
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the date.
+		if ( isset( $this->date_time_test ) ) {
+			return $this->date_time_test;
+		}
+
+		// Get the event date.
+		$event_date = $this->get_date();
+
+		// If we have an event date, get the start date.
+		if ( ! empty( $event_date ) ) {
+
+			// Get the start time.
+			$event_start_time = $this->get_start_time();
+
+			// If we have a start time, add to date.
+			if ( ! empty( $event_start_time ) ) {
+				$event_date .= 'T' . $event_start_time;
+			}
+		}
+
+		$event_date = new DateTime( $event_date, conference_schedule()->get_site_timezone() );
+
+
+		//14 Jul 2018 15:30:00 194
+		//04 Dec 1995 00:12:00 GMT
+		$this->date_time_test = ! empty( $event_date ) ? $event_date->format( 'd M Y H:i:s e' ) : false;
+
+		return $this->date_time_test;
+	}
+
+	/**
+	 * Get the event date/time.
+	 */
 	public function get_date_time() {
 
 		// Make sure we have an ID.
@@ -323,7 +365,7 @@ class Conference_Schedule_Event {
 			$date_time->setTimezone( $utc_timezone );
 
 			// Store GMT
-			$this->date_time_gmt = $date_time->format( 'Y-m-d\TH:i' );
+			$this->date_time_gmt = $date_time->format( 'Y-m-d\TH:i:s' );
 
 			return $this->date_time_gmt;
 		}
@@ -331,6 +373,110 @@ class Conference_Schedule_Event {
 		$this->date_time_gmt = false;
 
 		return $this->date_time_gmt;
+	}
+
+	/**
+	 * Get the event end date/time in.
+	 */
+	public function get_end_date_time() {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the date
+		if ( isset( $this->end_dt ) ) {
+			return $this->end_dt;
+		}
+
+		// Get the event date.
+		$event_date = $this->get_date();
+
+		// Only proceed if we have a end time.
+		if ( ! $event_date ) {
+			$this->end_dt = false;
+			return $this->end_dt;
+		}
+
+		// Get the end time
+		$event_end_time = $this->get_end_time();
+
+		// Only proceed if we have a end time.
+		if ( ! $event_end_time ) {
+			$this->end_dt = false;
+			return $this->end_dt;
+		}
+
+		// Get this site's timezone.
+		$timezone = conference_schedule()->get_site_timezone();
+
+		// Join date and time.
+		$event_date .= 'T' . $event_end_time;
+
+		// Store in date object
+		$date_time = new DateTime( $event_date, $timezone );
+
+		// Convert to UTC/GMT
+		//$utc_timezone = new DateTimeZone( 'UTC' );
+		//$date_time->setTimezone( $utc_timezone );
+
+		// Store GMT
+		$this->end_dt = $date_time->format( 'Y-m-d\TH:i:s' );
+
+		return $this->end_dt;
+	}
+
+	/**
+	 * Get the event end date/time in GMT.
+	 */
+	public function get_end_date_time_gmt() {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the date
+		if ( isset( $this->end_date_time_gmt ) ) {
+			return $this->end_date_time_gmt;
+		}
+
+		// Get the event date.
+		$event_date = $this->get_date();
+
+		// Only proceed if we have a end time.
+		if ( ! $event_date ) {
+			$this->end_date_time_gmt = false;
+			return $this->end_date_time_gmt;
+		}
+
+		// Get the end time
+		$event_end_time = $this->get_end_time();
+
+		// Only proceed if we have a end time.
+		if ( ! $event_end_time ) {
+			$this->end_date_time_gmt = false;
+			return $this->end_date_time_gmt;
+		}
+
+		// Get this site's timezone.
+		$timezone = conference_schedule()->get_site_timezone();
+
+		// Join date and time.
+		$event_date .= 'T' . $event_end_time;
+
+		// Store in date object
+		$date_time = new DateTime( $event_date, $timezone );
+
+		// Convert to UTC/GMT
+		$utc_timezone = new DateTimeZone( 'UTC' );
+		$date_time->setTimezone( $utc_timezone );
+
+		// Store GMT
+		$this->end_date_time_gmt = $date_time->format( 'Y-m-d\TH:i:s' );
+
+		return $this->end_date_time_gmt;
 	}
 
 	/**
@@ -398,9 +544,36 @@ class Conference_Schedule_Event {
 	}
 
 	/**
+	 * Get the event date and time display.
+	 */
+	public function get_date_time_display( $format = 'l, F j, Y \a\t g:i a' ) {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the display
+		if ( isset( $this->date_time_display ) ) {
+			return $this->date_time_display;
+		}
+
+		// Get the event date
+		$event_date_time = $this->get_date_time();
+
+		// Format the date display.
+		$date_time_display = ! empty( $event_date_time ) ? date( $format, strtotime( $event_date_time ) ) : false;
+
+		// Store the time display, and change "am" and "pm" to "a.m." and "p.m.".
+		$this->date_time_display = preg_replace( '/(a|p)m/', '$1.m.', $date_time_display );
+
+		return $this->date_time_display;
+	}
+
+	/**
 	 * Get the event date display.
 	 */
-	public function get_date_display() {
+	public function get_date_display( $format = 'l, F j, Y' ) {
 
 		// Make sure we have an ID
 		if ( ! ( $this->ID >= 1 ) ) {
@@ -416,9 +589,81 @@ class Conference_Schedule_Event {
 		$event_date = $this->get_date();
 
 		// Store and format the date display.
-		$this->date_display = ! empty( $event_date ) ? date( 'l, F j, Y', strtotime( $event_date ) ) : false;
+		$this->date_display = ! empty( $event_date ) ? date( $format, strtotime( $event_date ) ) : false;
 
 		return $this->date_display;
+	}
+
+	/**
+	 * Get the event start time display.
+	 */
+	public function get_start_time_display() {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the display
+		if ( isset( $this->start_time_display ) ) {
+			return $this->start_time_display;
+		}
+
+		// Get the start time
+		$event_start_time = $this->get_start_time();
+
+		// Only proceed if we have a start time
+		if ( ! $event_start_time ) {
+			$this->start_time_display = false;
+			return $this->start_time_display;
+		}
+
+		// Convert start time
+		$event_start_time = strtotime( $event_start_time );
+
+		// Build the display string, starting with start time
+		$time_display = date( 'g:i a', $event_start_time );
+
+		// Store the time display, and change "am" and "pm" to "a.m." and "p.m.".
+		$this->start_time_display = preg_replace( '/(a|p)m/', '$1.m.', $time_display );
+
+		return $this->start_time_display;
+	}
+
+	/**
+	 * Get the event end time display.
+	 */
+	public function get_end_time_display() {
+
+		// Make sure we have an ID
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		// If already set, return the display
+		if ( isset( $this->end_time_display ) ) {
+			return $this->end_time_display;
+		}
+
+		// Get the end time
+		$event_end_time = $this->get_end_time();
+
+		// Only proceed if we have a end time
+		if ( ! $event_end_time ) {
+			$this->end_time_display = false;
+			return $this->end_time_display;
+		}
+
+		// Convert end time
+		$event_end_time = strtotime( $event_end_time );
+
+		// Build the display string, ending with end time
+		$time_display = date( 'g:i a', $event_end_time );
+
+		// Store the time display, and change "am" and "pm" to "a.m." and "p.m.".
+		$this->end_time_display = preg_replace( '/(a|p)m/', '$1.m.', $time_display );
+
+		return $this->end_time_display;
 	}
 
 	/**
@@ -698,6 +943,27 @@ class Conference_Schedule_Event {
 	}
 
 	/**
+	 *
+	 */
+	public function is_livestream_over() {
+
+		// Make sure we have an ID.
+		if ( ! ( $this->ID >= 1 ) ) {
+			return false;
+		}
+
+		if ( isset( $this->is_livestream_over ) ) {
+			return $this->is_livestream_over;
+		}
+
+		$is_over = (bool) get_post_meta( $this->ID, 'livestream_over', true );
+
+		$this->is_livestream_over = $is_over;
+
+		return $this->is_livestream_over;
+	}
+
+	/**
 	 * Get the event's livestream URL.
 	 *
 	 * @return string|false|null
@@ -735,7 +1001,9 @@ class Conference_Schedule_Event {
 		}
 
 		// What time is it in UTC?
+		// @TODO reset
 		$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+		//$current_time = new DateTime( '2019-01-31 17:32:00', new DateTimeZone( 'UTC' ) );
 
 		// Get date/time in UTC. Get out of here if time isn't valid.
 		$session_date_time_gmt = $this->get_date_time_gmt();
@@ -953,7 +1221,9 @@ class Conference_Schedule_Event {
 		if ( $feedback_url ) {
 
 			// What time is it?
+			// @TODO reset
 			$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			//$current_time = new DateTime( '2019-01-31 17:40:00', new DateTimeZone( 'UTC' ) );
 
 			// Get date in UTC
 			$event_date_time_gmt = $this->get_date_time_gmt();
@@ -1101,6 +1371,7 @@ class Conference_Schedule_Events {
 				'thumbnail',
 				'excerpt',
 				'revisions',
+				'comments',
 			),
 			'has_archive'     => false,
 			'menu_icon'       => 'dashicons-calendar',

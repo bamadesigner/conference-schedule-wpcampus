@@ -1,0 +1,307 @@
+//
+// These are the styles for when
+// we display the conference schedule
+// single listings.
+//
+
+@import "settings";
+@import "mixins";
+
+.conf-sch-single-container {
+	box-sizing: border-box;
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.conf-sch-single-area {
+		opacity: 1;
+		@include set-transition( opacity 1s ease );
+
+		> *:first-child {
+			margin-top: 0;
+		}
+	}
+
+	.conf-sch-single-livestream {
+		margin: 1.5rem 0;
+
+		.underline {
+			text-decoration: underline;
+		}
+
+		a {
+			display: block;
+			background-color: $video-color;
+			color: #fff !important;
+			padding: 15px 20px;
+			text-align: center;
+			border-radius: 5px;
+			text-decoration: none;
+			@include set-transition( background-color 1s ease );
+
+			&:focus,
+			&:hover {
+				background-color: darken( $video-color, 10% );
+			}
+		}
+	}
+
+	.conf-sch-single-meta {
+		background: #fff;
+		border: 1px solid #e8e8e8;
+		border-radius: 5px;
+		margin: 15px 0 30px 0;
+		padding: 20px;
+		font-size: 1em;
+		line-height: 1.6em;
+
+		.event-meta {
+			display: block;
+			margin: 0 0 5px 0;
+
+			&.event-subjects .event-meta-value {
+				font-style: italic;
+			}
+		}
+
+		.event-meta-label {
+			font-weight: bold;
+		}
+
+		.conf-sch-event-buttons {
+			margin: 12px 0 0 0 !important;
+		}
+
+		*:first-child {
+			margin-top: 0 !important;
+		}
+
+		// Move meta to the right when screen gets larger.
+		@media screen and (min-width: 620px) {
+			float: right;
+			margin-left: 30px;
+			min-width: 300px;
+			max-width: 350px;
+		}
+	}
+
+	.conf-sch-single-content {
+		clear: left;
+
+		.conf-sch-single-error {
+			font-style: italic;
+			color: #900;
+		}
+
+		.conf-sch-group-events {
+
+			.conf-sch-group-event {
+				border-top: 1px solid #eee;
+				margin: 2rem 0 0 0;
+				padding: 2.1rem 0 0 0;
+
+				*:first-child {
+					margin-top: 0;
+				}
+
+				*:last-child {
+					margin-bottom: 0;
+				}
+
+				.event-time {
+					font-size: 0.9rem;
+					color: #666;
+				}
+
+				.event-title {
+					font-size: 1.5rem;
+					line-height: 2.3rem;
+					margin: 0;
+				}
+
+				.event-subjects {
+					margin: 0.4rem 0 0 0;
+					font-style: italic;
+				}
+
+				.event-speakers {
+					font-weight: 700;
+					font-size: 1.2rem;
+					line-height: 1.3;
+					margin: 0.4rem 0 0 0;
+				}
+
+				.event-excerpt {
+					margin: 0.8rem 0 1.2rem 0;
+
+					* {
+						font-size: 0.9rem;
+						line-height: 1.8;
+					}
+				}
+
+				.conf-sch-event-buttons {
+
+					li {
+						display: inline-block;
+						margin: 0 10px 10px 0;
+					}
+				}
+
+				.event-links {
+					margin: 0.6rem 0 0 0;
+				}
+
+				&:first-child {
+					border-top: 0;
+					margin-top: 0;
+					padding-top: 0;
+				}
+			}
+		}
+
+		@media screen and (min-width: 620px) {
+
+			.callout {
+
+				&.with-meta {
+					margin-right: 370px;
+				}
+
+				&:first-child {
+					margin-top: 45px;
+				}
+			}
+		}
+	}
+
+	// Customize the video on the single schedule pages
+	$session-video-height: 450px;
+	.conf-sch-single-video {
+		clear: both;
+		width: 100%;
+		margin: 0 0 20px 0;
+
+		iframe {
+			width: 100%;
+			height: $session-video-height;
+		}
+	}
+
+	.conf-sch-single-speakers {
+		clear: both;
+
+		@include include-schedule-speaker();
+
+		&.conf-schedule-speakers {
+
+			h2 {
+				margin-bottom: -5px;
+			}
+
+			.conf-schedule-speaker {
+
+				.speaker-headshot {
+					margin-top: 15px;
+				}
+
+				.speaker-name {
+					margin: 0 0 10px 0;
+				}
+
+				.conf-sch-event-buttons {
+
+					li {
+						display: inline-block;
+						margin: 0 10px 10px 0;
+					}
+				}
+			}
+		}
+	}
+
+	.conf-sch-single-questions {
+		margin: 1rem 0 0 0;
+
+		h2 {
+			border-bottom: 1px solid #eee;
+			padding: 0 0 15px 0;
+		}
+
+		textarea {
+			display: block;
+			width: 100%;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			border-radius: 0;
+			background: #fff;
+			border: 1px solid #ccc;
+			box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+			font-family: inherit;
+			//font-size: 0.875rem;
+			//height: 2.3125rem;
+			//margin: 0 0 1rem 0;
+			//padding: 0.5rem;
+			transition: border-color 0.15s linear, background 0.15s linear;
+
+			&:hover,
+			&:focus {
+				background: #fafafa;
+				border-color: #999;
+			}
+		}
+
+		.question-form-question {
+
+			label {
+				display: block;
+			}
+		}
+	}
+
+	.conf-sch-loading {
+		pointer-events: none;
+		opacity: 0;
+		@include set-transition( opacity 1s ease );
+	}
+
+	.conf-sch-single-area {
+		opacity: 1;
+		@include set-transition( all 1s ease );
+	}
+
+	&.loading {
+		min-height: $loading-min-height;
+		position: relative;
+		pointer-events: none;
+
+		.conf-sch-single-area {
+			opacity: $loading-opacity;
+			pointer-events: none;
+		}
+
+		.conf-sch-loading {
+			opacity: 1;
+			min-height: $loading-min-height;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: url('../../images/loading.gif') center center no-repeat;
+			z-index: 1000;
+		}
+
+		&--initial {
+
+			.conf-sch-single-area {
+				opacity: 0;
+			}
+		}
+	}
+
+	> *:first-child {
+		margin-top: 0;
+	}
+}

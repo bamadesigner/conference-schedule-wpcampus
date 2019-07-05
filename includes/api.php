@@ -34,9 +34,79 @@ class Conference_Schedule_API {
 	 */
 	protected function __construct() {
 
+		//add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+
 		// Register any REST fields
 		add_action( 'rest_api_init', array( $this, 'register_rest_fields' ), 20 );
 
+		//add_filter( 'rest_schedule_query', array( $this, 'modify_schedule_query' ), 100, 2 );
+		add_filter( 'rest_prepare_schedule', array( $this, 'modify_schedule_rest_post' ), 100, 3 );
+
+	}
+
+	/**
+	 * Register our API routes.
+	 */
+	public function register_routes() {
+
+		return;
+
+		// Get WPCampus data.
+		/*register_rest_route( 'conferenceschedule/v1', '/session/(?P\d+)/questions', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $this, 'get_questions_response' ),
+			'permission_callback' => function () {
+				return true;
+			},
+			'args' => array(
+				'id' => array(
+					'validate_callback' => function($param, $request, $key) {
+						return is_numeric( $param );
+					}
+				),
+			),
+		));*/
+	}
+
+	/**
+	 *
+	 */
+	public function modify_schedule_query( $args, $request ) {
+		return $args;
+	}
+
+	/**
+	 * Filters the schedule post data for a REST response.
+	 *
+	 * @access  public
+	 * @param   $response - WP_REST_Response - The response object.
+	 * @param   $post - WP_Post - The Post object.
+	 * @param   $request - WP_REST_Request - The Request object.
+	 * @return  WP_REST_Response - the filtered response
+	 */
+	public function modify_schedule_rest_post( $response, $post, $request ) {
+
+		$data = &$response->data;
+
+		// Remove certain fields.
+		$fields = array( 'guid' ); //, 'modified', 'modified_gmt', 'slug', 'status', 'template', 'type' );
+		foreach ( $fields as $field ) {
+			if ( isset( $data[ $field ] ) ) {
+				unset( $data[ $field ] );
+			}
+		}
+
+		/*$proposal_id = ! empty( $object['proposal'] ) ? $object['proposal'] : conference_schedule()->get_session_proposal_id( $object['id'] );
+		$proposal = conference_schedule()->get_proposal( $proposal_id );
+
+		// Add the oembed.
+		if ( ! empty( $proposal ) ) {
+			$proposal->session_video_embed = $this->get_session_proposal_video_oembed( $object['id'], $proposal_id, $proposal );
+		}
+
+		return $proposal;*/
+
+		return $response;
 	}
 
 	/**
@@ -60,26 +130,31 @@ class Conference_Schedule_API {
 			'event_dt_gmt',
 			'event_date',
 			'event_start_time',
+			//'event_start_time_display',
 			'event_end_time',
+			'event_end_dt',
+			'event_end_dt_gmt',
+			//'event_end_time_display',
 			'event_timezone',
 			'event_day',
-			'event_date_display',
-			'event_time_display',
-			'event_time_display_tz',
-			'event_duration',
+			//'event_time_display',
+			//'event_time_display_tz',
+			//'event_duration',
 			'event_type',
-			'event_group',
+			'event_children',
 			'proposal',
 			'event_location',
 			'event_address',
 			'event_google_maps_url',
 			'link_to_post',
-			'event_hashtag',
+			//'event_hashtag',
+			'session_livestream_over',
 			'session_livestream_url',
 			'session_slides_url',
 			'session_feedback_url',
 			'session_follow_up_url',
 		);
+
 		foreach ( $event_fields as $field_name ) {
 			register_rest_field( 'schedule', $field_name, array(
 				'get_callback'    => array( $this, 'get_event_field_value' ),
@@ -144,13 +219,21 @@ class Conference_Schedule_API {
 				$event_start_time = $event->get_start_time();
 				return ! empty( $event_start_time ) ? $event_start_time : null;
 
+			case 'event_start_time_display':
+				$display = $event->get_start_time_display();
+				return ! empty( $display ) ? $display : null;
+
 			// Get the end time.
 			case 'event_end_time':
 				$event_end_time = $event->get_end_time();
 				return ! empty( $event_end_time ) ? $event_end_time : null;
 
+			case 'event_end_time_display':
+				$display = $event->get_end_time_display();
+				return ! empty( $display ) ? $display : null;
+
 			case 'event_timezone':
-				$event_timezone = conference_schedule()->get_site_timezone();
+				$event_timezone = conference_schedule()->get_site_timezone_abbr();
 				return ! empty( $event_timezone ) ? $event_timezone : null;
 
 			// Get the event date/time.
@@ -158,10 +241,22 @@ class Conference_Schedule_API {
 				$event_date_time = $event->get_date_time();
 				return ! empty( $event_date_time ) ? $event_date_time : null;
 
+			case 'event_dt_test':
+				$event_date = $event->get_date_time_test();
+				return ! empty( $event_date ) ? $event_date : null;
+
 			// Get the event date/time in GMT.
 			case 'event_dt_gmt':
 				$event_date_gmt = $event->get_date_time_gmt();
 				return ! empty( $event_date_gmt ) ? $event_date_gmt : null;
+
+			case 'event_end_dt':
+				$event_end_dt = $event->get_end_date_time();
+				return ! empty( $event_end_dt ) ? $event_end_dt : null;
+
+			case 'event_end_dt_gmt':
+				$event_end_dt_gmt = $event->get_end_date_time_gmt();
+				return ! empty( $event_end_dt_gmt ) ? $event_end_dt_gmt : null;
 
 			// Get the event date.
 			case 'event_date':
@@ -172,11 +267,6 @@ class Conference_Schedule_API {
 			case 'event_day':
 				$event_day = $event->get_day();
 				return ! empty( $event_day ) ? $event_day : null;
-
-			// Get the event date display.
-			case 'event_date_display':
-				$event_date_display = $event->get_date_display();
-				return ! empty( $event_date_display ) ? $event_date_display : null;
 
 			// Get the event duration.
 			case 'event_duration':
@@ -190,12 +280,12 @@ class Conference_Schedule_API {
 
 			// Build the event time display with timezone.
 			case 'event_time_display_tz':
-				$event_time_display = $event->get_time_display();
+				$event_time_display = ! empty( $object['event_time_display'] ) ? $object['event_time_display'] : $event->get_time_display();
 				if ( empty( $event_time_display ) ) {
 					return null;
 				}
 
-				$event_timezone = conference_schedule()->get_site_timezone();
+				$event_timezone = ! empty( $object['event_timezone'] ) ? $object['event_timezone'] : conference_schedule()->get_site_timezone_abbr();
 
 				return $event_time_display . ' ' . $event_timezone;
 
@@ -269,6 +359,9 @@ class Conference_Schedule_API {
 				}
 
 				return true;
+
+			case 'session_livestream_over':
+				return $event->is_livestream_over();
 
 			/*
 			 * Livestream URL will only show up
@@ -355,6 +448,19 @@ class Conference_Schedule_API {
 
 		}
 	}
+
+	/*public function get_questions_response( WP_REST_Request $request ) {
+
+		// Build the response.
+		$response = null;
+
+		// If no response, return an error.
+		if ( ! $response ) {
+			return new WP_Error( 'conf-schedule', __( 'This data set is either invalid or does not contain information.', 'wpcampus-data' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_REST_Response( $response );
+	}*/
 }
 
 /**

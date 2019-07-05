@@ -14,7 +14,8 @@ final class Conference_Schedule_Admin {
 	 * @var     string
 	 */
 	public $settings_page_id,
-		$preview_page_id;
+		$preview_page_id,
+		$downloads_page_id;
 
 	/**
 	 * We don't need to instantiate this class.
@@ -40,7 +41,7 @@ final class Conference_Schedule_Admin {
 		add_action( 'admin_enqueue_scripts', array( $plugin, 'enqueue_styles_scripts' ), 20 );
 
 		// Add regular settings page.
-		add_action( 'admin_menu', array( $plugin, 'add_settings_page' ) );
+		add_action( 'admin_menu', array( $plugin, 'add_subpages' ) );
 
 		// Register our settings.
 		add_action( 'admin_init', array( $plugin, 'register_settings' ), 1 );
@@ -71,6 +72,9 @@ final class Conference_Schedule_Admin {
 
 		// Populate ACF field choices.
 		add_filter( 'acf/load_field/name=proposal', array( $plugin, 'load_proposal_field_choices' ) );
+		
+		// Process downloads.
+		add_action( 'admin_init', array( $plugin, 'process_downloads' ) );
 
 	}
 
@@ -364,13 +368,13 @@ final class Conference_Schedule_Admin {
 	}
 
 	/**
-	 * Add our settings page.
+	 * Add our admin sub pages.
 	 *
 	 * @access  public
 	 * @since   1.0.0
 	 * @return  void
 	 */
-	public function add_settings_page() {
+	public function add_subpages() {
 
 		$this->settings_page_id = add_submenu_page(
 			'edit.php?post_type=schedule',
@@ -388,6 +392,15 @@ final class Conference_Schedule_Admin {
 			'edit_posts',
 			'conf-schedule-preview',
 			array( $this, 'print_preview_page' )
+		);
+		
+		$this->downloads_page_id = add_submenu_page(
+			'edit.php?post_type=schedule',
+			__( 'Conference Schedule Downloads', 'conf-schedule' ),
+			__( 'Downloads', 'conf-schedule' ),
+			'edit_posts',
+			'conf-schedule-downloads',
+			array( $this, 'print_downloads_page' )
 		);
 	}
 
@@ -470,6 +483,37 @@ final class Conference_Schedule_Admin {
 			echo conference_schedule()->get_conference_schedule();
 
 			?>
+		</div>
+		<?php
+
+	}
+
+	/**
+	 * Print our downloads page.
+	 *
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function print_downloads_page() {
+
+		$admin_url = add_query_arg( array(
+			'post_type' => 'schedule',
+			'page'      => 'conf-schedule-downloads',
+		), admin_url( 'edit.php' ) );
+
+		$hootsuite_tmpl_url = add_query_arg( array(
+			'dwnld_hs_tmpl_csv' => 1,
+		), $admin_url );
+
+		$hootsuite_tmpl_csv = wp_nonce_url( $hootsuite_tmpl_url, 'dwnld_hs_tmpl_csv', 'dwnld_hs_tmpl_csv_nonce' );
+
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<ul>
+				<li><a href="<?php echo $hootsuite_tmpl_csv; ?>">Hootsuite template for day-of tweets</a></li>
+			</ul>
 		</div>
 		<?php
 
@@ -660,10 +704,10 @@ final class Conference_Schedule_Admin {
 							<td>
 								<fieldset>
 									<legend><strong><?php _e( 'Display the following fields on the main schedule:', 'conf-schedule' ); ?></strong></legend>
-									<label for="conf-schedule-display-slides"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-slides" value="view_slides"<?php checked( is_array( $display_fields ) && in_array( 'view_slides', $display_fields ) ); ?> /> <?php _e( 'View Slides', 'conf-schedule' ); ?></label><br>
-									<label for="conf-schedule-display-livestream"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-livestream" value="view_livestream"<?php checked( is_array( $display_fields ) && in_array( 'view_livestream', $display_fields ) ); ?> /> <?php _e( 'View Livestream', 'conf-schedule' ); ?></label><br>
-									<label for="conf-schedule-display-feedback"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-feedback" value="give_feedback"<?php checked( is_array( $display_fields ) && in_array( 'give_feedback', $display_fields ) ); ?> /> <?php _e( 'Give Feedback', 'conf-schedule' ); ?></label><br>
-									<label for="conf-schedule-display-video"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-video" value="watch_video"<?php checked( is_array( $display_fields ) && in_array( 'watch_video', $display_fields ) ); ?> /> <?php _e( 'Watch Session', 'conf-schedule' ); ?></label>
+									<label for="conf-schedule-display-slides"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-slides" value="view_slides"<?php checked( is_array( $display_fields ) && in_array( 'view_slides', $display_fields ) ); ?> /> <?php _e( 'Session slides', 'conf-schedule' ); ?></label><br>
+									<label for="conf-schedule-display-livestream"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-livestream" value="view_livestream"<?php checked( is_array( $display_fields ) && in_array( 'view_livestream', $display_fields ) ); ?> /> <?php _e( 'Attend livestream', 'conf-schedule' ); ?></label><br>
+									<label for="conf-schedule-display-feedback"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-feedback" value="give_feedback"<?php checked( is_array( $display_fields ) && in_array( 'give_feedback', $display_fields ) ); ?> /> <?php _e( 'Give feedback', 'conf-schedule' ); ?></label><br>
+									<label for="conf-schedule-display-video"><input type="checkbox" name="conf_schedule[schedule_display_fields][]" id="conf-schedule-display-video" value="watch_video"<?php checked( is_array( $display_fields ) && in_array( 'watch_video', $display_fields ) ); ?> /> <?php _e( 'Session video', 'conf-schedule' ); ?></label>
 								</fieldset>
 							</td>
 						</tr>
@@ -2146,7 +2190,6 @@ final class Conference_Schedule_Admin {
 		// Columns to add after title.
 		$add_columns_after_title = array(
 			'schedule' => array(
-				'social'   => __( 'Social', 'conf-schedule' ),
 				'proposal' => __( 'Proposal', 'conf-schedule' ),
 				'speakers' => __( 'Speaker(s)', 'conf-schedule' ),
 				'date'     => __( 'Date', 'conf-schedule' ),
@@ -2305,20 +2348,6 @@ final class Conference_Schedule_Admin {
 			}
 		}
 
-		if ( 'conf-sch-social' == $column ) {
-
-			$message = get_post_meta( $post_id, 'sws_meta_format', true );
-
-			$images_url = conference_schedule()->get_plugin_url() . 'assets/images/';
-
-			if ( ! empty( $message ) ) :
-				?>
-				<img style="width:auto;height:25px;margin:5px 5px 5px 0;" src="<?php echo $images_url; ?>twitter-logo.svg" alt="<?php printf( esc_attr__( 'This post has a %s message.', 'conf-schedule' ), 'Twitter' ); ?>" title="<?php echo esc_attr( $message ); ?>">
-				<img style="width:auto;height:25px;margin:5px 5px 5px 0;" src="<?php echo $images_url; ?>facebook-logo.svg" alt="<?php printf( esc_attr__( 'This post has a %s message.', 'conf-schedule' ), 'Facebook' ); ?>" title="<?php echo esc_attr( $message ); ?>">
-				<?php
-			endif;
-		}
-
 		if ( 'conf-sch-events' == $column ) {
 
 			// Get speaker.
@@ -2355,6 +2384,7 @@ final class Conference_Schedule_Admin {
 		// Let's get selected as well as confirmed proposals.
 		$proposal_args = array(
 			'proposal_status' => array( 'confirmed', 'selected' ),
+			'bust_cache' => true,
 		);
 
 		// Get the proposals.
@@ -2364,6 +2394,10 @@ final class Conference_Schedule_Admin {
 		}
 
 		foreach ( $proposals as $proposal ) {
+
+			if ( ! in_array( $proposal->proposal_status, array( 'confirmed', 'selected' ) ) ) {
+				continue;
+			}
 
 			$proposal_title = $proposal->title;
 
@@ -2376,6 +2410,186 @@ final class Conference_Schedule_Admin {
 		}
 
 		return $field;
+	}
+
+	/**
+	 * Process someone requesting a download.
+	 */
+	public function process_downloads() {
+
+		if ( empty( $_GET['dwnld_hs_tmpl_csv'] ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( $_GET['dwnld_hs_tmpl_csv_nonce'], 'dwnld_hs_tmpl_csv' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'download_hs_tmpl_csv' ) ) {
+			return;
+		}
+		
+		$event_date = '2019-01-31';
+		$event_id = 194; //get_option( 'wpc_proposal_event' ),
+		
+		$csv = array();
+		
+		$schedule = conference_schedule()->get_schedule( array(
+			'date'       => $event_date,
+			'bust_cache' => true,
+		));
+		
+		// Get schedule IDs.
+		//
+		$scheduleIDs = array();
+		foreach ( $schedule as $item ) {
+			if ( ! empty( $item->proposal ) ) {
+				$scheduleIDs[] = $item->proposal;	
+			}
+		}
+		
+		$proposals = empty( $scheduleIDs ) ? array() : conference_schedule()->get_proposals( array(
+			'post__in'        => $scheduleIDs,
+			'proposal_status' => 'confirmed',
+			'proposal_event'  => $event_id,
+			'get_headshot'    => false,
+			'bust_cache'      => true,
+		));
+		
+		$timezone = conference_schedule()->get_site_timezone();
+
+		//$tweet_tmpl = 'Join #WPCampus Online in 15 minutes [time] to [ADD DESCRIPTION] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
+		$tweet_tmpl = 'Join #WPCampus Online in 15 minutes [time] for the session [SessionTitle] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
+
+		foreach ( $schedule as $item ) {
+			
+			$item_title = ! empty( $item->title->rendered ) ? $item->title->rendered : null;
+			
+			// @TODO setup.
+			if ( 'Break' == $item_title ) {
+				continue;
+			}
+
+			// Get location.
+			$locationID = null;
+			$locationStr = null;
+			if ( ! empty( $item->event_location->ID ) ) {
+				$locationID = $item->event_location->ID;
+				$locationStr = $item->event_location->post_title;
+			}
+			
+			// Get proposal.
+			$item_proposal = null;
+			if ( ! empty( $item->proposal ) ) {
+				foreach ( $proposals as $proposal_index => $proposal ) {
+					if ( $proposal->ID == $item->proposal ) {
+						$item_proposal = $proposal;
+						unset( $proposals[ $proposal_index ] );
+						break;
+					}
+				}
+			}
+			
+			// Get speakers for tweet.
+			$speakers = array();
+			if ( ! empty( $item_proposal->speakers ) ) {
+				foreach ( $item_proposal->speakers as $speaker ) {
+					if ( ! empty( $speaker->twitter ) ) {
+						$speakers[] = '@' . $speaker->twitter;
+					} else if ( ! empty( $speaker->display_name ) ) {
+						$speakers[] = $speaker->display_name;
+					}
+				}
+			}
+			
+			$dateStr = ! empty( $item->event_date ) ? $item->event_date : null;
+			if ( ! empty( $item->event_start_time ) ) {
+				$dateStr .= 'T' . $item->event_start_time;
+			}
+			
+			$date = ! empty( $dateStr ) ? new DateTime( $dateStr, $timezone ) : null;
+			
+			// Set display time before modifying.
+			$displayMinute = $date->format( 'i' );
+			if ( '00' == $displayMinute ) {
+				$displayTime = $date->format( 'g a' );
+			} else {
+				$displayTime = $date->format( 'g:i a' );
+			}
+
+			$displayTime = ' (' . $displayTime . ' CST)';
+			
+			// Subtract 15 minutes for scheduling tweet.
+			$date->modify( '-15 minutes' );
+			
+			// Start to build tweet.
+			$tweet = $tweet_tmpl;
+			
+			// Replace time.
+			$tweet = str_replace( '[time]', $displayTime, $tweet );
+
+			// Replace session title
+			$tweet = str_replace( '[SessionTitle]', '"' . $item_title . '"', $tweet );
+			
+			$speakerDisplay = null;
+			if ( ! empty( $speakers ) ) {
+				
+				// Start with last speaker.
+				$speakerDisplay = array_pop( $speakers );
+				
+				// Add others
+				if ( ! empty( $speakers ) ) {
+					if ( 1 == count( $speakers ) ) {
+						$speakerDisplay = array_shift( $speakers ) . ' and ' . $speakerDisplay;
+					} else {
+						$speakerDisplay = implode( ', ', $speakers ) . $speakerDisplay;
+					}
+				}
+
+				$speakerDisplay = 'with ' . $speakerDisplay;
+			}
+
+			// Replace speaker display.
+			$tweet = str_replace( '[speaker]', $speakerDisplay, $tweet );
+
+			// Cleanup tweet.
+			$tweet = str_replace( '  ', ' ', trim( $tweet ) );
+			$tweet = str_replace( ' .', '.', $tweet );
+
+			// @TODO handle in social media plugin
+			$csv[] = array(
+				$date->format( 'm/d/Y H:i' ), //01/31/2019 8:45
+				$tweet,
+				get_permalink( $locationID ),
+				$item_title,
+				get_post_meta( $item->id, 'wpc_social_message_twitter', true ),
+			);
+		}	
+
+		// Create temporary CSV file.
+		$csv_filename = 'wpcampus-day-of-tweets.csv';
+		$csv_file_path = "/tmp/{$csv_filename}";
+		$csv_file = fopen( $csv_file_path, 'w' );
+
+		// Write info to the file.
+		foreach ( $csv as $item ) {
+			fputcsv( $csv_file, $item );
+		}
+
+		// Close the file.
+		fclose( $csv_file );
+
+		// Output headers so that the file is downloaded rather than displayed.
+		header( 'Content-type: text/csv' );
+		header( "Content-disposition: attachment; filename = {$csv_filename}" );
+		header( 'Content-Length: ' . filesize( $csv_file_path ) );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		// Read the file.
+		readfile( $csv_file_path );
+
+		exit;
 	}
 }
 Conference_Schedule_Admin::register();

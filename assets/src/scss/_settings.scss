@@ -5,10 +5,15 @@ $auditorium-bg: rgba( #c6dbf1, 0.3 );
 $break-bg: rgba( #000, 0.01 );
 $schedule-border-color: rgba( #000, 0.1 );
 $social-color: #1159bd;
+$slides-color: #a0291d;
 
 $video-color: #2e3192;
 $in-progress-color: #15552b;
 
 $wpc-royal-blue: #1159bd;
+$wpc-light-blue: #e4eaf4;
 
-$schedule-table-col-breakpoint: 1000px;
+$schedule-table-col-breakpoint: 920px;
+
+$loading-opacity: 0.2;
+$loading-min-height: 100px;

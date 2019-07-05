@@ -13,7 +13,7 @@
 
 			conf_sch_list_templ = Handlebars.compile( conf_sch_list_templ_content );
 
-			$('.conf-schedule-events').each(function() {
+			$('.conf-schedule-events-list').each(function() {
 				$(this).render_conference_schedule_list();
 			});
 		}
@@ -26,14 +26,33 @@
 		var $this_list = $(this);
 
 		// Build the URL.
-		var apiURL = conf_sch.wp_api_route + 'schedule';
+		var apiURL = conf_sch.wp_api_route + 'schedule',
+			apiURLArgs = '';
 
 		// Add date.
-		if ( $this_list.data('date') != '' ) {
-			apiURL += '?conf_sch_event_date=' +  $this_list.data('date');
+		if ( $this_list.data('date') ) {
+			apiURLArgs += 'conf_sch_event_date=' +  $this_list.data('date');
+		}
+
+		if ( $this_list.data('orderby') ) {
+			if ( apiURLArgs ) {
+        		apiURLArgs += '&';
+        	}
+			apiURLArgs += 'conf_sch_event_orderby=' +  $this_list.data('orderby');
+		}
+
+		if ( $this_list.data('order') ) {
+			if ( apiURLArgs ) {
+				apiURLArgs += '&';
+			}
+			apiURLArgs += 'conf_sch_event_order=' +  $this_list.data('order');
 		}
 
 		var schedule_items = [], proposals = {};
+
+		if ( apiURLArgs ) {
+			apiURL += '?' + apiURLArgs;
+		}
 
 		// Get the schedule information.
 		$.ajax({
@@ -67,10 +86,11 @@
 
 						// Process the proposals.
 						$.each( the_proposals, function( index, proposal ) {
-							if ( proposal.id ) {
-								proposals['proposal'+proposal.id] = proposal;
+							if ( proposal.ID && 'confirmed' == proposal.proposal_status ) {
+								proposals['proposal'+proposal.ID] = proposal;
 							}
 						});
+
 					}
 				});
 			},
@@ -88,16 +108,18 @@
 				$.each( schedule_items, function( index, item ) {
 
 					// If this event is a child, don't add.
-					if ( item.parent > 0 ) {
+					/*if ( item.parent > 0 ) {
 						return true;
-					}
+					}*/
 
 					// If we're a session, make sure we have a proposal.
 					var proposal = null;
 					if ( 'session' == item.event_type ) {
+
 						if ( item.proposal > 0 && ( 'proposal' + item.proposal ) in proposals ) {
 							proposal = proposals['proposal' + item.proposal];
 						}
+
 						if ( ! proposal ) {
 							return true;
 						}
@@ -105,17 +127,23 @@
 						// Update proposal information.
 						if ( proposal.title ) {
 							item.title = proposal.title;
+							item.excerpt = proposal.excerpt;
+							item.format_name = proposal.format_name;
+							item.speakers = proposal.speakers;
+							item.subjects = proposal.subjects;
 						}
 					}
 
 					// Render the templates.
-					schedule_html += conf_sch_list_templ( item );
+					schedule_html += conf_sch_list_templ(item);
 
 				});
 
-				$this_list.html( schedule_html );
+				$this_list.html(schedule_html);
+
+				$this_list.removeClass( 'loading' );
 
 			}
 		});
 	};
-})( jQuery );
+})(jQuery);
