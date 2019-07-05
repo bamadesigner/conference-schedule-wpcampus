@@ -610,9 +610,49 @@ $conf-sch-events-width: 88%;
 		@include set-transition( opacity 1s ease );
 	}
 
+	.conf-sch-header-sticky {
+		display: block;
+		background: #fff;
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: auto;
+		padding: 1em 0;
+		opacity: 0;
+		border-bottom: 2px solid $schedule-border-color;
+		box-shadow: 0 0 20px -10px rgba(0,0,0,0.8);
+		pointer-events: none;
+		@include set-transition(opacity 0.8s ease);
+
+		&:before {
+			content: '';
+			background: #fff;
+			width: 200%;
+			height: 100%;
+			position: absolute;
+			left: -50%;
+			top: 0;
+			z-index: -1;
+		}
+
+		.schedule-header {
+			margin: 0;
+		}
+
+		@media screen and (min-width: $schedule-table-col-breakpoint) {
+			border-bottom-width: 1px;
+		}
+	}
+
 	&.active {
 
 		.schedule-side-buttons {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.conf-sch-header-sticky.active {
 			opacity: 1;
 			pointer-events: auto;
 		}

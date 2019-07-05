@@ -27,6 +27,7 @@
 		$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
 			$('.conf-sch-container').each(function(){
 				$(this).conf_schedule_check_active();
+				$(this).conf_schedule_check_sticky_header();
 			});
 		});
 	}
@@ -510,6 +511,7 @@
 
 		// Check if container is "active".
 		$conf_sch_container.conf_schedule_check_active();
+		$conf_sch_container.conf_schedule_check_sticky_header();
 
 		// Load window resize/scroll events.
 		load_conf_schedule_window_resize_scroll();
@@ -850,6 +852,53 @@
 		}
     };
 
+    // Invoked by a schedule container.
+	$.fn.conf_schedule_check_sticky_header = function() {
+		var $conf_sch_container = $(this),
+			$day_headers = $conf_sch_container.find('.conference-schedule .schedule-by-day .schedule-header'),
+			stickyHeaderActive = false;
+		$day_headers.each(function(){
+			if ($(this).conf_sch_is_at_or_above_viewport()) {
+				stickyHeaderActive = true;
+				$conf_sch_container.enable_sticky_day_header($(this));
+			}
+		});
+		if (!stickyHeaderActive) {
+			$conf_sch_container.disable_sticky_day_header();
+		}
+	};
+
+	// Invoked by a schedule container.
+    $.fn.enable_sticky_day_header = function($day_header) {
+		var $conf_sch_container = $(this),
+			stickySelector = 'conf-sch-header-sticky',
+			$sticky_day_header = $conf_sch_container.find('.'+stickySelector),
+			$clone_header = $day_header.clone();
+		if (!$sticky_day_header.length) {
+			$sticky_day_header = $('<div></div>').addClass(stickySelector).attr('aria-hidden','true');
+			$sticky_day_header.html($clone_header);
+			$conf_sch_container.append($sticky_day_header);
+		} else {
+			$sticky_day_header.html($clone_header);
+		}
+		$conf_sch_container.position_sticky_day_header();
+		$sticky_day_header.addClass('active');
+    };
+
+    // Invoked by a schedule container.
+    $.fn.disable_sticky_day_header = function() {
+		$(this).find('.conf-sch-header-sticky').removeClass('active');
+    };
+
+	// Invoked by a schedule container.
+	$.fn.position_sticky_day_header = function() {
+		var $conf_sch_container = $(this);
+		$conf_sch_container.find('.conf-sch-header-sticky').css({
+			left: $conf_sch_container.offset().left,
+			width: $conf_sch_container.outerWidth()
+		});
+	};
+
 	// Invoked by a schedule container.
 	$.fn.conf_schedule_check_active = function() {
 		var $conf_sch_container = $(this);
@@ -872,6 +921,8 @@
 		});
 
 		$conf_sch_container.set_conf_sch_container_loading();
+
+		$conf_sch_container.disable_sticky_day_header();
 
 		return $conf_sch_container.render_conf_schedule( true );
 	};
@@ -921,6 +972,13 @@
 		$conf_sch_loading.css(containerLoadCSS);
 
 		return $conf_sch_container;
+	};
+
+	// Returns true if invoked element is in viewport.
+	$.fn.conf_sch_is_at_or_above_viewport = function() {
+		var elementTop = $(this).offset().top,
+			viewportTop = $(window).scrollTop();
+		return elementTop <= viewportTop;
 	};
 
 	// Returns true if invoked element is in viewport.
