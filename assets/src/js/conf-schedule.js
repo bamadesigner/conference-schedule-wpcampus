@@ -9,17 +9,22 @@
 	// When the document is ready...
 	$(document).ready(function() {
 
+		var hasConfSchContainer = false;
+
 		// Process each schedule.
 		$('.conf-sch-container').each(function(){
+			hasConfSchContainer = true;
 			$(this).render_conf_schedule();
 		});
 
 		// Lets us know if a schedule is in the viewport.
-		$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
-			$('.conf-sch-container').each(function(){
-				$(this).conf_schedule_check_active();
-		  	});
-		});
+		if (hasConfSchContainer) {
+			$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
+				$('.conf-sch-container').each(function(){
+					$(this).conf_schedule_check_active();
+				});
+			});
+		}
 	});
 
 	///// FUNCTIONS /////
