@@ -495,9 +495,6 @@
 		// Setup actions.
 		$conf_sch_container.conf_schedule_add_actions();
 
-		// Check if container is "active".
-		$conf_sch_container.conf_schedule_check_active();
-
 		// Remove load events.
 		$( window ).off( 'resize.conf_schedule_load, scroll.conf_schedule_load' );
 
@@ -506,6 +503,9 @@
 
 		// Reset loading.
 		$conf_sch_container.find('.conf-sch-loading').removeAttr('style');
+
+		// Check if container is "active".
+		$conf_sch_container.conf_schedule_check_active();
 
 		// Update the schedule every 10 minutes.
 		var refreshSchedule = setTimeout(function(){
