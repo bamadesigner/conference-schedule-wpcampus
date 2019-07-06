@@ -8,6 +8,7 @@
 
 	const globals = {
 		window_resize_scroll: false,
+		sticky_day_header: null,
 	};
 
 	// When the document is ready...
@@ -854,26 +855,46 @@
 
     // Invoked by a schedule container.
 	$.fn.conf_schedule_check_sticky_header = function() {
-		var $conf_sch_container = $(this),
-			$day_headers = $conf_sch_container.find('.conference-schedule .schedule-by-day .schedule-header'),
-			stickyHeaderActive = false;
-		$day_headers.each(function(){
-			if ($(this).conf_sch_is_at_or_above_viewport()) {
+		const container = $(this)[0];
+
+		if (!container.classList.contains('active')) {
+			$(container).disable_sticky_day_header();
+			return;
+		}
+
+		const dayHeaders = container.querySelectorAll('.conference-schedule .schedule-by-day .schedule-header');
+		var stickyHeaderActive = false;
+
+		// Start with the last header.
+		for ( let i = [ dayHeaders.length - 1 ]; i >= 0; i-- ) {
+			const header = dayHeaders[ i ];
+
+			if ($(header).conf_sch_is_at_or_above_viewport()) {
 				stickyHeaderActive = true;
-				$conf_sch_container.enable_sticky_day_header($(this));
+				$(container).enable_sticky_day_header($(header));
+				break;
 			}
-		});
+		}
+
 		if (!stickyHeaderActive) {
-			$conf_sch_container.disable_sticky_day_header();
+			$(container).disable_sticky_day_header();
 		}
 	};
 
 	// Invoked by a schedule container.
     $.fn.enable_sticky_day_header = function($day_header) {
+
+		if ( globals.sticky_day_header === $day_header[ 0 ] ) {
+			return;
+		}
+
+		globals.sticky_day_header = $day_header[ 0 ];
+
 		var $conf_sch_container = $(this),
 			stickySelector = 'conf-sch-header-sticky',
 			$sticky_day_header = $conf_sch_container.find('.'+stickySelector),
 			$clone_header = $day_header.clone();
+
 		if (!$sticky_day_header.length) {
 			$sticky_day_header = $('<div></div>').addClass(stickySelector).attr('aria-hidden','true');
 			$sticky_day_header.html($clone_header);
@@ -881,14 +902,19 @@
 		} else {
 			$sticky_day_header.html($clone_header);
 		}
+
 		$conf_sch_container.position_sticky_day_header();
 		$sticky_day_header.addClass('active');
+
     };
 
     // Invoked by a schedule container.
-    $.fn.disable_sticky_day_header = function() {
-		$(this).find('.conf-sch-header-sticky').removeClass('active');
-    };
+	$.fn.disable_sticky_day_header = function() {
+		if (globals.sticky_day_header) {
+			globals.sticky_day_header = null;
+			$(this).find('.conf-sch-header-sticky').removeClass('active');
+		}
+	};
 
 	// Invoked by a schedule container.
 	$.fn.position_sticky_day_header = function() {
@@ -905,6 +931,7 @@
 
 		if ( $conf_sch_container.hasClass('loading') || ! $conf_sch_container.conf_sch_is_in_viewport() ) {
 			$conf_sch_container.removeClass('active').removeAttr('style');
+			$conf_sch_container.disable_sticky_day_header();
 		} else {
 			$conf_sch_container.addClass('active');
 		}
