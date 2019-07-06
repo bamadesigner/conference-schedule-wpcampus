@@ -311,7 +311,7 @@ final class Conference_Schedule_Admin {
 		} elseif ( $this->settings_page_id == $hook_suffix ) {
 
 			// Enqueue our settings styles
-			wp_enqueue_style( 'conf-schedule-settings', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'conf-schedule-settings.min.css', array(), null );
+			wp_enqueue_style( 'conf-schedule-settings', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'conf-schedule-settings.min.css', array(), null );
 
 			// Need these scripts for the meta boxes to work correctly on our settings page
 			wp_enqueue_script( 'post' );
@@ -335,15 +335,15 @@ final class Conference_Schedule_Admin {
 
 				// Register the various style dependencies.
 				wp_register_style( 'jquery-ui', '//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css', array(), null );
-				wp_register_style( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'timepicker.min.css', array(), null );
-				wp_register_style( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'select2.min.css', array(), null );
+				wp_register_style( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'timepicker.min.css', array(), null );
+				wp_register_style( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'select2.min.css', array(), null );
 
 				array_push( $admin_style_dep, 'jquery-ui', 'timepicker', 'select2' );
 
 			}
 
 			// Enqueue the post styles.
-			wp_enqueue_style( 'conf-schedule-admin-post', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/css' ) . 'admin-post.min.css', $admin_style_dep, null );
+			wp_enqueue_style( 'conf-schedule-admin-post', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/css' ) . 'admin-post.min.css', $admin_style_dep, null );
 
 			// Load assets for the speakers page.
 			switch ( $post_type ) {
@@ -351,11 +351,11 @@ final class Conference_Schedule_Admin {
 				case 'schedule':
 
 					// Register the various script dependencies.
-					wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'select2.min.js', array( 'jquery' ), null, true );
-					wp_register_script( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'timepicker.min.js', array( 'jquery' ), null, true );
+					wp_register_script( 'select2', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'select2.min.js', array( 'jquery' ), null, true );
+					wp_register_script( 'timepicker', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'timepicker.min.js', array( 'jquery' ), null, true );
 
 					// Enqueue the post script.
-					wp_enqueue_script( 'conf-schedule-admin-schedule', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/build/js' ) . 'admin-post-schedule.min.js', array( 'jquery', 'jquery-ui-datepicker', 'timepicker', 'select2' ), null, true );
+					wp_enqueue_script( 'conf-schedule-admin-schedule', trailingslashit( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js' ) . 'admin-post-schedule.min.js', array( 'jquery', 'jquery-ui-datepicker', 'timepicker', 'select2' ), null, true );
 
 					// Pass info to the script.
 					wp_localize_script( 'conf-schedule-admin-schedule', 'conf_sch', array(

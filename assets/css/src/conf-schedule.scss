@@ -563,22 +563,22 @@ $conf-sch-events-width: 88%;
 			}
 
 			&.schedule-refresh {
-				background: url('../../images/refresh.svg') center center no-repeat rgba(0,0,0,0.1);
+				background: url('../images/refresh.svg') center center no-repeat rgba(0,0,0,0.1);
 				background-size: 28px auto;
 			}
 
 			&.schedule-video {
-				background: url('../../images/video.svg') center center no-repeat rgba(0,0,0,0.1);
+				background: url('../images/video.svg') center center no-repeat rgba(0,0,0,0.1);
 				background-size: 32px auto;
 			}
 
 			&.schedule-go-current {
-				background: url('../../images/clock.svg') center center no-repeat rgba(0,0,0,0.1);
+				background: url('../images/clock.svg') center center no-repeat rgba(0,0,0,0.1);
 				background-size: 32px auto;
 			}
 
 			&.schedule-go-top {
-				background: url('../../images/arrow-up.svg') center center no-repeat rgba(0,0,0,0.1);
+				background: url('../images/arrow-up.svg') center center no-repeat rgba(0,0,0,0.1);
 				background-size: 32px auto;
 			}
 
@@ -677,7 +677,7 @@ $conf-sch-events-width: 88%;
 			top: 0;
 			width: 100%;
 			height: 100%;
-			background: url('../../images/loading.gif') center center no-repeat;
+			background: url('../images/loading.gif') center center no-repeat;
 			z-index: 1000;
 		}
 	}

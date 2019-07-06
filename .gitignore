@@ -1,4 +1,4 @@
 node_modules
 vendor
-/assets/build/js/conf-schedule.min.js
-/assets/build/css/conf-schedule.min.css
+assets/css/**/*.min.css
+assets/js/**/*.min.js

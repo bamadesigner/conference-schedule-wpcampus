@@ -13,28 +13,28 @@ const wp_pot = require('gulp-wp-pot');
 // Define the source paths for each file type.
 const src = {
 	js: [
-		'assets/src/js/admin-post-schedule.js',
-		'assets/src/js/conf-schedule.js',
-		'assets/src/js/conf-sch-functions.js',
-		'assets/src/js/conf-sch-handlebars.js',
-		'assets/src/js/conf-schedule-list.js',
-		'assets/src/js/conf-schedule-speakers.js',
-		'assets/src/js/conf-schedule-single.js'
+		'assets/js/src/admin-post-schedule.js',
+		'assets/js/src/conf-schedule.js',
+		'assets/js/src/conf-sch-functions.js',
+		'assets/js/src/conf-sch-handlebars.js',
+		'assets/js/src/conf-schedule-list.js',
+		'assets/js/src/conf-schedule-speakers.js',
+		'assets/js/src/conf-schedule-single.js'
 	],
 	php: ['**/*.php','!vendor/**','!node_modules/**'],
-	sass: ['assets/src/scss/**/*.scss']
+	css: ['assets/css/src/**/*.scss']
 };
 
 // Define the destination paths for each file type.
 const dest = {
-	js: 'assets/build/js',
-	sass: 'assets/build/css',
+	js: 'assets/js',
+	css: 'assets/css',
 	translate: 'languages/conf-schedule.pot'
 };
 
 // Take care of SASS.
 gulp.task('sass', function(done) {
-	return gulp.src(src.sass)
+	return gulp.src(src.css)
 		.pipe(sass({
 			outputStyle: 'compressed'
 		}).on('error', sass.logError))
@@ -49,8 +49,8 @@ gulp.task('sass', function(done) {
 		.pipe(rename({
 			suffix: '.min'
 		}))
-		.pipe(gulp.dest(dest.sass))
-		.pipe(notify('Conference Schedule SASS compiled'))
+		.pipe(gulp.dest(dest.css))
+		.pipe(notify('Conference Schedule CSS compiled'))
 		.on('end',done);
 });
 
@@ -69,8 +69,8 @@ gulp.task('js', function(done) {
 
 	// Move our third-party scripts.
 	gulp.src([
-		'assets/src/js/select2.min.js',
-		'assets/src/js/timepicker.min.js'
+		'assets/js/src/select2.min.js',
+		'assets/js/src/timepicker.min.js'
 	]).pipe(gulp.dest(dest.js))
 	.on('end',done);
 });
@@ -120,6 +120,6 @@ gulp.task('default', gulp.series('compile','test','translate'));
 gulp.task('watch', gulp.series('default',function(done) {
 	gulp.watch(src.js, gulp.series('js'));
 	gulp.watch(src.php,gulp.series('test','translate'));
-	gulp.watch(src.sass,gulp.series('sass'));
+	gulp.watch(src.css,gulp.series('sass'));
 	return done();
 }));

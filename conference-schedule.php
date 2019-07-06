@@ -620,8 +620,8 @@ class Conference_Schedule {
 		}
 
 		$plugin_url = $this->get_plugin_url();
-		$css_url = $plugin_url . 'assets/build/css/';
-		$js_url = $plugin_url . 'assets/build/js/';
+		$css_url = $plugin_url . 'assets/css/';
+		$js_url = $plugin_url . 'assets/js/';
 
 		// Register our icons.
 		wp_register_style( 'conf-schedule-icons', $css_url . 'conf-schedule-icons.min.css', array(), $this->assetVersion );
@@ -704,8 +704,8 @@ class Conference_Schedule {
 		global $post;
 
 		$plugin_url = $this->get_plugin_url();
-		$css_url = $plugin_url . 'assets/build/css/';
-		$js_url = $plugin_url . 'assets/build/js/';
+		$css_url = $plugin_url . 'assets/css/';
+		$js_url = $plugin_url . 'assets/js/';
 
 		// Register our icons.
 		wp_register_style( 'conf-schedule-icons', $css_url . 'conf-schedule-icons.min.css', array(), $this->assetVersion );
