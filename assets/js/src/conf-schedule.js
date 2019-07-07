@@ -871,7 +871,7 @@
 
 			if ($(header).conf_sch_is_at_or_above_viewport()) {
 				stickyHeaderActive = true;
-				$(container).enable_sticky_day_header($(header));
+				$(container).enable_sticky_day_header(header);
 				break;
 			}
 		}
@@ -882,29 +882,36 @@
 	};
 
 	// Invoked by a schedule container.
-    $.fn.enable_sticky_day_header = function($day_header) {
+    $.fn.enable_sticky_day_header = function( day_header ) {
 
-		if ( globals.sticky_day_header === $day_header[ 0 ] ) {
+		if ( globals.sticky_day_header === day_header ) {
 			return;
 		}
 
-		globals.sticky_day_header = $day_header[ 0 ];
+		globals.sticky_day_header = day_header;
 
 		var $conf_sch_container = $(this),
 			stickySelector = 'conf-sch-header-sticky',
-			$sticky_day_header = $conf_sch_container.find('.'+stickySelector),
-			$clone_header = $day_header.clone();
+			sticky_day_header = $conf_sch_container[ 0 ].querySelector( '.' + stickySelector );
 
-		if (!$sticky_day_header.length) {
-			$sticky_day_header = $('<div></div>').addClass(stickySelector).attr('aria-hidden','true');
-			$sticky_day_header.html($clone_header);
-			$conf_sch_container.append($sticky_day_header);
+		if ( ! sticky_day_header ) {
+
+			sticky_day_header = document.createElement( 'div' );
+			sticky_day_header.classList.add( stickySelector );
+			sticky_day_header.setAttribute( 'aria-hidden', 'true' );
+			sticky_day_header.innerHTML = day_header.outerHTML;
+
+			$conf_sch_container.append( $(sticky_day_header) );
+
 		} else {
-			$sticky_day_header.html($clone_header);
+
+			sticky_day_header.innerHTML = day_header.outerHTML;
+
 		}
 
 		$conf_sch_container.position_sticky_day_header();
-		$sticky_day_header.addClass('active');
+
+		sticky_day_header.classList.add( 'active' );
 
     };
 
@@ -912,7 +919,7 @@
 	$.fn.disable_sticky_day_header = function() {
 		if (globals.sticky_day_header) {
 			globals.sticky_day_header = null;
-			$(this).find('.conf-sch-header-sticky').removeClass('active');
+			$(this)[ 0 ].querySelector('.conf-sch-header-sticky').classList.remove('active');
 		}
 	};
 
