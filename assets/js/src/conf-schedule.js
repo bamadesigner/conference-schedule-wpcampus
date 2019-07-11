@@ -7,6 +7,7 @@
 	};
 
 	const globals = {
+		window_width: undefined,
 		window_resize_scroll: false,
 		sticky_day_header: null,
 	};
@@ -26,10 +27,20 @@
 		}
 		globals.window_resize_scroll = true;
 		$(window).on('resize.conf_schedule_active, scroll.conf_schedule_active', function(e) {
+
+			const check_position = ( 'resize' == e.type && globals.window_width !== document.body.clientWidth );
+
 			$('.conf-sch-container').each(function(){
+
 				$(this).conf_schedule_check_active();
 				$(this).conf_schedule_check_sticky_header();
+
+				if ( check_position ) {
+					$(this).position_sticky_day_header();
+				}
 			});
+
+			globals.window_width = document.body.clientWidth;
 		});
 	}
 
