@@ -562,16 +562,18 @@
 
 		// Get the schedule.
 		const getSchedule = $conf_sch_container.get_conf_schedule();
-		getSchedule.done(function(schedule){
+		getSchedule.done( function( schedule ) {
 
 			const getProposals = get_conf_schedule_proposals();
-            getProposals.done(function(proposals){
+            getProposals.done(function( proposals ) {
 
 				// Populate the schedule.
 				$conf_sch_container.populate_conf_schedule(schedule,proposals);
 
-				dfd.resolve($conf_sch_container);
+				dfd.resolve( $conf_sch_container );
 			});
+		}).fail( function() {
+			$conf_sch_container.print_conf_schedule_error();
 		});
 
 		return dfd.promise();
