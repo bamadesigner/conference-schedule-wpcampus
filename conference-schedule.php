@@ -194,9 +194,6 @@ class Conference_Schedule {
 		add_action( 'wp_ajax_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
 		add_action( 'wp_ajax_nopriv_conf_sch_get_speakers', array( $this, 'ajax_get_speakers' ) );
 
-		//add_action( 'wp_ajax_conf_sch_get_questions', array( $this, 'ajax_get_questions' ) );
-		//add_action( 'wp_ajax_nopriv_conf_sch_get_questions', array( $this, 'ajax_get_questions' ) );
-
 		// Adjust the schedule query.
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ) );
 		add_action( 'pre_get_posts', array( $this, 'filter_pre_get_posts' ), 20 );
@@ -848,19 +845,31 @@ class Conference_Schedule {
 				<div class="conf-sch-single-area conf-sch-single-livestream"></div>
 				<div class="conf-sch-single-area conf-sch-single-notifications"></div>
 				<div class="conf-sch-single-area conf-sch-single-content"></div>
+				<div class="conf-sch-single-area conf-sch-single-speakers conf-schedule-speakers"></div>
 				<?php
 
 				if ( ! is_singular( 'locations' ) && ! has_term( [ 'administrative', 'dining', 'social' ], 'event_types' ) ) :
 					?>
-					<div class="conf-sch-single-area conf-sch-single-video">
-						<h2 id="video"><?php _e( 'Session video', 'conf-schedule' ); ?></h2>
+					<div id="video" class="conf-sch-single-area conf-sch-single-video">
+						<h2 class="conf-sch-single__title"><?php _e( 'Session video', 'conf-schedule' ); ?></h2>
+					</div>
+					<?php
+				endif;
+
+				if ( comments_open() && function_exists( 'wpcampus_print_qa' ) ) :
+					?>
+					<div class="conf-sch-single-area conf-sch-single-questions">
+						<h2 class="conf-sch-single__title">Questions</h2>
+						<div class="panel">
+							<p><strong>Have a question about the session?</strong> Submit a question for the speaker and engage with others.</p>
+							<p>All questions are moderated, kept anonymous (except to moderators), and must follow <a href="https://wpcampus.org/code-of-conduct/"><strong>our Code of Conduct</strong></a>.</p>
+						</div>
+						<?php wpcampus_print_qa(); ?>
 					</div>
 					<?php
 				endif;
 
 				?>
-				<div class="conf-sch-single-area conf-sch-single-speakers conf-schedule-speakers"></div>
-				<?php /*<div class="conf-sch-single-area conf-sch-single-questions"></div>*/ ?>
 				<div class="conf-sch-loading"></div>
 			</div>
 			<?php
@@ -1553,110 +1562,6 @@ class Conference_Schedule {
 		echo json_encode( $speakers );
 
 		wp_die();
-	}
-
-	/**
-	 * Get the questions.
-	 */
-	public function ajax_get_questions() {
-
-		return;
-
-		$post_id = ! empty( $_GET['postID'] ) ? $_GET['postID'] : 0;
-		if ( ! $post_id ) {
-			wp_die();
-		}
-
-		//$submit_question_title = __( 'Submit a question', 'conf-schedule' );
-
-		// Make sure they're logged in.
-		//if ( ! is_user_logged_in() ) {
-
-			/*<h2><?php echo $submit_question_title; ?></h2>*/
-
-			wpcampus_print_login_form();
-			wp_die();
-
-		//}
-
-		$this->print_questions();
-		wp_die();
-
-		$req = get_option( 'require_name_email' );
-		//$html_req = ( $req ? " required='required'" : '' );
-		//$html5 = true;*/
-
-		//$commenter = wp_get_current_commenter();
-		//$consent = empty( $commenter['comment_author_email'] ) ? '' : ' checked="checked"';
-
-		/*$fields = array(
-			'author' => '<p class="question-form-author">' . '<label for="author">' . __( 'Name' ) . ( $req ? ' <span class="required">*</span>' : '' ) . '</label> ' .
-					 '<input id="author" name="author" type="text" value="' . esc_attr( $commenter['comment_author'] ) . '" size="30" maxlength="245"' . $html_req . ' /></p>',
-			'email' => '<p class="question-form-email"><label for="email">' . __( 'Email' ) . ( $req ? ' <span class="required">*</span>' : '' ) . '</label> ' .
-					 '<input id="email" name="email" ' . ( $html5 ? 'type="email"' : 'type="text"' ) . ' value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="30" maxlength="100" aria-describedby="email-notes"' . $html_req . ' /></p>',
-			'url' => '<p class="question-form-url"><label for="url">' . __( 'Website' ) . '</label> ' .
-					 '<input id="url" name="url" ' . ( $html5 ? 'type="url"' : 'type="text"' ) . ' value="' . esc_attr( $commenter['comment_author_url'] ) . '" size="30" maxlength="200" /></p>',
-			'cookies' => '<p class="question-form-cookies-consent"><input id="wp-question-cookies-consent" name="wp-comment-cookies-consent" type="checkbox" value="yes"' . $consent . ' />' .
-					 '<label for="wp-question-cookies-consent">' . __( 'Save my name, email, and website in this browser for the next time I pose a question.' ) . '</label></p>',
-		);*/
-
-		/*$required_text = sprintf( ' ' . __( 'Required fields are marked %s' ), '<span class="required">*</span>' );
-
-		$args = array(
-			//'fields' => $fields,
-			'comment_field' => '<p class="question-form-question"><label for="question">' . _x( 'Question', 'noun' ) . '</label> <textarea id="question" name="comment" cols="45" rows="8" maxlength="65525" required="required"></textarea></p>',
-			'must_log_in' => '<p class="must-log-in">' . sprintf(
-					__( 'You must be <a href="%s">logged in</a> to post a question.' ),
-					wp_login_url( apply_filters( 'the_permalink', get_permalink( $post_id ), $post_id ) )
-				) . '</p>',*/
-			/*'logged_in_as'         => '<p class="logged-in-as">' . sprintf(
-				__( '<a href="%1$s" aria-label="%2$s">Logged in as %3$s</a>. <a href="%4$s">Log out?</a>' ),
-				get_edit_user_link(),
-				esc_attr( sprintf( __( 'Logged in as %s. Edit your profile.' ), $user_identity ) ),
-				$user_identity,
-				wp_logout_url( apply_filters( 'the_permalink', get_permalink( $post_id ), $post_id ) )
-			) . '</p>',*/
-			/*'comment_notes_before' => '<p class="question-notes"><span id="email-notes">' . __( 'Your email address will not be published.' ) . '</span>'. ( $req ? $required_text : '' ) . '</p>',
-			'comment_notes_after'  => '',
-			//'action'               => site_url( '/wp-comments-post.php' ),
-			'id_form'              => 'questionform',
-			'id_submit'            => 'submit',
-			'class_form'           => 'question-form',
-			'class_submit'         => 'submit',
-			'name_submit'          => 'submit',
-			'title_reply'          => __( 'Submit a question' ),
-			'title_reply_to'       => __( 'Leave a Reply to %s' ),
-			'title_reply_before'   => '<h2 id="reply-title" class="question-reply-title">',
-			'title_reply_after'    => '</h2>',
-			'cancel_reply_before'  => ' <small>',
-			'cancel_reply_after'   => '</small>',
-			'cancel_reply_link'    => __( 'Cancel reply' ),
-			'label_submit'         => $submit_question_title,
-			'submit_button'        => '<input name="%1$s" type="submit" id="%2$s" class="button royal-blue %3$s" value="%4$s" />',
-			'submit_field'         => '<p class="form-submit">%1$s %2$s</p>',
-			'format'               => 'xhtml',
-		);
-
-		comment_form( $args, $post_id );*/
-
-		wp_die();
-	}
-
-	/**
-	 *
-	 */
-	public function print_questions() {
-
-		?>
-		<div class="wpc-questions-container">
-			<h2>Questions</h2>
-			<div class="wpc-questions"></div>
-			<div class="wpc-questions-form"></div>
-		</div>
-		<?php
-
-		comment_form();
-
 	}
 
 	/**

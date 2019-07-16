@@ -22,20 +22,6 @@
 		});
 	}
 
-	function get_conf_schedule_post_questions(postID) {
-		return $.ajax({
-			url: conf_sch.ajaxurl,
-			type: 'GET',
-			dataType: 'html',
-			async: true,
-			cache: true,
-			data: {
-				action: 'conf_sch_get_questions',
-				postID: postID
-			}
-		});
-	}
-
 	function get_conf_schedule_proposals(args) {
 		var data = {};
 		if (undefined !== args && undefined !== args.post__in){
@@ -193,18 +179,6 @@
 			$conf_sch_single.find('.conf-sch-single-speakers').html(process_speakers(post).trim());
 		}
 
-		// Take care of the questions.
-		/*var $questionsArea = $conf_sch_single.find('.conf-sch-single-questions');
-		if ( $questionsArea ) {
-			const getSchedulePostQuestions = get_conf_schedule_post_questions(post.id);
-			getSchedulePostQuestions.done(function(questions){
-				$questionsArea.html(questions);
-				$conf_sch_single.removeClass('loading loading--initial');
-			});
-		} else {
-			$conf_sch_single.removeClass('loading loading--initial');
-		}*/
-
 		$conf_sch_single.removeClass('loading loading--initial');
 	}
 
@@ -348,19 +322,24 @@
 	}
 
 	Handlebars.registerHelper( 'notifications', function() {
+
 		if ( 'workshop' == this.format_slug ) {
+
 			return new Handlebars.SafeString( '<div class="panel light-royal-blue center"><a href="/tickets/workshops/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops include a snack break.</em></div>' );
+
 		} else if ( $.inArray( this.format_slug, ['session','lightning-talk'] ) >= 0 ) {
-			if ('' != this.session_livestream_url) {
+
+			if ( '' != this.session_livestream_url ) {
 				return null;
 			}
-			// @TODO add back
-			return null;
+
 			var watchURL = '/watch/';
+
 			// @TODO add back
 			/*if (this.event_location && this.event_location.post_name) {
 				watchURL += this.event_location.post_name + '/';
 			}*/
+
 			return new Handlebars.SafeString( '<div class="panel light-royal-blue center">This session will be live streamed for free. <a href="' + watchURL + '"><strong>Visit the watch page</strong></a> during the time slot to join the session.</div>' );
 		}
 		return null;
