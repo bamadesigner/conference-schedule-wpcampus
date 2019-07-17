@@ -2604,13 +2604,13 @@ final class Conference_Schedule_Admin {
 		
 		$timezone = conference_schedule()->get_site_timezone();
 
-        $time_minutes = (int) get_option( 'conf_sch_hootsuite_time_minutes' );
+        $time_minutes_init = (int) get_option( 'conf_sch_hootsuite_time_minutes' );
 
 		//$tweet_tmpl = 'Join #WPCampus Online in 15 minutes [time] to [ADD DESCRIPTION] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
         $tweet_tmpl = 'Join the #WPCampus live stream';
 
-        if ( $time_minutes > 0 ) {
-            $tweet_tmpl .= ' in ' . $time_minutes . ' minutes';
+        if ( $time_minutes_init > 0 ) {
+            $tweet_tmpl .= ' in [minutes] minutes';
         }
 
         $tweet_tmpl .= ' [time] for the session [SessionTitle] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
@@ -2685,16 +2685,27 @@ final class Conference_Schedule_Admin {
 			}
 
 			$displayTime = ' (' . $displayTime . ' PDT)';
+
+			$time_minutes = $time_minutes_init;
 			
 			// Subtract time for scheduling tweet.
             if ( $time_minutes > 0 ) {
                 $date->modify('-' . $time_minutes . ' minutes' );
             }
 
+            // Make sure it ends in a 5 or 0.
+            $date_minutes = (int) $date->format( 'i' );
+
+            if ( $date_minutes % 5 !== 0 ) {
+                $date_minutes = round( $date_minutes / 5 ) * 5;
+                $date->setTime( $date->format( 'H' ), $date_minutes, $date->format( 's' ) );
+            }
+
             $date_format = $date->format( $date_format_string ); //01/31/2019 8:45
 
             while ( in_array( $date_format, $date_times ) ) {
-                $date->modify('-1 minutes');
+                $date->modify('-5 minutes');
+                $time_minutes += 5;
                 $date_format = $date->format( $date_format_string );
             }
 
@@ -2702,7 +2713,10 @@ final class Conference_Schedule_Admin {
 			
 			// Start to build tweet.
 			$tweet = $tweet_tmpl;
-			
+
+            // Replace time.
+            $tweet = str_replace( '[minutes]', $time_minutes, $tweet );
+
 			// Replace time.
 			$tweet = str_replace( '[time]', $displayTime, $tweet );
 
