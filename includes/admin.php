@@ -2577,16 +2577,13 @@ final class Conference_Schedule_Admin {
 		if ( ! current_user_can( 'download_hs_tmpl_csv' ) ) {
 			return;
 		}
+
+        $schedule_args = [ 'bust_cache' => true ];
+
+        //$schedule_args['date'] = '2019-01-31';
+        $event_id = get_option( 'wpc_proposal_event' );
 		
-		$event_date = '2019-01-31';
-		$event_id = 194; //get_option( 'wpc_proposal_event' ),
-		
-		$csv = array();
-		
-		$schedule = conference_schedule()->get_schedule( array(
-			'date'       => $event_date,
-			'bust_cache' => true,
-		));
+		$schedule = conference_schedule()->get_schedule( $schedule_args );
 		
 		// Get schedule IDs.
 		//
@@ -2607,10 +2604,27 @@ final class Conference_Schedule_Admin {
 		
 		$timezone = conference_schedule()->get_site_timezone();
 
+        $time_minutes = (int) get_option( 'conf_sch_hootsuite_time_minutes' );
+
 		//$tweet_tmpl = 'Join #WPCampus Online in 15 minutes [time] to [ADD DESCRIPTION] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
-		$tweet_tmpl = 'Join #WPCampus Online in 15 minutes [time] for the session [SessionTitle] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
+        $tweet_tmpl = 'Join the #WPCampus live stream';
+
+        if ( $time_minutes > 0 ) {
+            $tweet_tmpl .= ' in ' . $time_minutes . ' minutes';
+        }
+
+        $tweet_tmpl .= ' [time] for the session [SessionTitle] [speaker]. #WordPress #HigherEd #EdTech #Accessibility';
+
+        // We can't have more than one at the same time in Hootsuite.
+        $date_times = [];
+
+        $date_format_string = 'm/d/Y H:i';
 
 		foreach ( $schedule as $item ) {
+
+            if ( empty( $item->event_type ) || 'session' != $item->event_type ) {
+                continue;
+            }
 			
 			$item_title = ! empty( $item->title->rendered ) ? $item->title->rendered : null;
 			
@@ -2638,6 +2652,10 @@ final class Conference_Schedule_Admin {
 					}
 				}
 			}
+
+			if ( in_array( $item_proposal->format_slug, ['workshop'] ) ) {
+			    continue;
+            }
 			
 			// Get speakers for tweet.
 			$speakers = array();
@@ -2666,10 +2684,21 @@ final class Conference_Schedule_Admin {
 				$displayTime = $date->format( 'g:i a' );
 			}
 
-			$displayTime = ' (' . $displayTime . ' CST)';
+			$displayTime = ' (' . $displayTime . ' PDT)';
 			
-			// Subtract 15 minutes for scheduling tweet.
-			$date->modify( '-15 minutes' );
+			// Subtract time for scheduling tweet.
+            if ( $time_minutes > 0 ) {
+                $date->modify('-' . $time_minutes . ' minutes' );
+            }
+
+            $date_format = $date->format( $date_format_string ); //01/31/2019 8:45
+
+            while ( in_array( $date_format, $date_times ) ) {
+                $date->modify('-1 minutes');
+                $date_format = $date->format( $date_format_string );
+            }
+
+            $date_times[] = $date_format;
 			
 			// Start to build tweet.
 			$tweet = $tweet_tmpl;
@@ -2707,13 +2736,13 @@ final class Conference_Schedule_Admin {
 
 			// @TODO handle in social media plugin
 			$csv[] = array(
-				$date->format( 'm/d/Y H:i' ), //01/31/2019 8:45
+				$date_format,
 				$tweet,
 				get_permalink( $locationID ),
 				$item_title,
 				get_post_meta( $item->id, 'wpc_social_message_twitter', true ),
 			);
-		}	
+		}
 
 		// Create temporary CSV file.
 		$csv_filename = 'wpcampus-day-of-tweets.csv';
