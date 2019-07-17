@@ -8,7 +8,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language-Team: WPCampus <code@wpcampus.org>\n"
 "Last-Translator: WPCampus <code@wpcampus.org>\n"
-"Report-Msgid-Bugs-To: https://github.com/wpcampus/conference-schedule/issues\n"
+"Report-Msgid-Bugs-To: https://github.com/wpcampus/conference-schedule-wpcampus/issues\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: conference-schedule.php:647
