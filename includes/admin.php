@@ -2500,16 +2500,9 @@ final class Conference_Schedule_Admin {
                 }
             }
 
-            // Get speakers for tweet.
-            $speakers = array();
-            if ( ! empty( $item_proposal->speakers ) ) {
-                foreach ( $item_proposal->speakers as $speaker ) {
-                    if ( ! empty( $speaker->twitter ) ) {
-                        $speakers[] = '@' . $speaker->twitter;
-                    } else if ( ! empty( $speaker->display_name ) ) {
-                        $speakers[] = $speaker->display_name;
-                    }
-                }
+            // Pointless if no speakers.
+            if ( empty( $item_proposal->speakers ) ) {
+                continue;
             }
 
             $dateStr = ! empty( $item->event_date ) ? $item->event_date : null;
@@ -2522,15 +2515,21 @@ final class Conference_Schedule_Admin {
             // Build feedback ID string.
             $feedback_url_id = $event->get_feedback_url_short();
 
-            // @TODO handle in social media plugin
-            $csv[] = array(
-                $date->format( 'm/d/Y H:i' ), //01/31/2019 8:45
-                $locationStr,
-                $item_title,
-                get_permalink( $item->id ),
-                $event->get_feedback_url(),
-                $feedback_url_id,
-            );
+            foreach ( $item_proposal->speakers as $speaker ) {
+
+                // @TODO handle in social media plugin
+                $csv[] = array(
+                    $date->format( 'm/d/Y H:i' ), //01/31/2019 8:45
+                    $speaker->email,
+                    $speaker->first_name,
+                    $speaker->last_name,
+                    $locationStr,
+                    $item_title,
+                    get_permalink( $item->id ),
+                    $event->get_feedback_url(),
+                    $feedback_url_id,
+                );
+            }
         }
 
         // Create temporary CSV file.
@@ -2539,7 +2538,7 @@ final class Conference_Schedule_Admin {
         $csv_file = fopen( $csv_file_path, 'w' );
 
         // Add headers.
-        fputcsv( $csv_file, [ 'Date/Time', 'Location', 'Title', 'Permalink', 'Feedback', 'Feedback Short' ] );
+        fputcsv( $csv_file, [ 'Date/Time', 'Speaker Email', 'Speaker First Name', 'Speaker Last Name', 'Location', 'Title', 'Permalink', 'Feedback', 'Feedback Short' ] );
 
         // Write info to the file.
         foreach ( $csv as $item ) {
