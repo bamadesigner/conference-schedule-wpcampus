@@ -74,7 +74,8 @@ final class Conference_Schedule_Admin {
 		add_filter( 'acf/load_field/name=proposal', array( $plugin, 'load_proposal_field_choices' ) );
 		
 		// Process downloads.
-		add_action( 'admin_init', array( $plugin, 'process_downloads' ) );
+        add_action( 'admin_init', array( $plugin, 'process_dwnld_session_info' ) );
+        add_action( 'admin_init', array( $plugin, 'process_dwnld_hootsuite_template' ) );
 
 	}
 
@@ -509,16 +510,22 @@ final class Conference_Schedule_Admin {
 		), admin_url( 'edit.php' ) );
 
 		$hootsuite_tmpl_url = add_query_arg( array(
-			'dwnld_hs_tmpl_csv' => 1,
+			'dwnld_hootsuite_template_csv' => 1,
 		), $admin_url );
 
-		$hootsuite_tmpl_csv = wp_nonce_url( $hootsuite_tmpl_url, 'dwnld_hs_tmpl_csv', 'dwnld_hs_tmpl_csv_nonce' );
+        $schedule_info_url = add_query_arg( array(
+            'dwnld_session_info_csv' => 1,
+        ), $admin_url );
+
+		$hootsuite_tmpl_csv = wp_nonce_url( $hootsuite_tmpl_url, 'dwnld_hootsuite_template_csv', 'dwnld_hootsuite_template_csv_nonce' );
+        $schedule_info_csv = wp_nonce_url( $schedule_info_url, 'dwnld_session_info_csv', 'dwnld_session_info_csv_nonce' );
 
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<ul>
 				<li><a href="<?php echo $hootsuite_tmpl_csv; ?>">Hootsuite template for day-of tweets</a></li>
+                <li><a href="<?php echo $schedule_info_csv; ?>">Session information, including feedback URLs</a></li>
 			</ul>
 		</div>
 		<?php
@@ -2418,16 +2425,153 @@ final class Conference_Schedule_Admin {
 		return $field;
 	}
 
-	/**
-	 * Process someone requesting a download.
-	 */
-	public function process_downloads() {
+    /**
+     * Process downloading the schedule info.
+     */
+    public function process_dwnld_session_info() {
 
-		if ( empty( $_GET['dwnld_hs_tmpl_csv'] ) ) {
+        if ( empty( $_GET['dwnld_session_info_csv'] ) ) {
+            return;
+        }
+
+        if ( ! wp_verify_nonce( $_GET['dwnld_session_info_csv_nonce'], 'dwnld_session_info_csv' ) ) {
+            return;
+        }
+
+        if ( ! current_user_can( 'download_schedule_info_csv' ) ) {
+            return;
+        }
+
+        $schedule_args = [ 'bust_cache' => true ];
+
+        //$schedule_args['date'] = '2019-01-31';
+        $event_id = get_option( 'wpc_proposal_event' );
+
+        $csv = array();
+
+        $schedule = conference_schedule()->get_schedule( $schedule_args );
+
+        // Get schedule IDs.
+        $scheduleIDs = array();
+        foreach ( $schedule as $item ) {
+            if ( ! empty( $item->proposal ) ) {
+                $scheduleIDs[] = $item->proposal;
+            }
+        }
+
+        $proposals = empty( $scheduleIDs ) ? array() : conference_schedule()->get_proposals( array(
+            'post__in'        => $scheduleIDs,
+            'proposal_status' => 'confirmed',
+            'proposal_event'  => $event_id,
+            'get_headshot'    => false,
+            'bust_cache'      => true,
+        ));
+
+        $timezone = conference_schedule()->get_site_timezone();
+
+        foreach ( $schedule as $item ) {
+
+            if ( empty( $item->event_type ) || 'session' != $item->event_type ) {
+                continue;
+            }
+
+            // Get the event.
+            $event = conference_schedule_events()->get_event( $item->id );
+
+            $item_title = ! empty( $item->title->rendered ) ? $item->title->rendered : null;
+
+            // Get location.
+            $locationID = null;
+            $locationStr = null;
+            if ( ! empty( $item->event_location->ID ) ) {
+                $locationID = $item->event_location->ID;
+                $locationStr = $item->event_location->post_title;
+            }
+
+            // Get proposal.
+            $item_proposal = null;
+            if ( ! empty( $item->proposal ) ) {
+                foreach ( $proposals as $proposal_index => $proposal ) {
+                    if ( $proposal->ID == $item->proposal ) {
+                        $item_proposal = $proposal;
+                        unset( $proposals[ $proposal_index ] );
+                        break;
+                    }
+                }
+            }
+
+            // Get speakers for tweet.
+            $speakers = array();
+            if ( ! empty( $item_proposal->speakers ) ) {
+                foreach ( $item_proposal->speakers as $speaker ) {
+                    if ( ! empty( $speaker->twitter ) ) {
+                        $speakers[] = '@' . $speaker->twitter;
+                    } else if ( ! empty( $speaker->display_name ) ) {
+                        $speakers[] = $speaker->display_name;
+                    }
+                }
+            }
+
+            $dateStr = ! empty( $item->event_date ) ? $item->event_date : null;
+            if ( ! empty( $item->event_start_time ) ) {
+                $dateStr .= 'T' . $item->event_start_time;
+            }
+
+            $date = ! empty( $dateStr ) ? new DateTime( $dateStr, $timezone ) : null;
+
+            // Build feedback ID string.
+            $feedback_url_id = $event->get_feedback_url_short();
+
+            // @TODO handle in social media plugin
+            $csv[] = array(
+                $date->format( 'm/d/Y H:i' ), //01/31/2019 8:45
+                $locationStr,
+                $item_title,
+                get_permalink( $item->id ),
+                $event->get_feedback_url(),
+                $feedback_url_id,
+            );
+        }
+
+        // Create temporary CSV file.
+        $csv_filename = 'wpcampus-2019-sessions.csv';
+        $csv_file_path = "/tmp/{$csv_filename}";
+        $csv_file = fopen( $csv_file_path, 'w' );
+
+        // Add headers.
+        fputcsv( $csv_file, [ 'Date/Time', 'Location', 'Title', 'Permalink', 'Feedback', 'Feedback Short' ] );
+
+        // Write info to the file.
+        foreach ( $csv as $item ) {
+            fputcsv( $csv_file, $item );
+        }
+
+        // Close the file.
+        fclose( $csv_file );
+
+        // Output headers so that the file is downloaded rather than displayed.
+        header( 'Content-type: text/csv' );
+        header( "Content-disposition: attachment; filename = {$csv_filename}" );
+        header( 'Content-Length: ' . filesize( $csv_file_path ) );
+        header( 'Pragma: no-cache' );
+        header( 'Expires: 0' );
+
+        // Read the file.
+        readfile( $csv_file_path );
+
+        exit;
+    }
+
+	/**
+	 * Process downloading the Hootsuite template csv.
+	 */
+	public function process_dwnld_hootsuite_template() {
+
+		if ( empty( $_GET['dwnld_hootsuite_template_csv'] ) ) {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_GET['dwnld_hs_tmpl_csv_nonce'], 'dwnld_hs_tmpl_csv' ) ) {
+		if ( ! wp_verify_nonce( $_GET['dwnld_hootsuite_template_csv_nonce'], 'dwnld_hootsuite_template_csv' ) ) {
 			return;
 		}
 
