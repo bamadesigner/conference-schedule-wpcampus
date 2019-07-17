@@ -1184,6 +1184,69 @@ class Conference_Schedule_Event {
 		return $this->video_url;*/
 	}
 
+    /**
+     * Get the event's feedback URL.
+     */
+    public function maybe_get_feedback_url() {
+
+        // Make sure we have an ID
+        if ( ! ( $this->ID >= 1 ) ) {
+            return false;
+        }
+
+        $feedback_url = $this->get_feedback_url();
+
+        if ( empty( $feedback_url ) ) {
+            return false;
+        }
+
+        // What time is it?
+        // @TODO reset
+        $current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+        //$current_time = new DateTime( '2019-01-31 17:40:00', new DateTimeZone( 'UTC' ) );
+
+        // Get date in UTC
+        $event_date_time_gmt = $this->get_date_time_gmt();
+
+        // Send URL if time is not valid
+        if ( ! empty( $event_date_time_gmt ) && strtotime( $event_date_time_gmt ) !== false ) {
+
+            // Build event start date
+            $event_start = new DateTime( $event_date_time_gmt, new DateTimeZone( 'UTC' ) );
+
+            // Get reveal delay
+            $session_feedback_reveal_delay_seconds = get_post_meta( $this->ID, 'conf_sch_event_feedback_reveal_delay_seconds', true );
+
+            // Set the default delay to 30 minutes
+            if ( ! empty( $session_feedback_reveal_delay_seconds ) && $session_feedback_reveal_delay_seconds > 0 ) {
+                $session_feedback_reveal_delay_seconds = intval( $session_feedback_reveal_delay_seconds );
+            } else {
+                $session_feedback_reveal_delay_seconds = 1800;
+            }
+
+            // Feedback URL will only show up 30 minutes after the event has started
+            if ( ( $current_time->getTimestamp() - $event_start->getTimestamp() ) >= $session_feedback_reveal_delay_seconds ) {
+                return $feedback_url;
+            }
+
+            return false;
+        }
+
+        return $feedback_url;
+    }
+
+    public function get_feedback_url_short() {
+
+        // Make sure we have an ID
+        if ( ! ( $this->ID >= 1 ) ) {
+            return false;
+        }
+
+        $feedback_url = get_bloginfo( 'url' ) . '/feedback/' . $this->ID;
+
+        return apply_filters( 'conf_sch_feedback_url_short', $feedback_url, $this->post );
+    }
+
 	/**
 	 * Get the event's feedback URL.
 	 */
@@ -1218,50 +1281,8 @@ class Conference_Schedule_Event {
 
 		// Filter the feedback URL
 		$feedback_url = apply_filters( 'conf_sch_feedback_url', $feedback_url, $this->post );
-		if ( $feedback_url ) {
 
-			// What time is it?
-			// @TODO reset
-			$current_time = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
-			//$current_time = new DateTime( '2019-01-31 17:40:00', new DateTimeZone( 'UTC' ) );
-
-			// Get date in UTC
-			$event_date_time_gmt = $this->get_date_time_gmt();
-
-			// Send URL if time is not valid
-			if ( ! empty( $event_date_time_gmt ) && strtotime( $event_date_time_gmt ) !== false ) {
-
-				// Build event start date
-				$event_start = new DateTime( $event_date_time_gmt, new DateTimeZone( 'UTC' ) );
-
-				// Get reveal delay
-				$session_feedback_reveal_delay_seconds = get_post_meta( $this->ID, 'conf_sch_event_feedback_reveal_delay_seconds', true );
-
-				// Set the default delay to 30 minutes
-				if ( ! empty( $session_feedback_reveal_delay_seconds ) && $session_feedback_reveal_delay_seconds > 0 ) {
-					$session_feedback_reveal_delay_seconds = intval( $session_feedback_reveal_delay_seconds );
-				} else {
-					$session_feedback_reveal_delay_seconds = 1800;
-				}
-
-				// Feedback URL will only show up 30 minutes after the event has started
-				if ( ( $current_time->getTimestamp() - $event_start->getTimestamp() ) >= $session_feedback_reveal_delay_seconds ) {
-					$this->feedback_url = $feedback_url;
-					return $this->feedback_url;
-				}
-
-				$this->feedback_url = false;
-
-				return $this->feedback_url;
-			}
-
-			// If no valid event time, well show URL
-			$this->feedback_url = $feedback_url;
-
-			return $this->feedback_url;
-		}
-
-		$this->feedback_url = false;
+		$this->feedback_url = $feedback_url;
 
 		return $this->feedback_url;
 	}

@@ -380,7 +380,7 @@ class Conference_Schedule_API {
 				return ! empty( $event_follow_up_url ) ? $event_follow_up_url : null;
 
 			case 'session_feedback_url':
-				$event_feedback_url = $event->get_feedback_url();
+				$event_feedback_url = $event->maybe_get_feedback_url();
 				return ! empty( $event_feedback_url ) ? $event_feedback_url : null;
 
 		}
