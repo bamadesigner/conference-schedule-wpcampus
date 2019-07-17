@@ -860,7 +860,10 @@ class Conference_Schedule {
 					?>
 					<div class="conf-sch-single-area conf-sch-single-questions">
 						<h2 class="conf-sch-single__title">Questions</h2>
-						<div class="panel">
+						<div class="panel light-royal-blue">
+						    <p><strong>The "Questions" functionality is in beta mode.</strong> <a href="/contact/">Please contact us</a> if you have any issues or questions.</p>
+                        </div>
+                        <div class="panel">
 							<p><strong>Have a question about the session?</strong> Submit a question for the speaker and engage with others.</p>
 							<p>All questions are moderated, kept anonymous (except to moderators), and must follow <a href="https://wpcampus.org/code-of-conduct/"><strong>our Code of Conduct</strong></a>.</p>
 						</div>
