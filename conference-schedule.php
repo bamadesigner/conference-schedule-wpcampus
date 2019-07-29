@@ -64,7 +64,7 @@ if ( is_admin() ) {
  */
 class Conference_Schedule {
 
-	private $assetVersion = 5.5;
+	private $assetVersion = 5.7;
 
 	/**
 	 * Whether or not this plugin is network active.
@@ -1029,15 +1029,15 @@ class Conference_Schedule {
 					</div>
 				{{/inline}}
 
-				{{#each .}}
-					<div class="schedule-by-day{{#if eventTypes}}{{#each eventTypes}} {{.}}{{/each}}{{/if}}{{#if inProgress}} schedule-in-progress{{/if}}{{#if inPast}} schedule-in-past{{/if}}{{#if inFuture}} schedule-in-future{{/if}}">
+				{{#each days}}
+					<div class="schedule-by-day{{#if eventTypes}}{{#each eventTypes}} {{.}}{{/each}}{{/if}}{{#if inProgress}} schedule-in-progress{{/if}}{{#if inPast}} schedule-in-past{{/if}}{{#if inFuture}} schedule-in-future{{/if}}{{#if ../eventIsOver}} event-is-over{{/if}}">
 						{{schedule_header}}
 						{{#if rows}}
-							{{#if inProgress}}
-								{{#if inPast}}
-									{{toggle_show_button}}
-								{{/if}}
-							{{/if}}
+                            {{#if inPast}}
+                                {{#unless ../eventIsOver}}
+                                    {{toggle_show_button}}
+                                {{/unless}}
+                            {{/if}}
 							<div class="schedule-table">
 								{{#each rows}}
 									<div class="schedule-row{{#if eventTypes}}{{#each eventTypes}} {{.}}{{/each}}{{/if}}{{#if inProgress}} status-in-progress{{else if inPast}} status-past{{/if}}">

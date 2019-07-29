@@ -414,7 +414,7 @@ $conf-sch-events-width: 88%;
 
 		.schedule-by-day {
 
-			&.schedule-in-past {
+			&.schedule-in-past:not(.event-is-over) {
 
 				&.schedule-show {
 
@@ -426,7 +426,7 @@ $conf-sch-events-width: 88%;
 				&:not(.schedule-show) {
 
 					.schedule-row.status-past:not(.status-in-progress) {
-						//display: none;
+						display: none;
 					}
 				}
 			}

@@ -171,7 +171,7 @@
 
 		// Get current date/time.
 		// @TODO reset
-		var local_dt = new Date();
+		var local_dt = new Date(); // '2019-07-26T11:32:00' );
 
 		// Current UTC will be used to compare against schedule UTC.
 		var currentDTGMT = new Date( Date.UTC( local_dt.getUTCFullYear(), local_dt.getUTCMonth(), local_dt.getUTCDate(), local_dt.getUTCHours(), local_dt.getUTCMinutes(), local_dt.getUTCSeconds() ) );
@@ -182,6 +182,13 @@
 		if ( tzOffset != actualOffset ) {
 			displayOffset = tzOffset - actualOffset;
 		}
+
+		// Will keep track of count.
+		var statusCount = {
+			inProgress: 0,
+			inPast: 0,
+			inFuture: 0
+		};
 
 		// Index by day.
 		var scheduleByDay = {};
@@ -216,15 +223,18 @@
 				inPast = false,
 				inFuture = false;
 
-			if (currentDTGMT >= itemStartDTGMT) {
+			if ( currentDTGMT >= itemStartDTGMT ) {
 
 				if (currentDTGMT < itemEndDTGMT) {
 					inProgress = true;
+					statusCount.inProgress++;
 				} else {
 					inPast = true;
+					statusCount.inPast++;
 				}
 			} else {
 				inFuture = true;
+				statusCount.inFuture++;
 			}
 
 			// Make sure array exists for the day.
@@ -369,7 +379,12 @@
 			});
 		}
 
-		return scheduleByDay;
+		var eventIsOver = ( ! statusCount.inFuture && ! statusCount.inProgress );
+
+		return {
+			eventIsOver: eventIsOver,
+			days: scheduleByDay
+		};
 	}
 
 	// Populate the schedule
@@ -449,13 +464,13 @@
 		// Get the schedule, sorted by day.
 		var scheduleByDay = sort_conf_schedule_by_day( schedule, header, tzOffset );
 
-		if (undefined === scheduleByDay || '' == scheduleByDay || $.isEmptyObject(scheduleByDay)) {
+		if ( undefined === scheduleByDay || ! scheduleByDay || $.isEmptyObject( scheduleByDay.days ) ) {
 			$conf_sch_container.print_conf_schedule_error();
 			return false;
 		}
 
         // Update the schedule.
-       	$conf_schedule.html(conf_sch_templ(scheduleByDay));
+       	$conf_schedule.html( conf_sch_templ( scheduleByDay ) );
 
        	var $conf_sch_watch_list = $conf_sch_container.find( '.conference-schedule-watch-list' );
        	if ($conf_sch_watch_list.length) {
@@ -735,7 +750,7 @@
 		var timezones = conf_schedule_get_timezones();
 
 		// Are we in daylight savings?
-		var date = new Date(),
+		var date = new Date(), // '2019-07-26:11:32:00' ),
 			isDstObserved = date.isDstObserved();
 
 		var $timezoneDropdown = $( '<select class="conf-sch-tz-filter" aria-label="Select the timezone for the schedule."></select>' );
