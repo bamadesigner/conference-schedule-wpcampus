@@ -148,6 +148,7 @@ class Conference_Schedule_API {
 			'event_google_maps_url',
 			'link_to_post',
 			//'event_hashtag',
+            'session_livestream_disabled',
 			'session_livestream_over',
 			'session_livestream_url',
 			'session_slides_url',
@@ -360,7 +361,11 @@ class Conference_Schedule_API {
 
 				return true;
 
-			case 'session_livestream_over':
+
+            case 'session_livestream_disabled':
+                return $event->is_livestream_disabled();
+
+            case 'session_livestream_over':
 				return $event->is_livestream_over();
 
 			/*

@@ -1734,7 +1734,11 @@ class Conference_Schedule {
 		while ($loopIndex < $loop) {
 			foreach ( $schedule as $item ) {
 
-				if ( $item->session_livestream_over ) {
+                if ( $item->session_livestream_disabled ) {
+                    continue;
+                }
+
+			    if ( $item->session_livestream_over ) {
 					continue;
 				}
 

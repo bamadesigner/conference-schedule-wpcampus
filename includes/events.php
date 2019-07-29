@@ -153,7 +153,7 @@ class Conference_Schedule_Event {
 	 */
 	private $speakers;
 
-	private $is_livestream_over;
+	private $is_livestream_over, $is_livestream_disabled;
 
 	/**
 	 * Will hold the event's livestream URL.
@@ -942,6 +942,29 @@ class Conference_Schedule_Event {
 		return $this->speakers;
 	}
 
+    /**
+     *
+     */
+    public function is_livestream_disabled() {
+
+        // Make sure we have an ID.
+        if ( ! ( $this->ID >= 1 ) ) {
+            return false;
+        }
+
+        if ( isset( $this->is_livestream_disabled ) ) {
+            return $this->is_livestream_disabled;
+        }
+
+        $is_disabled = (bool) get_post_meta( $this->ID, 'conf_sch_event_livestream_disable', true );
+
+        $is_disabled = apply_filters( 'conf_sch_event_livestream_disabled', $is_disabled, $this->ID );
+
+        $this->is_livestream_disabled = $is_disabled;
+
+        return $this->is_livestream_disabled;
+    }
+
 	/**
 	 *
 	 */
@@ -986,8 +1009,8 @@ class Conference_Schedule_Event {
 		}
 
 		// See if the livestream is disabled for this event.
-		$livestream_disabled = get_post_meta( $this->ID, 'conf_sch_event_livestream_disable', true );
-		if ( isset( $livestream_disabled ) && $livestream_disabled ) {
+		$livestream_disabled = $this->is_livestream_disabled();
+		if ( $livestream_disabled ) {
 			return false;
 		}
 
