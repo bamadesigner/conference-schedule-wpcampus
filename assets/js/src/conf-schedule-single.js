@@ -117,6 +117,34 @@
 			return false;
 		}
 
+		// Process date.
+		post.inProgress = false;
+		post.inPast = false;
+		post.inFuture = false;
+
+		if ( post.event_dt_gmt ) {
+
+			// Get current date/time.
+			var local_dt = new Date(); // '2019-07-26T11:32:00' );
+
+			// Current UTC will be used to compare against schedule UTC.
+			var currentDTGMT = conf_sch_get_date_utc( local_dt );
+
+			var itemStartDTGMT = conf_sch_get_utc_date( post.event_dt_gmt ),
+				itemEndDTGMT = post.event_end_dt_gmt ? conf_sch_get_utc_date( post.event_end_dt_gmt ) : conf_sch_get_utc_date( post.event_dt_gmt );
+
+			if ( currentDTGMT >= itemStartDTGMT ) {
+
+				if (currentDTGMT < itemEndDTGMT) {
+					post.inProgress = true;
+				} else {
+					post.inPast = true;
+				}
+			} else {
+				post.inFuture = true;
+			}
+		}
+
 		// Setup event links.
 		post.event_links = conf_sch_get_item_links(post);
 		if (null === post.event_links) {
@@ -323,25 +351,29 @@
 
 	Handlebars.registerHelper( 'notifications', function() {
 
-		if ( 'workshop' == this.format_slug ) {
+		if ( ! this.inPast ) {
 
-			return new Handlebars.SafeString( '<div class="panel light-royal-blue center"><a href="/tickets/workshops/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops include a snack break.</em></div>' );
+			if ('workshop' == this.format_slug) {
 
-		} else if ( $.inArray( this.format_slug, ['session','lightning-talk'] ) >= 0 ) {
+				return new Handlebars.SafeString('<div class="panel light-royal-blue center"><a href="/tickets/workshops/"><strong>All workshops require registration</strong></a> in order to attend. <em>Workshops will not be live streamed.</em></div>');
 
-			if ( '' != this.session_livestream_url ) {
-				return null;
+			} else if ($.inArray(this.format_slug, ['session', 'lightning-talk']) >= 0) {
+
+				if ('' != this.session_livestream_url) {
+					return null;
+				}
+
+				var watchURL = '/watch/';
+
+				// @TODO add back
+				/*if (this.event_location && this.event_location.post_name) {
+                    watchURL += this.event_location.post_name + '/';
+                }*/
+
+				return new Handlebars.SafeString('<div class="panel light-royal-blue center">This session will be live streamed for free. <a href="' + watchURL + '"><strong>Visit the watch page</strong></a> during the time slot to join the session.</div>');
 			}
-
-			var watchURL = '/watch/';
-
-			// @TODO add back
-			/*if (this.event_location && this.event_location.post_name) {
-				watchURL += this.event_location.post_name + '/';
-			}*/
-
-			return new Handlebars.SafeString( '<div class="panel light-royal-blue center">This session will be live streamed for free. <a href="' + watchURL + '"><strong>Visit the watch page</strong></a> during the time slot to join the session.</div>' );
 		}
+
 		return null;
 	});
 
