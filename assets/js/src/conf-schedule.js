@@ -171,13 +171,12 @@
 	function sort_conf_schedule_by_day( schedule, header, tzOffset ) {
 
 		// Get current date/time.
-		// @TODO reset
-		var local_dt = new Date(); // '2019-07-26T11:32:00' );
+		var currentDT = conf_sch_get_current_date();
 
 		// Current UTC will be used to compare against schedule UTC.
-		var currentDTGMT = conf_sch_get_date_utc( local_dt );
+		var currentDTGMT = conf_sch_get_date_utc( currentDT );
 
-		var actualOffset = conf_sch_get_timezone_offset( local_dt ),
+		var actualOffset = conf_sch_get_timezone_offset( currentDT ),
 			displayOffset = 0;
 
 		if ( tzOffset != actualOffset ) {
@@ -761,7 +760,7 @@
 		var timezones = conf_schedule_get_timezones();
 
 		// Are we in daylight savings?
-		var date = new Date(), // '2019-07-26:11:32:00' ),
+		var date = conf_sch_get_current_date(),
 			isDstObserved = date.isDstObserved();
 
 		var $timezoneDropdown = $( '<select class="conf-sch-tz-filter" aria-label="Select the timezone for the schedule."></select>' );

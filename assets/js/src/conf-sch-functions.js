@@ -19,7 +19,7 @@ function conf_sch_get_month( date ) {
 
 function conf_sch_get_timezone_offset( date ) {
 	if ( ! date ) {
-		var date = new Date();
+		var date = conf_sch_get_current_date();
 	}
 
 	var offsetMinutes = parseInt( date.getTimezoneOffset() );
@@ -37,10 +37,20 @@ function conf_sch_split_dt_string( dtString ) {
 	return dtString.split(/\D/);
 }
 
+/**
+ * Is used all over the project and lets us change the "current"
+ * time globally, which comes in handy for testing.
+ */
+function conf_sch_get_current_date() {
+	// @TODO reset?
+	//return new Date( '2019-07-26:11:32:00' );
+	return new Date();
+}
+
 // Accepts Date() object. Returns Date() object.
 function conf_sch_get_date_utc( date_time ) {
 	if ( ! date_time ) {
-		date_time = new Date();
+		date_time = conf_sch_get_current_date();
 	}
 	return new Date( Date.UTC( date_time.getUTCFullYear(), date_time.getUTCMonth(), date_time.getUTCDate(), date_time.getUTCHours(), date_time.getUTCMinutes(), date_time.getUTCSeconds() ) );
 }
@@ -164,7 +174,7 @@ function conf_schedule_get_timezone_data( tzOffset ) {
 }
 
 function conf_schedule_get_timezones() {
-	var date = new Date();
+	var date = conf_sch_get_current_date();
 	if ( date.isDstObserved ) {
 		return [
 			{

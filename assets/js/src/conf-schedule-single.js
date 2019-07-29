@@ -125,10 +125,10 @@
 		if ( post.event_dt_gmt ) {
 
 			// Get current date/time.
-			var local_dt = new Date(); // '2019-07-26T11:32:00' );
+			var currentDT = conf_sch_get_current_date();
 
 			// Current UTC will be used to compare against schedule UTC.
-			var currentDTGMT = conf_sch_get_date_utc( local_dt );
+			var currentDTGMT = conf_sch_get_date_utc( currentDT );
 
 			var itemStartDTGMT = conf_sch_get_utc_date( post.event_dt_gmt ),
 				itemEndDTGMT = post.event_end_dt_gmt ? conf_sch_get_utc_date( post.event_end_dt_gmt ) : conf_sch_get_utc_date( post.event_dt_gmt );
@@ -418,7 +418,7 @@
 			}
 		}
 
-		var now = new Date(),
+		var now = conf_sch_get_current_date(),
 			eventDate = new Date( this.event_dt_gmt );
 
 		if ( now <= eventDate ) {
