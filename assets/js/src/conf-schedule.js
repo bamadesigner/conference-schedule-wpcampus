@@ -175,7 +175,7 @@
 		var local_dt = new Date(); // '2019-07-26T11:32:00' );
 
 		// Current UTC will be used to compare against schedule UTC.
-		var currentDTGMT = new Date( Date.UTC( local_dt.getUTCFullYear(), local_dt.getUTCMonth(), local_dt.getUTCDate(), local_dt.getUTCHours(), local_dt.getUTCMinutes(), local_dt.getUTCSeconds() ) );
+		var currentDTGMT = conf_sch_get_date_utc( local_dt );
 
 		var actualOffset = conf_sch_get_timezone_offset( local_dt ),
 			displayOffset = 0;

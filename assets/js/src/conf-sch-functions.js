@@ -37,6 +37,14 @@ function conf_sch_split_dt_string( dtString ) {
 	return dtString.split(/\D/);
 }
 
+// Accepts Date() object. Returns Date() object.
+function conf_sch_get_date_utc( date_time ) {
+	if ( ! date_time ) {
+		date_time = new Date();
+	}
+	return new Date( Date.UTC( date_time.getUTCFullYear(), date_time.getUTCMonth(), date_time.getUTCDate(), date_time.getUTCHours(), date_time.getUTCMinutes(), date_time.getUTCSeconds() ) );
+}
+
 /* @TODO Moves the time in the wrong direction? */
 function conf_sch_get_utc_date( dtString ) {
 	var b = conf_sch_split_dt_string( dtString );
