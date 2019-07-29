@@ -83,7 +83,21 @@ function conference_schedule_add_fields() {
 			'key' => 'group_5a37f62d4632g',
 			'title' => __( 'Event: Livestream', 'conf-schedule' ),
 			'fields' => array(
-				array(
+                array(
+                    'key' => 'field_2c253bc46890b',
+                    'label' => __( 'Disable livestream', 'conf-schedule' ),
+                    'name' => 'conf_sch_event_livestream_disable',
+                    'type' => 'true_false',
+                    'instructions' => '',
+                    'required' => 0,
+                    'conditional_logic' => 0,
+                    'message' => __( 'Check if the livestream is disabled for this session.', 'conf-schedule' ),
+                    'default_value' => 0,
+                    'ui' => 1,
+                    'ui_on_text' => '',
+                    'ui_off_text' => '',
+                ),
+			    array(
 					'key' => 'field_2b25abc36890b',
 					'label' => __( 'Livestream is over', 'conf-schedule' ),
 					'name' => 'livestream_over',
