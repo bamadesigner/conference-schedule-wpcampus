@@ -10,6 +10,7 @@
 		window_width: undefined,
 		window_resize_scroll: false,
 		sticky_day_header: null,
+		local_tz_offset_key: 'wpcConfScheduleTimezone',
 	};
 
 	// When the document is ready...
@@ -558,10 +559,20 @@
 
 	// Invoked by a container.
 	$.fn.get_conf_schedule_tz_offset = function() {
+
+		// Is it stored locally?
+		var localTZOffset = localStorage.getItem( globals.local_tz_offset_key );
+
+		if ( localTZOffset ) {
+			return parseInt( localTZOffset );
+		}
+
+		// Is it defined in the container?
 		var $conf_sch_container = $(this);
 		if ( undefined !== $conf_sch_container.data( 'tzoffset' ) && '' != $conf_sch_container.data( 'tzoffset' ) ) {
 			return parseInt( $conf_sch_container.data( 'tzoffset' ) );
 		}
+
 		return conf_sch_get_timezone_offset();
 	}
 
@@ -782,7 +793,11 @@
 		$timezoneDropdown.on( 'change', function(e) {
 			e.preventDefault();
 
-			$conf_sch_container.data( 'tzoffset', $(this).val() );
+			var timezoneVal = $(this).val();
+
+			localStorage.setItem( globals.local_tz_offset_key, timezoneVal );
+
+			$conf_sch_container.data( 'tzoffset', timezoneVal );
 
 			const refreshSchedule = $conf_sch_container.refresh_conf_sch_container();
 			refreshSchedule.done(function( $container ) {
