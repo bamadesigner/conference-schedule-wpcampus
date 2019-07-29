@@ -64,7 +64,7 @@ if ( is_admin() ) {
  */
 class Conference_Schedule {
 
-	private $assetVersion = 5.7;
+	private $assetVersion = 5.8;
 
 	/**
 	 * Whether or not this plugin is network active.
@@ -140,6 +140,8 @@ class Conference_Schedule {
 		$print_speakers_list = false,
 		$print_watch_list = false;
 
+	private $debug = false;
+
 	/**
 	 * Holds the class instance.
 	 *
@@ -168,6 +170,11 @@ class Conference_Schedule {
 	 * @access  public
 	 */
 	protected function __construct() {
+
+        if ( ( defined( 'WPCAMPUS_DEV' ) && WPCAMPUS_DEV )
+            || ( ! empty( $_ENV['PANTHEON_ENVIRONMENT'] ) && 'dev' == $_ENV['PANTHEON_ENVIRONMENT'] ) ) {
+            $this->debug = true;
+        }
 
 		// Is this plugin network active?
 		$this->is_network_active = is_multisite() && ( $plugins = get_site_option( 'active_sitewide_plugins' ) ) && isset( $plugins[ CONFERENCE_SCHEDULE_PLUGIN_FILE ] );
@@ -617,8 +624,11 @@ class Conference_Schedule {
 		}
 
 		$plugin_url = $this->get_plugin_url();
+
 		$css_url = $plugin_url . 'assets/css/';
-		$js_url = $plugin_url . 'assets/js/';
+
+		$js_url = $plugin_url . ( $this->debug ? 'assets/js/src/' : 'assets/js/' );
+		$js_min = $this->debug ? '' : '.min';
 
 		// Register our icons.
 		wp_register_style( 'conf-schedule-icons', $css_url . 'conf-schedule-icons.min.css', array(), $this->assetVersion );
@@ -628,11 +638,11 @@ class Conference_Schedule {
 
 		// Register handlebars.
 		wp_register_script( 'handlebars', '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js', array(), $this->assetVersion );
-		wp_register_script( 'conf-sch-handlebars', $js_url . 'conf-sch-handlebars.min.js', array( 'handlebars' ), $this->assetVersion );
+		wp_register_script( 'conf-sch-handlebars', $js_url . "conf-sch-handlebars{$js_min}.js", array( 'handlebars' ), $this->assetVersion );
 
 		// Enqueue the schedule script.
-		wp_enqueue_script( 'conf-sch-functions', $js_url . 'conf-sch-functions.min.js', array(), $this->assetVersion );
-		wp_enqueue_script( 'conf-schedule', $js_url . 'conf-schedule.min.js', array( 'jquery', 'conf-sch-functions', 'conf-sch-handlebars' ), $this->assetVersion, true );
+		wp_enqueue_script( 'conf-sch-functions', $js_url . "conf-sch-functions{$js_min}.js", array(), $this->assetVersion );
+		wp_enqueue_script( 'conf-schedule', $js_url . "conf-schedule{$js_min}.js", array( 'jquery', 'conf-sch-functions', 'conf-sch-handlebars' ), $this->assetVersion, true );
 
 		/*
 		 * Will show up 15 minutes before start.
@@ -700,9 +710,11 @@ class Conference_Schedule {
 	public function enqueue_styles_scripts() {
 		global $post;
 
-		$plugin_url = $this->get_plugin_url();
-		$css_url = $plugin_url . 'assets/css/';
-		$js_url = $plugin_url . 'assets/js/';
+        $plugin_url = $this->get_plugin_url();
+        $css_url = $plugin_url . 'assets/css/';
+
+        $js_url = $plugin_url . ( $this->debug ? 'assets/js/src/' : 'assets/js/' );
+        $js_min = $this->debug ? '' : '.min';
 
 		// Register our icons.
 		wp_register_style( 'conf-schedule-icons', $css_url . 'conf-schedule-icons.min.css', array(), $this->assetVersion );
@@ -711,11 +723,11 @@ class Conference_Schedule {
 		wp_register_style( 'conf-schedule', $css_url . 'conf-schedule.min.css', array( 'conf-schedule-icons' ), $this->assetVersion );
 
 		// Holds our global functions.
-		wp_enqueue_script( 'conf-sch-functions', $js_url . 'conf-sch-functions.min.js', array(), $this->assetVersion );
+		wp_enqueue_script( 'conf-sch-functions', $js_url . "conf-sch-functions{$js_min}.js", array(), $this->assetVersion );
 
 		// Register handlebars.
 		wp_register_script( 'handlebars', '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js', array(), $this->assetVersion );
-		wp_register_script( 'conf-sch-handlebars', $js_url . 'conf-sch-handlebars.min.js', array( 'handlebars' ), $this->assetVersion );
+		wp_register_script( 'conf-sch-handlebars', $js_url . "conf-sch-handlebars{$js_min}.js", array( 'handlebars' ), $this->assetVersion );
 
 		// Get the API route.
 		$wp_rest_api_route = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : '';
@@ -727,7 +739,7 @@ class Conference_Schedule {
 		if ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_events' ) ) {
 
 			wp_enqueue_style( 'conf-schedule-list', $css_url . 'conf-schedule-list.min.css', array(), $this->assetVersion );
-			wp_enqueue_script( 'conf-schedule-list', $js_url . 'conf-schedule-list.min.js', array( 'jquery', 'handlebars', 'conf-sch-functions' ), $this->assetVersion, true );
+			wp_enqueue_script( 'conf-schedule-list', $js_url . "conf-schedule-list{$js_min}.js", array( 'jquery', 'handlebars', 'conf-sch-functions' ), $this->assetVersion, true );
 			wp_localize_script( 'conf-schedule-list', 'conf_sch', array(
 				'ajaxurl'      => admin_url( 'admin-ajax.php' ),
 				'wp_api_route' => $wp_rest_api_route,
@@ -735,7 +747,7 @@ class Conference_Schedule {
 		} elseif ( ! empty( $post ) && has_shortcode( $post->post_content, 'print_conference_schedule_speakers' ) ) {
 
 			wp_enqueue_style( 'conf-schedule-speakers', $css_url . 'conf-schedule-speakers.min.css', array( 'conf-schedule-icons' ), $this->assetVersion );
-			wp_enqueue_script( 'conf-schedule-speakers', $js_url . 'conf-schedule-speakers.min.js', array( 'jquery', 'conf-sch-handlebars' ), $this->assetVersion, true );
+			wp_enqueue_script( 'conf-schedule-speakers', $js_url . "conf-schedule-speakers{$js_min}.js", array( 'jquery', 'conf-sch-handlebars' ), $this->assetVersion, true );
 
 			wp_localize_script( 'conf-schedule-speakers', 'conf_sch', array(
 				'ajaxurl'		=> admin_url( 'admin-ajax.php' ),
@@ -748,7 +760,7 @@ class Conference_Schedule {
 			wp_enqueue_style( 'conf-schedule-single', $css_url . 'conf-schedule-single.min.css', array( 'conf-schedule', 'conf-schedule-icons' ), $this->assetVersion );
 
 			// Enqueue the schedule script.
-			wp_enqueue_script( 'conf-schedule-single', $js_url . 'conf-schedule-single.min.js', array( 'jquery', 'conf-sch-functions', 'conf-sch-handlebars' ), $this->assetVersion, true );
+			wp_enqueue_script( 'conf-schedule-single', $js_url . "conf-schedule-single{$js_min}.js", array( 'jquery', 'conf-sch-functions', 'conf-sch-handlebars' ), $this->assetVersion, true );
 
 			// Build data.
 			$conf_sch_data = array(
