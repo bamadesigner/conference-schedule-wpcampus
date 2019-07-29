@@ -164,6 +164,13 @@ class Conference_Schedule_Event {
 	 */
 	private $livestream_url;
 
+    /**
+     * Will hold the event's captions URL.
+     *
+     * @var string
+     */
+    private $captions_url;
+
 	/**
 	 * Will hold the event's slides URL.
 	 *
@@ -985,6 +992,26 @@ class Conference_Schedule_Event {
 
 		return $this->is_livestream_over;
 	}
+
+	public function get_captions_url() {
+
+        // Make sure we have an ID.
+        if ( ! ( $this->ID >= 1 ) ) {
+            return false;
+        }
+
+        if ( isset( $this->captions_url ) ) {
+            return $this->captions_url;
+        }
+
+        $captions_url = get_post_meta( $this->ID, 'live_caption_url', true );
+
+        $captions_url = apply_filters( 'conf_sch_event_captions_url', $captions_url, $this->ID );
+
+        $this->captions_url = $captions_url;
+
+        return $this->captions_url;
+    }
 
 	/**
 	 * Get the event's livestream URL.

@@ -150,6 +150,7 @@ class Conference_Schedule_API {
 			//'event_hashtag',
             'session_livestream_disabled',
 			'session_livestream_over',
+			'session_captions_url',
 			'session_livestream_url',
 			'session_slides_url',
 			'session_feedback_url',
@@ -368,6 +369,8 @@ class Conference_Schedule_API {
             case 'session_livestream_over':
 				return $event->is_livestream_over();
 
+            case 'session_captions_url':
+                return $event->get_captions_url();
 			/*
 			 * Livestream URL will only show up
 			 * a certain time before the session starts

@@ -48,6 +48,12 @@ Handlebars.registerHelper( 'event_links_list', function(options) {
 
 		switch(key) {
 
+			case 'captions':
+				if ( conf_sch.view_captions !== undefined && conf_sch.view_captions != '' ){
+					event_links_string += conf_sch_get_event_link(key,value,conf_sch.view_captions,'captions');
+				}
+				break;
+
 			case 'livestream':
 				if ( conf_sch.view_livestream !== undefined && conf_sch.view_livestream != ''){
 					event_links_string += conf_sch_get_event_link(key,value,conf_sch.view_livestream,'video');

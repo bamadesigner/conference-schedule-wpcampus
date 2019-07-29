@@ -524,7 +524,9 @@ function conf_sch_get_item_links(item) {
 
 	// Do we have a livestream URL and is it enabled?
 	if (undefined !== item.session_livestream_url && item.session_livestream_url) {
+		links.captions = item.session_captions_url;
 		links.livestream = item.session_livestream_url;
+		linksCount++;
 		linksCount++;
 	}
 

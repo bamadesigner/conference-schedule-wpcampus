@@ -681,9 +681,10 @@ class Conference_Schedule {
 			}
 
 			// If we're set to view the livestream...
-			if ( in_array( 'view_livestream', $display_fields ) ) {
-				$conf_sch_data['view_livestream'] = __( 'Attend Livestream', 'conf-schedule' );
-			}
+            if ( in_array( 'view_livestream', $display_fields ) ) {
+                $conf_sch_data['view_captions'] = __( 'View captions', 'conf-schedule' );
+                $conf_sch_data['view_livestream'] = __( 'Attend livestream', 'conf-schedule' );
+            }
 
 			// If we're set to give feedback.
 			if ( in_array( 'give_feedback', $display_fields ) ) {
@@ -785,9 +786,10 @@ class Conference_Schedule {
 				}
 
 				// If we're set to view the livestream...
-				if ( in_array( 'view_livestream', $display_fields ) ) {
-					$conf_sch_data['view_livestream'] = __( 'Attend livestream', 'conf-schedule' );
-				}
+                if ( in_array( 'view_livestream', $display_fields ) ) {
+                    $conf_sch_data['view_captions'] = __( 'View captions', 'conf-schedule' );
+                    $conf_sch_data['view_livestream'] = __( 'Attend livestream', 'conf-schedule' );
+                }
 
 				// If we're set to give feedback.
 				if ( in_array( 'give_feedback', $display_fields ) ) {
