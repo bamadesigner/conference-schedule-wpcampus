@@ -171,7 +171,18 @@
 			var process_video = Handlebars.compile(video_template);
 
 			// Update the content.
-			$conf_sch_single.find('.conf-sch-single-video').append(process_video(post).trim());
+			var $videoContainer = $conf_sch_single.find('.conf-sch-single-video');
+
+			$videoContainer.html( process_video( post ).trim() );
+
+			// "Skip" to video
+			if ( '#video' === location.hash.toLowerCase() ) {
+				$videoContainer[0].scrollIntoView({
+					behavior: 'smooth',
+					block: 'start',
+					inline: 'start',
+				});
+			}
 		}
 
 		// Take care of the livestream button.
@@ -404,7 +415,7 @@
 		return new Handlebars.SafeString( '<p><em>There is no information for this session.</em></p>' );
 	});
 
-	Handlebars.registerHelper( 'session_video_message', function() {
+	/*Handlebars.registerHelper( 'session_video_message', function() {
 		var format = this.format_slug,
 			videoSoon = new Handlebars.SafeString( '<p><em>This session\'s recording will be available soon.</em></p>' ),
 			noVideoYet = new Handlebars.SafeString( '<p><em>This session does not have a video recording (yet).</em></p>' ),
@@ -434,7 +445,7 @@
 		}
 
 		return videoSoon;
-	});
+	});*/
 
 	Handlebars.registerHelper( 'speakers_header', function() {
 

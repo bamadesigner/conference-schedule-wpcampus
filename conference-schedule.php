@@ -860,6 +860,7 @@ class Conference_Schedule {
 				<div class="conf-sch-single-area conf-sch-single-notifications"></div>
 				<div class="conf-sch-single-area conf-sch-single-content"></div>
 				<div class="conf-sch-single-area conf-sch-single-speakers conf-schedule-speakers"></div>
+                <div class="conf-sch-single-area conf-sch-single-video"></div>
 				<?php
 
 				if ( ! is_singular( 'locations' ) && ! has_term( [ 'administrative', 'dining', 'social' ], 'event_types' ) ) :
@@ -984,13 +985,12 @@ class Conference_Schedule {
 					</div>
 				{{/if}}
 			</script>
-			<script id="conf-sch-single-video-template" type="text/x-handlebars-template">
-				{{#if session_video_embed}}
-					{{{session_video_embed}}}
-				{{else}}
-					{{{session_video_message}}}
-				{{/if}}
-			</script>
+            <script id="conf-sch-single-video-template" type="text/x-handlebars-template">
+                {{#if session_video_embed}}
+                    <h2 class="conf-sch-single__title"><?php _e( 'Session video', 'conf-schedule' ); ?></h2>
+                    {{{session_video_embed}}}
+                {{/if}}
+            </script>
 			<script id="conf-sch-single-speakers-template" type="text/x-handlebars-template">
 				{{#if speakers}}
 					{{speakers_header}}
