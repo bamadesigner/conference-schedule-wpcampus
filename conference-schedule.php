@@ -337,6 +337,7 @@ class Conference_Schedule {
 				'view_slides',
 				'view_livestream',
 				'watch_video',
+                'join_discussion',
 			),
 		);
 
@@ -680,6 +681,10 @@ class Conference_Schedule {
 				$conf_sch_data['view_slides'] = __( 'Session slides', 'conf-schedule' );
 			}
 
+			if ( in_array( 'join_discussion', $display_fields ) ) {
+				$conf_sch_data['join_discussion'] = __( 'Join the discussion', 'conf-schedule' );
+			}
+
 			// If we're set to view the livestream...
             if ( in_array( 'view_livestream', $display_fields ) ) {
                 $conf_sch_data['view_captions'] = __( 'View captions', 'conf-schedule' );
@@ -785,6 +790,10 @@ class Conference_Schedule {
 					$conf_sch_data['view_slides'] = __( 'Session slides', 'conf-schedule' );
 				}
 
+				if ( in_array( 'join_discussion', $display_fields ) ) {
+					$conf_sch_data['join_discussion'] = __( 'Join the discussion', 'conf-schedule' );
+				}
+
 				// If we're set to view the livestream...
                 if ( in_array( 'view_livestream', $display_fields ) ) {
                     $conf_sch_data['view_captions'] = __( 'View captions', 'conf-schedule' );
@@ -863,24 +872,17 @@ class Conference_Schedule {
                 <div class="conf-sch-single-area conf-sch-single-video"></div>
 				<?php
 
-				if ( ! is_singular( 'locations' ) && ! has_term( [ 'administrative', 'dining', 'social' ], 'event_types' ) ) :
-					?>
-					<div id="video" class="conf-sch-single-area conf-sch-single-video">
-						<h2 class="conf-sch-single__title"><?php _e( 'Session video', 'conf-schedule' ); ?></h2>
-					</div>
-					<?php
-				endif;
+                // @TODO add some of this specific logic to a filter.
+                if ( function_exists( 'wpcampus_print_qa' )
+                     && ! wpcampus_qa_disabled()
+                     && ! is_singular( 'locations' )
+                     && ! has_term( [ 'administrative', 'dining', 'social' ], 'event_types' ) ) :
 
-				if ( comments_open() && function_exists( 'wpcampus_print_qa' ) ) :
-					?>
+                    ?>
 					<div class="conf-sch-single-area conf-sch-single-questions">
-						<h2 class="conf-sch-single__title">Questions</h2>
-						<div class="panel light-royal-blue">
-						    <p><strong>The "Questions" functionality is in beta mode.</strong> <a href="/contact/">Please contact us</a> if you have any issues or questions.</p>
-                        </div>
+						<h2 id="discussion" class="conf-sch-single__title"><?php _e( 'Discussion', 'conf-schedule' ); ?></h2>
                         <div class="panel">
-							<p><strong>Have a question about the session?</strong> Submit a question for the speaker and engage with others.</p>
-							<p>All questions are moderated, kept anonymous (except to moderators), and must follow <a href="https://wpcampus.org/code-of-conduct/"><strong>our Code of Conduct</strong></a>.</p>
+							<p><strong><?php _e( 'Have a question about the session?', 'conf-schedule' ); ?></strong> <?php _e( 'Submit a question for the speaker and engage with others.', 'conf-schedule' ); ?></p>
 						</div>
 						<?php wpcampus_print_qa(); ?>
 					</div>

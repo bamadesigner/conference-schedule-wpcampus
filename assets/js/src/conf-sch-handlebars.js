@@ -74,8 +74,13 @@ Handlebars.registerHelper( 'event_links_list', function(options) {
 
 			case 'slides':
 				if ( conf_sch.view_slides !== undefined && conf_sch.view_slides != '' ) {
-
 					event_links_string += conf_sch_get_event_link(key,value,conf_sch.view_slides,'slides');
+				}
+				break;
+
+			case 'discussion':
+				if ( conf_sch.join_discussion !== undefined && conf_sch.join_discussion != '' ) {
+					event_links_string += conf_sch_get_event_link(key,value,conf_sch.join_discussion,'chat');
 				}
 				break;
 
