@@ -64,7 +64,7 @@ if ( is_admin() ) {
  */
 class Conference_Schedule {
 
-	private $assetVersion = 5.8;
+	private $assetVersion = 6.0;
 
 	/**
 	 * Whether or not this plugin is network active.

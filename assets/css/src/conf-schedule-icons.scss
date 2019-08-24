@@ -14,6 +14,7 @@
 .conf-sch-icon,
 [class^="conf-sch-icon-"],
 [class*=" conf-sch-icon-"] {
+	display: inline-block;
 	font-size: inherit !important;
 	line-height: inherit !important;
 	margin: 0 2px 0 0 !important;
@@ -70,5 +71,8 @@
 	}
 	&.conf-sch-icon-thumbs-up:before {
 		content: "\6c";
+	}
+	&.conf-sch-icon-chat:before {
+		content: "\6e";
 	}
 }
