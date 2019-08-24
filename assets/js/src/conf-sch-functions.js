@@ -496,7 +496,7 @@ function conf_schedule_update_schedule_item_from_proposal(item,proposal){
 function conf_sch_get_event_link(key,href,label,icon) {
 	var iconStart = '', iconEnd = '';
 	if (undefined !== icon) {
-		iconStart = '<i title="' + label + '" class="conf-sch-icon conf-sch-icon-' + icon +'"></i> <span class="icon-label">';
+		iconStart = '<i aria-hidden="true" class="conf-sch-icon conf-sch-icon-' + icon +'"></i> <span class="icon-label">';
 		iconEnd = '</span>';
 	}
 	return '<li class="event-link event-' + key + '"><a href="' + href + '">' + iconStart + label + iconEnd + '</a></li>';
