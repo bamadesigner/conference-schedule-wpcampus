@@ -548,12 +548,6 @@ function conf_sch_get_item_links(item) {
 		linksCount++;
 	}
 
-	// Is discussion enabled?
-	if (false !== item.discussion && null !== item.discussion && item.discussion >= 0 ) {
-		links.discussion = '#discussion';
-		linksCount++;
-	}
-
 	// Do we have speaker twitters?
 	var twitters = [];
 	if (undefined !== item.speakers && item.speakers && item.speakers.length > 0 ) {
@@ -566,6 +560,12 @@ function conf_sch_get_item_links(item) {
 	}
 	if (twitters.length) {
 		links.twitter = twitters;
+		linksCount++;
+	}
+
+	// Is discussion enabled?
+	if (false !== item.discussion && null !== item.discussion && item.discussion >= 0 ) {
+		links.discussion = '#discussion';
 		linksCount++;
 	}
 
