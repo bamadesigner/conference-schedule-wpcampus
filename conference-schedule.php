@@ -231,6 +231,8 @@ class Conference_Schedule {
 
 		add_filter( 'complete_open_graph_processed_value', array( $this, 'filter_og_values' ), 10, 2 );
 
+		add_filter( 'wpc_qa_disabled_post', [ $this, 'filter_wpc_qa_disabled_post' ], 10, 2 );
+
 	}
 
 	/**
@@ -2483,6 +2485,35 @@ class Conference_Schedule {
 		}
 
 		return $value;
+	}
+
+	public function filter_wpc_qa_disabled_post( $disabled_post, $post_id ) {
+
+	    // Don't worry about if already disabled.
+	    if ( $disabled_post ) {
+	        return $disabled_post;
+        }
+
+	    // Disable for not sessions.
+	    if ( ! $this->is_event_type_session( $post_id ) ) {
+	        return true;
+        }
+
+	    return $disabled_post;
+
+		/*$post_terms = wp_get_post_terms( $post_id, 'event_types', [ 'fields' => 'slugs' ] );
+
+	    if ( empty( $post_terms ) ) {
+	        return $disabled_post;
+        }
+
+	    // Disable the following event types.
+        $disable_event_types = [ 'administrative', 'dining', 'social', 'registration' ];
+		if ( ! empty( array_intersect( $post_terms, $disable_event_types ) ) ) {
+			return true;
+		}
+
+		return $disabled_post;*/
 	}
 }
 
