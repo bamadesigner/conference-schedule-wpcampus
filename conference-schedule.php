@@ -678,27 +678,27 @@ class Conference_Schedule {
 
 			// If we're set to view slides...
 			if ( in_array( 'view_slides', $display_fields ) ) {
-				$conf_sch_data['view_slides'] = __( 'Session slides', 'conf-schedule' );
+				$conf_sch_data['view_slides'] = sprintf( __( '%1$sSession%2$s %3$sslides%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
 			}
 
 			if ( in_array( 'join_discussion', $display_fields ) ) {
-				$conf_sch_data['join_discussion'] = __( 'Join the discussion', 'conf-schedule' );
+				$conf_sch_data['join_discussion'] = sprintf( __( '%1$sJoin the%2$s %3$sdiscussion%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
 			}
 
 			// If we're set to view the livestream...
             if ( in_array( 'view_livestream', $display_fields ) ) {
-                $conf_sch_data['view_captions'] = __( 'View captions', 'conf-schedule' );
-                $conf_sch_data['view_livestream'] = __( 'Attend livestream', 'conf-schedule' );
+                $conf_sch_data['view_captions'] = sprintf( __( '%1$sView%2$s %3$scaptions%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
+                $conf_sch_data['view_livestream'] = sprintf( __( '%1$sAttend%2$s %3$slivestream%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
             }
 
 			// If we're set to give feedback.
 			if ( in_array( 'give_feedback', $display_fields ) ) {
-				$conf_sch_data['give_feedback'] = __( 'Give feedback', 'conf-schedule' );
+				$conf_sch_data['give_feedback'] = sprintf( __( '%1$sGive%2$s %3$sfeedback%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
 			}
 
 			// If we're set to watch the video.
 			if ( in_array( 'watch_video', $display_fields ) ) {
-				$conf_sch_data['watch_video'] = __( 'Session video', 'conf-schedule' );
+				$conf_sch_data['watch_video'] = sprintf( __( '%1$sSession%2$s %3$svideo%4$s', 'conf-schedule' ), '<span class="label-extra">', '</span>', '<span class="label-primary">', '</span>' );
 			}
 		}
 

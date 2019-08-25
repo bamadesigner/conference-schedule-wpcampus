@@ -1106,10 +1106,12 @@
 			return '';
 		}
 
-		var classes = [];
+		var classes = [],
+			childTime = null,
+			sameTime = true,
+			childLocation = null,
+			sameLocation = true;
 
-		var childTime = null, sameTime = true,
-			childLocation = null, sameLocation = true;
 		$.each(this.event_children,function(index,child){
 
 			if (false !== sameTime) {
@@ -1138,6 +1140,8 @@
 		if (true === sameLocation) {
 			classes.push('has-same-location');
 		}
+
+		classes.push('has-event-children-' + this.event_children.length);
 
 		return ' ' + classes.join(' ');
 	});

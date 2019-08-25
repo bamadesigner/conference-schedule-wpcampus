@@ -260,6 +260,27 @@ $conf-sch-events-width: 88%;
 
 					.event-children {
 						display: flex;
+
+						.event-child:first-child:nth-last-child(4),
+						.event-child:first-child:nth-last-child(4) ~ .event-child {
+
+							.event-links {
+
+								.event-link {
+
+									.icon-label {
+
+										.label-extra {
+											@include for-screen-reader();
+										}
+
+										.label-primary {
+											text-transform: capitalize;
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
