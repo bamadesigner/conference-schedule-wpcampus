@@ -663,8 +663,7 @@ final class Conference_Schedule_Admin {
 									<label for="conf-sch-fields-feedback"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-feedback" value="feedback"<?php checked( is_array( $fields ) && in_array( 'feedback', $fields ) ); ?> /> <?php _e( 'Feedback', 'conf-schedule' ); ?></label><br>
 									<label for="conf-sch-fields-follow-up"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-follow-up" value="follow_up"<?php checked( is_array( $fields ) && in_array( 'follow_up', $fields ) ); ?> /> <?php _e( 'Follow Up', 'conf-schedule' ); ?></label><br>
 									<label for="conf-sch-fields-video"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-video" value="video"<?php checked( is_array( $fields ) && in_array( 'video', $fields ) ); ?> /> <?php _e( 'Video', 'conf-schedule' ); ?></label><br>
-                                    <label for="conf-sch-fields-discussion"><input type="checkbox" name="conf_schedule[session_fields][]" id="conf-sch-fields-discussion" value="video"<?php checked( is_array( $fields ) && in_array( 'discussion', $fields ) ); ?> /> <?php _e( 'Discussion', 'conf-schedule' ); ?></label>
-								</fieldset>
+                                </fieldset>
 							</td>
 						</tr>
 					</tbody>
