@@ -844,6 +844,8 @@ class Conference_Schedule {
 		// For tweaking the single schedule pages.
 		if ( is_singular( 'schedule' ) ) :
 
+			$post_id = get_the_ID();
+
 			// Get the settings.
 			$settings = $this->get_settings();
 
@@ -872,11 +874,8 @@ class Conference_Schedule {
                 <div class="conf-sch-single-area conf-sch-single-video"></div>
 				<?php
 
-                // @TODO add some of this specific logic to a filter.
                 if ( function_exists( 'wpcampus_print_qa' )
-                     && ! wpcampus_qa_disabled()
-                     && ! is_singular( 'locations' )
-                     && ! has_term( [ 'administrative', 'dining', 'social' ], 'event_types' ) ) :
+                     && ! wpcampus_qa_disabled( $post_id ) ) :
 
                     ?>
 					<div class="conf-sch-single-area conf-sch-single-questions">
@@ -884,7 +883,7 @@ class Conference_Schedule {
                         <div class="panel">
 							<p><strong><?php _e( 'Have a question about the session?', 'conf-schedule' ); ?></strong> <?php _e( 'Submit a question for the speaker and engage with others.', 'conf-schedule' ); ?></p>
 						</div>
-						<?php wpcampus_print_qa(); ?>
+						<?php wpcampus_print_qa( $post_id ); ?>
 					</div>
 					<?php
 				endif;
