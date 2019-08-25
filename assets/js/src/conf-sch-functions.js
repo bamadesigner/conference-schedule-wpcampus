@@ -517,56 +517,72 @@ function conf_sch_get_twitter_event_link_strings(item) {
 	return link_strings;
 }
 
-function conf_sch_get_item_links(item) {
+function conf_sch_get_item_links(item, conf_sch) {
 
 	// Build object of links.
 	var links = {}, linksCount = 0;
 
 	// Do we have a livestream URL and is it enabled?
 	if (undefined !== item.session_livestream_url && item.session_livestream_url) {
-		links.captions = item.session_captions_url;
-		links.livestream = item.session_livestream_url;
-		linksCount++;
-		linksCount++;
+
+		if ( conf_sch.view_livestream !== undefined && conf_sch.view_livestream != '') {
+			links.captions = item.session_captions_url;
+			links.livestream = item.session_livestream_url;
+			linksCount++;
+			linksCount++;
+		}
 	}
 
 	// Do we have a video URL?
 	if (undefined !== item.session_video_url && item.session_video_url) {
-		links.video = item.session_video_url;
-		linksCount++;
+
+		if ( conf_sch.watch_video !== undefined && conf_sch.watch_video != '' ) {
+			links.video = item.session_video_url;
+			linksCount++;
+		}
 	}
 
 	// Do we have a feedback URL?
 	if (undefined !== item.session_feedback_url && item.session_feedback_url ) {
-		links.feedback = item.session_feedback_url;
-		linksCount++;
+
+		if ( conf_sch.give_feedback !== undefined && conf_sch.give_feedback != '' ) {
+			links.feedback = item.session_feedback_url;
+			linksCount++;
+		}
 	}
 
 	// Do we have a slides URL and is it enabled?
 	if (undefined !== item.session_slides_url && item.session_slides_url ) {
-		links.slides = item.session_slides_url;
-		linksCount++;
+
+		if ( conf_sch.view_slides !== undefined && conf_sch.view_slides != '' ) {
+			links.slides = item.session_slides_url;
+			linksCount++;
+		}
 	}
 
 	// Do we have speaker twitters?
 	var twitters = [];
 	if (undefined !== item.speakers && item.speakers && item.speakers.length > 0 ) {
-		for (var i = 0; i < item.speakers.length; i++) {
-			var value = item.speakers[i];
-			if (undefined !== value.twitter && value.twitter) {
-				twitters.push(value.twitter);
+		for ( var i = 0; i < item.speakers.length; i++ ) {
+			var value = item.speakers[ i ];
+			if ( undefined !== value.twitter && value.twitter ) {
+				twitters.push( value.twitter );
 			}
 		}
-	}
-	if (twitters.length) {
-		links.twitter = twitters;
-		linksCount++;
+
+		if (twitters.length) {
+			links.twitter = twitters;
+			linksCount++;
+		}
 	}
 
 	// Is discussion enabled?
 	if (false !== item.discussion && null !== item.discussion && item.discussion >= 0 ) {
-		links.discussion = '#discussion';
-		linksCount++;
+
+		if ( conf_sch.join_discussion !== undefined && conf_sch.join_discussion != '' ) {
+			links.discussion = item.link + '#discussion';
+			linksCount++;
+		}
 	}
 
 	// Do we have an event hashtag?

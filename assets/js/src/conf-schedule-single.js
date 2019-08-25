@@ -146,7 +146,7 @@
 		}
 
 		// Setup event links.
-		post.event_links = conf_sch_get_item_links(post);
+		post.event_links = conf_sch_get_item_links(post, conf_sch);
 		if (null === post.event_links) {
 			post.event_links = {}
 		}
@@ -342,7 +342,7 @@
 							}
 
 							// Setup event links.
-							child.event_links = conf_sch_get_item_links(child);
+							child.event_links = conf_sch_get_item_links(child, conf_sch);
 							if (null === post.event_links) {
 								post.event_links = {}
 							}

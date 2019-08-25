@@ -102,7 +102,7 @@ Handlebars.registerHelper( 'event_links_list', function(options) {
 	}
 
 	if ( event_links_string ) {
-		return new Handlebars.SafeString( '<ul class="conf-sch-event-buttons">' + event_links_string + '</ul>' );
+		return new Handlebars.SafeString( '<div class="event-links"><ul class="conf-sch-event-buttons">' + event_links_string + '</ul></div>' );
 	}
 
 	return null;

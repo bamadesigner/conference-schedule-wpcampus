@@ -977,11 +977,7 @@ class Conference_Schedule {
 								{{#if speakers}}<div class="event-speakers">{{#each speakers}}<div class="event-speaker">{{title}}</div>{{/each}}</div>{{/if}}
 								{{#if subjects}}<div class="event-subjects">{{#each subjects}}{{#unless @first}}, {{/unless}}{{name}}{{/each}}</div>{{/if}}
 								{{#if excerpt.rendered}}<div class="event-excerpt">{{{excerpt.rendered}}}</div>{{/if}}
-								{{#if event_links}}
-									<div class="event-links">
-										{{event_links_list}}
-									</div>
-								{{/if}}
+								{{event_links_list}}
 							</div>
 						{{/each}}
 					</div>
@@ -1030,11 +1026,7 @@ class Conference_Schedule {
 						{{{event_excerpt}}}
 						{{#if speakers}}<div class="event-speakers">{{#each speakers}}<div class="event-speaker">{{title}}</div>{{/each}}</div>{{/if}}
 						{{#if subjects}}<div class="event-subjects">{{#each subjects}}{{#unless @first}}, {{/unless}}{{name}}{{/each}}</div>{{/if}}
-						{{#if event_links}}
-							<div class="event-links">
-								{{event_links_list}}
-							</div>
-						{{/if}}
+						{{event_links_list}}
 						{{#if event_children}}
 						<div class="event-children{{event_children_class}}">
 							{{#each event_children}}

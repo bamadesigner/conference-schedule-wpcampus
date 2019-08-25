@@ -281,7 +281,7 @@
 			}
 
 			// Setup event links.
-			item.event_links = conf_sch_get_item_links(item);
+			item.event_links = conf_sch_get_item_links(item, conf_sch);
 
 			// Add display offset.
 			item.displayOffset = displayOffset;
