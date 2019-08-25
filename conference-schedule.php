@@ -1691,16 +1691,14 @@ class Conference_Schedule {
 		return apply_filters( 'conf_sch_proposal_excerpt', $excerpt, $proposal, $post_id );
 	}
 
-	/**
-	 *
-	 */
+	public function is_event_type_session( $post_id ) {
+	    return ( 'session' == $this->get_event_type( $post_id ) );
+    }
+
 	public function get_event_type( $post_id ) {
 		return get_post_meta( $post_id, 'event_type', true );
 	}
 
-	/**
-	 *
-	 */
 	public function get_current_schedule_item( $args = array() ) {
 
 		// Merge incoming with defaults.
@@ -2402,8 +2400,7 @@ class Conference_Schedule {
 	public function process_schedule_save( $post_id, $post, $update ) {
 
 		// Only need to process sessions.
-		$event_type = $this->get_event_type( $post_id );
-		if ( 'session' != $event_type ) {
+		if ( ! $this->is_event_type_session( $post_id ) ) {
 			return;
 		}
 
@@ -2447,8 +2444,7 @@ class Conference_Schedule {
 	/*public function set_comments_open( $open, $post_id ) {
 
 		// Only need to process sessions.
-		$event_type = $this->get_event_type( $post_id );
-		if ( 'session' != $event_type ) {
+		if ( ! $this->is_event_type_session( $post_id ) ) {
 			return $open;
 		}
 

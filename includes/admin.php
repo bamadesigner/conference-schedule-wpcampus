@@ -867,8 +867,7 @@ final class Conference_Schedule_Admin {
 			case 'schedule':
 
 				// Add a meta box to link to the session info.
-				$event_type = conference_schedule()->get_event_type( $post->ID );
-				if ( 'session' == $event_type ) {
+				if ( conference_schedule()->is_event_type_session( $post->ID ) ) {
 
 					$proposal_id = conference_schedule()->get_session_proposal_id( $post->ID );
 					if ( $proposal_id > 0 ) {
@@ -2289,7 +2288,7 @@ final class Conference_Schedule_Admin {
 		if ( in_array( $column, array( 'conf-sch-proposal', 'conf-sch-speakers' ) ) ) {
 
 			// Get proposal info, which has speaker info too.
-			$event_type  = conference_schedule()->get_event_type( $post_id );
+			$is_session  = conference_schedule()->is_event_type_session( $post_id );
 			$proposal_id = conference_schedule()->get_session_proposal_id( $post_id );
 			$proposal    = $proposal_id > 0 ? conference_schedule()->get_proposal( $proposal_id ) : null;
 
@@ -2297,7 +2296,7 @@ final class Conference_Schedule_Admin {
 
 			if ( 'conf-sch-proposal' == $column ) {
 
-				if ( 'session' != $event_type ) {
+				if ( ! $is_session ) {
 					return;
 				}
 
@@ -2325,7 +2324,7 @@ final class Conference_Schedule_Admin {
 
 			if ( 'conf-sch-speakers' == $column ) {
 
-				if ( 'session' != $event_type ) {
+				if ( ! $is_session ) {
 					return;
 				}
 
