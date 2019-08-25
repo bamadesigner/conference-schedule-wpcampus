@@ -218,6 +218,14 @@
 			$conf_sch_single.find('.conf-sch-single-speakers').html(process_speakers(post).trim());
 		}
 
+		if ( '#discussion' === location.hash.toLowerCase() ) {
+			document.getElementById( 'discussion' ).scrollIntoView({
+				behavior: 'smooth',
+				block: 'start',
+				inline: 'start',
+			});
+		}
+
 		$conf_sch_single.removeClass('loading loading--initial');
 	}
 
