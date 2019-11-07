@@ -484,7 +484,7 @@ function conf_schedule_update_schedule_item_from_proposal(item,proposal){
 	item.session_video_id = proposal.session_video_id;
 	item.session_video_embed = proposal.session_video_embed;
 
-	if ( '' != proposal.session_video_url && item.link ) {
+	if (proposal.session_video_url && item.link ) {
 		item.session_video_url = item.link + '#video';
 	}
 
