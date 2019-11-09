@@ -175,7 +175,7 @@ function conf_schedule_get_timezone_data( tzOffset ) {
 
 function conf_schedule_get_timezones() {
 	var date = conf_sch_get_current_date();
-	if ( date.isDstObserved ) {
+	if ( date.isDstObserved() ) {
 		return [
 			{
 				offset: -720
